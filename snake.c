@@ -8,7 +8,7 @@ This is a snake game that can (or should) work in linux & windows environments -
 I have squished a majority (*Caugh minority*) of bugs, however there are still some hiding away.... *Gets a can of Doom*
 
 NOTE:
-A problem with linux, It seems Ubuntu doesn't have extended ascii characters (*Sniff*). Therefore I have resorted to using different symbols.. Concluding that the game looks better in windows!!!! meh.. 
+A problem with linux, It seems Ubuntu doesn't have extended ascii characters (*Sniff*). Therefore I have resorted to using different symbols.. Concluding that the game looks better in windows!!!! meh..
 
 Windows:
 Compile with borland
@@ -24,9 +24,9 @@ Although this program may compile/ run in Cygwin it DOESN'T RUN AS INTENDED!! EX
 Known Bugs:
 * If the user spams arrow keys the snake can slither onto it's self.. <- FIXED
 * Sometimes a wall will block will disappear - most prob something to do with removing the snake tail?
-* A slight lag issue when the snake eats food. I assume this is due to 
-  the fact that the food was going to generate on top of the snake, however 
-  since it collitaded it generates more random numbers and checks again... Thus 
+* A slight lag issue when the snake eats food. I assume this is due to
+  the fact that the food was going to generate on top of the snake, however
+  since it collitaded it generates more random numbers and checks again... Thus
   probability of this increases as the snake gets longer.
 * Highscores, if a user exits when the program is about to enter their highscore the highscores file becomes blank.
 
@@ -39,12 +39,12 @@ Todo:
 * Slight bug with adding a new score to the high scores.. It add's an ascii smiley face next to EMPTY fields... Pretty kewl actually.. Currently it's a feature :)
 * Clean up the code, put functions that relate together etc
 * LINUX/ CYGWIN > Buggy, Walls in ubuntu are messed up, same in sygwin - even though windows works perfectly. (Most prob have to re-write the wall stuff)
-				> Also (int cygwin) for some reason the pause menu is printed @ the top.. even though i cannot possibly get into the if state (Esc or P) needs to be pressed... well it is a possible as it's doing it 
-* FIXED UP THE HIGHSCORES MESS & ENCRYPT IT SO PPL CAN'T CHEAT :) <- output it as a binary file			
+				> Also (int cygwin) for some reason the pause menu is printed @ the top.. even though i cannot possibly get into the if state (Esc or P) needs to be pressed... well it is a possible as it's doing it
+* FIXED UP THE HIGHSCORES MESS & ENCRYPT IT SO PPL CAN'T CHEAT :) <- output it as a binary file
 
 Assumptions:
 * User doesn't enter a string >128 characters long (for the highscores name)
-				
+
 */
 
 #include <stdio.h>
@@ -63,12 +63,12 @@ Assumptions:
 	#define LEFT_ARROW 75
 	#define RIGHT_ARROW 77
 	#define DOWN_ARROW 80
-	
+
 	#define ENTER_KEY 13
-	
+
 	const char SNAKE_HEAD = (char)177;
 	const char SNAKE_BODY = (char)178;
-	const char WALL = (char)219;	
+	const char WALL = (char)219;
 	const char FOOD = (char)254;
 	const char BLANK = ' ';
 #else
@@ -77,7 +77,7 @@ Assumptions:
 	#include <termios.h>
 	#include <unistd.h>
 	#include <fcntl.h>
-	
+
 	#define 	RED     "\x1b[31;41m"
 #define 	GREEN   "\x1b[32;42m"
 #define 	YELLOW  "\x1b[33m"
@@ -88,27 +88,27 @@ Assumptions:
 
 	//Linux Constants
 
-	//Controls (arrow keys for Ubuntu) 
+	//Controls (arrow keys for Ubuntu)
 	#define UP_ARROW (char)'A' //Originally I used constants but borland started giving me errors, so I changed to #define - I do realize that is not the best way.
 	#define LEFT_ARROW (char)'D'
 	#define RIGHT_ARROW (char)'C'
 	#define DOWN_ARROW (char)'B'
 
 	#define ENTER_KEY 10
-	
+
 	const char SNAKE_HEAD = 'X';
 	const char SNAKE_BODY = ' ';
-	const char WALL = '#';	
+	const char WALL = '#';
 	const char FOOD = '*';
 	const char BLANK = ' ';
 
-	/* 
-	 * PLEASE NOTE I DID NOT WRITE THESE LINUX FUNCTIONS, 
-	 * THE ONLY REASON I'M USING THEM IS TO MAKE THIS GAME 
-	 * CROSS PLATFORM. THESE FUNCTIONS ARE AN ALTERNATIVE TO 
+	/*
+	 * PLEASE NOTE I DID NOT WRITE THESE LINUX FUNCTIONS,
+	 * THE ONLY REASON I'M USING THEM IS TO MAKE THIS GAME
+	 * CROSS PLATFORM. THESE FUNCTIONS ARE AN ALTERNATIVE TO
 	 * THE WINDOWS HEADER FILE "conio.h".
 	*/
-	
+
 	//Linux Functions - These functions emulate some functions from the windows only conio header file
 	//Code: http://ubuntuforums.org/showthread.php?t=549023
 	void gotoxy(int x,int y)
@@ -170,9 +170,9 @@ Assumptions:
 char waitForAnyKey(void)
 {
 	int pressed;
-	
+
 	while(!kbhit());
-	
+
 	pressed = getch();
 	//pressed = tolower(pressed);
 	return((char)pressed);
@@ -182,7 +182,7 @@ int getGameSpeed(void)
 {
 	int speed;
 	clrscr();
-	
+
 	do
 	{
 		gotoxy(10,5);
@@ -195,10 +195,10 @@ int getGameSpeed(void)
 void pauseMenu(void)
 {
 	int i;
-	
+
 	gotoxy(28,23);
 	printf("**Paused**");
-	
+
 	waitForAnyKey();
 	gotoxy(28,23);
 	printf("            ");
@@ -211,15 +211,15 @@ void pauseMenu(void)
 int checkKeysPressed(int direction)
 {
 	int pressed;
-	
+
 	if(kbhit()) //If a key has been pressed
 	{
 		pressed=getch();
 		if (direction != pressed)
-		{	
-			/*This needs to be fixed up... This code prevents the user from directing the snake to slither over itself... 
-			Although it works a majority of the time... If the user changes direction(and the snake doesn't move), 
-			then quickly directs the snake back onto itself there's a collision and the game ends 
+		{
+			/*This needs to be fixed up... This code prevents the user from directing the snake to slither over itself...
+			Although it works a majority of the time... If the user changes direction(and the snake doesn't move),
+			then quickly directs the snake back onto itself there's a collision and the game ends
 			perhaps anthor variable is required to prevent this. <- FIXED, Need to test.
 			*/
 			if(pressed == DOWN_ARROW && direction != UP_ARROW)
@@ -254,7 +254,7 @@ int collisionSnake (int x, int y, int snakeXY[][SNAKE_ARRAY_SIZE], int snakeLeng
 int generateFood(int foodXY[], int width, int height, int snakeXY[][SNAKE_ARRAY_SIZE], int snakeLength)
 {
 	int i;
-	
+
 	do
 	{
 		srand ( time(NULL) );
@@ -265,24 +265,24 @@ int generateFood(int foodXY[], int width, int height, int snakeXY[][SNAKE_ARRAY_
 
 	gotoxy(foodXY[0] ,foodXY[1]);
 	printf("%c", FOOD);
-	
+
 	return(0);
 }
 
 /*
-Moves the snake array forward, i.e. 
+Moves the snake array forward, i.e.
 This:
  x 1 2 3 4 5 6
  y 1 1 1 1 1 1
 Becomes This:
  x 1 1 2 3 4 5
  y 1 1 1 1 1 1
- 
+
  Then depending on the direction (in this case west - left) it becomes:
- 
+
  x 0 1 2 3 4 5
  y 1 1 1 1 1 1
- 
+
  snakeXY[0][0]--; <- if direction left, take 1 away from the x coordinate
 */
 void moveSnakeArray(int snakeXY[][SNAKE_ARRAY_SIZE], int snakeLength, int direction)
@@ -293,10 +293,10 @@ void moveSnakeArray(int snakeXY[][SNAKE_ARRAY_SIZE], int snakeLength, int direct
 	{
 		snakeXY[0][i] = snakeXY[0][i-1];
 		snakeXY[1][i] = snakeXY[1][i-1];
-	}	
-	
+	}
+
 	/*
-	because we dont actually know the new snakes head x y, 
+	because we dont actually know the new snakes head x y,
 	we have to check the direction and add or take from it depending on the direction.
 	*/
 	switch(direction)
@@ -312,9 +312,9 @@ void moveSnakeArray(int snakeXY[][SNAKE_ARRAY_SIZE], int snakeLength, int direct
 			break;
 		case LEFT_ARROW:
 			snakeXY[0][0]--;
-			break;			
+			break;
 	}
-	
+
 	return;
 }
 
@@ -326,22 +326,22 @@ void move(int snakeXY[][SNAKE_ARRAY_SIZE], int snakeLength, int direction)
 	//Remove the tail ( HAS TO BE DONE BEFORE THE ARRAY IS MOVED!!!!! )
 	x = snakeXY[0][snakeLength-1];
 	y = snakeXY[1][snakeLength-1];
-	
+
 	gotoxy(x,y);
-	printf("%c",BLANK);	
-	
+	printf("%c",BLANK);
+
 	//Changes the head of the snake to a body part
 	gotoxy(snakeXY[0][0],snakeXY[1][0]);
-	
+
 	printf(RED "%c" RESET, SNAKE_BODY );
 
 	moveSnakeArray(snakeXY, snakeLength++, direction);
-	
-	gotoxy(snakeXY[0][0],snakeXY[1][0]);	
+
+	gotoxy(snakeXY[0][0],snakeXY[1][0]);
 	printf(GREEN "%c" RESET,SNAKE_HEAD);
-	
+
 	gotoxy(1,1); //Gets rid of the darn flashing underscore.
-	
+
 	return;
 }
 
@@ -351,11 +351,11 @@ int eatFood(int snakeXY[][SNAKE_ARRAY_SIZE], int foodXY[]) //This function check
 	{
 		foodXY[0] = 0;
 		foodXY[1] = 0; //This should prevent a nasty bug (loops) need to check if the bug still exists...
-		
+
 		printf("\7"); //Beep
 		return(1);
-	}		
-	
+	}
+
 	return(0);
 }
 
@@ -367,7 +367,7 @@ int collisionDetection(int snakeXY[][SNAKE_ARRAY_SIZE], int consoleWidth, int co
 	else
 		if (collisionSnake(snakeXY[0][0], snakeXY[1][0], snakeXY, snakeLength, 1)) //If the snake collided with the wall, theres no point in checking if it collided with itself.
 			colision = 1;
-			
+
 	return(colision);
 }
 
@@ -375,7 +375,7 @@ void refreshInfoBar(int score, int speed)
 {
 	gotoxy(5,23);
 	printf("Score: %d", score);
-	
+
 	gotoxy(5,24);
 	printf("Speed: %d", speed);
 
@@ -384,7 +384,7 @@ void refreshInfoBar(int score, int speed)
 
 	gotoxy(52,24);
 	printf("Version: 0.5");
-	
+
 	return;
 }
 
@@ -394,23 +394,23 @@ void refreshInfoBar(int score, int speed)
 
 void createHighScores(void)
 {
-	FILE *file; 
+	FILE *file;
 	int i;
 
 	file = fopen("highscores.txt","w+");
-	
+
 	if(file == NULL)
 	{
 		printf("FAILED TO CREATE HIGHSCORES!!! EXITING!");
-		exit(0);	
+		exit(0);
 	}
-	
+
 	for(i = 0; i < 5; i++)
 	{
 		fprintf(file,"%d",i+1);
 		fprintf(file,"%s","\t0\t\t\tEMPTY\n");
-	}	
-	
+	}
+
 	fclose(file);
 	return;
 }
@@ -422,7 +422,7 @@ int getLowestScore()
 	int lowestScore = 0;
 	int i;
 	int intLength;
-	
+
 	if((fp = fopen("highscores.txt", "r")) == NULL)
 	{
 		//Create the file, then try open it again.. if it fails this time exit.
@@ -433,20 +433,20 @@ int getLowestScore()
 
 	while(!feof(fp))
 	{
-		fgets(str, 126, fp);  
+		fgets(str, 126, fp);
 	}
-	fclose(fp);	
-	
+	fclose(fp);
+
 	i=0;
-	
+
 	//Gets the Int length
 	while(str[2+i] != '\t')
 	{
 		i++;
 	}
-	
+
 	intLength = i;
-	
+
 	//Gets converts the string to int
 	for(i=0;i < intLength; i++)
 	{
@@ -459,7 +459,7 @@ int getLowestScore()
 void inputScore(int score) //This seriously needs to be cleaned up
 {
 	FILE *fp;
-	FILE *file; 
+	FILE *file;
 	char str[20];
 	int fScore;
 	int i, s, y;
@@ -468,13 +468,13 @@ void inputScore(int score) //This seriously needs to be cleaned up
 	int x;
 	char highScoreName[20];
 	char highScoreNames[5][20];
-	
+
 	char name[20];
-	
+
 	int entered = 0;
-	
+
 	clrscr(); //clear the console
-	
+
 	if((fp = fopen("highscores.txt", "r")) == NULL)
 	{
 		//Create the file, then try open it again.. if it fails this time exit.
@@ -487,20 +487,20 @@ void inputScore(int score) //This seriously needs to be cleaned up
 	gotoxy(10,6);
 	printf("Please enter your name: ");
 	gets(name);
-	
+
 	x = 0;
 	while(!feof(fp))
 	{
 		fgets(str, 126, fp);  //Gets a line of text
-		
+
 		i=0;
-		
+
 		//Gets the Int length
 		while(str[2+i] != '\t')
 		{
 			i++;
 		}
-		
+
 		s = i;
 		intLength = i;
 		i=0;
@@ -512,7 +512,7 @@ void inputScore(int score) //This seriously needs to be cleaned up
 			i++;
 		}
 		//printf("\n");
-		
+
 		fScore = 0;
 		//Gets converts the string to int
 		for(i=0;i < intLength; i++)
@@ -520,47 +520,47 @@ void inputScore(int score) //This seriously needs to be cleaned up
 			//printf("%c", str[2+i]);
 			fScore = fScore + ((int)str[2+i] - 48) * pow(10,intLength-i-1);
 		}
-		
+
 		if(score >= fScore && entered != 1)
 		{
 			scores[x] = score;
 			strcpy(highScoreNames[x], name);
-			
+
 			//printf("%d",x+1);
-			//printf("\t%d\t\t\t%s\n",score, name);		
+			//printf("\t%d\t\t\t%s\n",score, name);
 			x++;
 			entered = 1;
 		}
-		
+
 		//printf("%d",x+1);
 		//printf("\t%d\t\t\t%s\n",fScore, highScoreName);
 		//strcpy(text, text+"%d\t%d\t\t\t%s\n");
 		strcpy(highScoreNames[x], highScoreName);
 		scores[x] = fScore;
-		
+
 		//highScoreName = "";
 		for(y=0;y<20;y++)
 		{
 			highScoreName[y] = NULL;
 		}
-		
+
 		x++;
 		if(x >= 5)
 			break;
 	}
-	
+
 	fclose(fp);
-	
+
 	file = fopen("highscores.txt","w+");
-	
+
 	for(i=0;i<5;i++)
 	{
 		//printf("%d\t%d\t\t\t%s\n", i+1, scores[i], highScoreNames[i]);
-		fprintf(file, "%d\t%d\t\t\t%s\n", i+1, scores[i], highScoreNames[i]);	
+		fprintf(file, "%d\t%d\t\t\t%s\n", i+1, scores[i], highScoreNames[i]);
 	}
 
 	fclose(file);
-	
+
 	return;
 }
 
@@ -569,31 +569,31 @@ void displayHighScores(void) //NEED TO CHECK THIS CODE!!!
 	FILE *fp;
 	char str[128];
 	int y = 5;
-	
+
 	clrscr(); //clear the console
-	
+
 	if((fp = fopen("highscores.txt", "r")) == NULL) {
 		//Create the file, then try open it again.. if it fails this time exit.
 		createHighScores(); //This should create a highscores file (If there isn't one)
 		if((fp = fopen("highscores.txt", "r")) == NULL)
 			exit(1);
 	}
-	
+
 	gotoxy(10,y++);
-	printf("High Scores");	
+	printf("High Scores");
 	gotoxy(10,y++);
 	printf("Rank\tScore\t\t\tName");
 	while(!feof(fp)) {
 		gotoxy(10,y++);
-		if(fgets(str, 126, fp)) 
+		if(fgets(str, 126, fp))
 			printf("%s", str);
 	}
 
 	fclose(fp);	//Close the file
 	gotoxy(10,y++);
-	
+
 	printf("Press any key to continue...");
-	waitForAnyKey();	
+	waitForAnyKey();
 	return;
 }
 
@@ -618,8 +618,8 @@ void youWinScreen(void)
 	printf("::: ##::::. #######::. #######:::::. ###. ###::'####: ##::. ##: ####:");
 	gotoxy(x,y++);
 	printf(":::..::::::.......::::.......:::::::...::...:::....::..::::..::....::");
-	gotoxy(x,y++);	
-	
+	gotoxy(x,y++);
+
 	waitForAnyKey();
 	clrscr(); //clear the console
 	return;
@@ -628,9 +628,9 @@ void youWinScreen(void)
 void gameOverScreen(void)
 {
 	int x = 17, y = 3;
-	
+
 	//http://www.network-science.de/ascii/ <- Ascii Art Gen
-	
+
 	gotoxy(x,y++);
 	printf(":'######::::::'###::::'##::::'##:'########:\n");
 	gotoxy(x,y++);
@@ -663,7 +663,7 @@ void gameOverScreen(void)
 	printf(". #######::::. ###:::: ########: ##:::. ##: ####:\n");
 	gotoxy(x,y++);
 	printf(":.......::::::...:::::........::..:::::..::....::\n");
-	
+
 	waitForAnyKey();
 	clrscr(); //clear the console
 	return;
@@ -674,7 +674,7 @@ void startGame( int snakeXY[][SNAKE_ARRAY_SIZE], int foodXY[], int consoleWidth,
 {
 	int gameOver = 0;
 	clock_t endWait;
-	
+
 	//CLOCKS_PER_SEC-(n-1)*(CLOCKS_PER_SEC/10)
 	int waitMili = CLOCKS_PER_SEC-(speed)*(CLOCKS_PER_SEC/10);	//Sets the correct wait time according to the selected speed
 	int tempScore = 10*speed;
@@ -691,10 +691,10 @@ void startGame( int snakeXY[][SNAKE_ARRAY_SIZE], int foodXY[], int consoleWidth,
 			oldDirection = direction;
 			direction = checkKeysPressed(direction);
 		}
-		
+
 		if(oldDirection != direction)//Temp fix to prevent the snake from colliding with itself
 			canChangeDirection = 0;
-			
+
 		if(clock() >= endWait) //haha, it moves according to how fast the computer running it is...
 		{
 			//gotoxy(1,1);
@@ -702,7 +702,7 @@ void startGame( int snakeXY[][SNAKE_ARRAY_SIZE], int foodXY[], int consoleWidth,
 			move(snakeXY, snakeLength++, direction);
 			canChangeDirection = 1;
 
-				
+
 			if(eatFood(snakeXY, foodXY))
 			{
 				generateFood( foodXY, consoleWidth, consoleHeight, snakeXY, snakeLength); //Generate More Food
@@ -723,7 +723,7 @@ void startGame( int snakeXY[][SNAKE_ARRAY_SIZE], int foodXY[], int consoleWidth,
 					{
 						if(waitMili >= 40) //Maximum Speed (the game has to be beatable)
 							waitMili = waitMili - (CLOCKS_PER_SEC/200);
-						
+
 					}
 					//level++;
 					//gotoxy(1,2);
@@ -732,13 +732,13 @@ void startGame( int snakeXY[][SNAKE_ARRAY_SIZE], int foodXY[], int consoleWidth,
 					//printf("%d",waitMili);
 					//x = 0;
 				}
-				
+
 				refreshInfoBar(score, speed);
 			}
-			
+
 			endWait = clock() + waitMili; //TEMP FIX, NEED TO FIND A WAY TO RESET CLOCK().. Na, seems to work fine this way...
 		}
-		
+
 		gameOver = collisionDetection(snakeXY, consoleWidth, consoleHeight,snakeLength);
 
 		if(snakeLength >= SNAKE_ARRAY_SIZE-5) //Just to make sure it doesn't get longer then the array size & crash
@@ -746,9 +746,9 @@ void startGame( int snakeXY[][SNAKE_ARRAY_SIZE], int foodXY[], int consoleWidth,
 			gameOver = 2;//You Win! <- doesn't seem to work - NEED TO FIX/TEST THIS
 			score+=1500; //When you win you get an extra 1500 points!!!
 		}
-		
+
 	} while (!gameOver);
-	
+
 	switch(gameOver)
 	{
 		case 1:
@@ -762,13 +762,13 @@ void startGame( int snakeXY[][SNAKE_ARRAY_SIZE], int foodXY[], int consoleWidth,
 			youWinScreen();
 			break;
 	}
-	
+
 	if(score >= getLowestScore() && score != 0)
 	{
 		inputScore(score);
 		displayHighScores();
 	}
-	
+
 	return;
 }
 
@@ -778,34 +778,34 @@ void loadEnviroment(int consoleWidth, int consoleHeight)//This can be done in a 
 	int x = 1, y = 1;
 	int rectangleHeight = consoleHeight - 4;
 	clrscr(); //clear the console
-	
+
 	gotoxy(x,y); //Top left corner
-	
+
 	for (; y < rectangleHeight; y++)
 	{
-		gotoxy(x, y); //Left Wall 
+		gotoxy(x, y); //Left Wall
 		printf("%c",WALL);
-		
+
 		gotoxy(consoleWidth, y); //Right Wall
 		printf("%c",WALL);
 	}
-	
+
 	y = 1;
 	for (; x < consoleWidth+1; x++)
 	{
-		gotoxy(x, y); //Left Wall 
+		gotoxy(x, y); //Left Wall
 		printf("%c",WALL);
-		
+
 		gotoxy(x, rectangleHeight); //Right Wall
 		printf("%c",WALL);
 	}
-	
+
 /*
 	for (i = 0; i < 80; i++)
 	{
 		printf("%c",WALL);
 	}
-	
+
 	for (i = 0; i < 17; i++)
 	{
 		printf("%c\n",WALL);
@@ -816,12 +816,12 @@ void loadEnviroment(int consoleWidth, int consoleHeight)//This can be done in a 
 		printf("%c\n",WALL);
 		gotoxy(80,i);
 	}
-	
+
 	for (i = 0; i < 81; i++)
 	{
 		printf("%c",WALL);
-	}	
-*/	
+	}
+*/
 	return;
 }
 
@@ -834,25 +834,25 @@ void loadSnake(int snakeXY[][SNAKE_ARRAY_SIZE], int snakeLength)
 	This helps create a "whole" snake instead of one "dot", when someone starts a game.
 	*/
 	//moveSnakeArray(snakeXY, snakeLength); //One thing to note ATM, the snake starts of one coordinate to whatever direction it's pointing...
-	
+
 	//This should print out a snake :P
 	for (i = 0; i < snakeLength; i++)
 	{
 		gotoxy(snakeXY[0][i], snakeXY[1][i]);
 		printf(RED "%c" RESET, SNAKE_BODY); //Meh, at some point I should make it so the snake starts off with a head...
 	}
-	
+
 	return;
 }
 
-/* NOTE, This function will only work if the snakes starting direction is left!!!! 
+/* NOTE, This function will only work if the snakes starting direction is left!!!!
 Well it will work, but the results wont be the ones expected.. I need to fix this at some point.. */
 void prepairSnakeArray(int snakeXY[][SNAKE_ARRAY_SIZE], int snakeLength)
 {
 	int i, x;
 	int snakeX = snakeXY[0][0];
 	int snakeY = snakeXY[1][0];
-	
+
 	// this is used in the function move.. should maybe create a function for it...
 	/*switch(direction)
 	{
@@ -867,17 +867,17 @@ void prepairSnakeArray(int snakeXY[][SNAKE_ARRAY_SIZE], int snakeLength)
 			break;
 		case LEFT_ARROW:
 			snakeXY[0][0]--;
-			break;			
+			break;
 	}
 	*/
-	
-	
+
+
 	for(i = 1; i <= snakeLength; i++)
 	{
 		snakeXY[0][i] = snakeX + i;
 		snakeXY[1][i] = snakeY;
 	}
-	
+
 	return;
 }
 
@@ -885,26 +885,26 @@ void prepairSnakeArray(int snakeXY[][SNAKE_ARRAY_SIZE], int snakeLength)
 void loadGame(void)
 {
 	int snakeXY[2][SNAKE_ARRAY_SIZE]; //Two Dimentional Array, the first array is for the X coordinates and the second array for the Y coordinates
-	
+
 	int snakeLength = 4; //Starting Length
-	
+
 	int direction = LEFT_ARROW; //DO NOT CHANGE THIS TO RIGHT ARROW, THE GAME WILL INSTANTLY BE OVER IF YOU DO!!! <- Unless the prepairSnakeArray function is changed to take into account the direction....
-	
+
 	int foodXY[] = {5,5};// Stores the location of the food
-	
+
 	int score = 0;
 	//int level = 1;
-	
+
 	//Window Width * Height - at some point find a way to get the actual dimensions of the console... <- Also somethings that display dont take this dimentions into account.. need to fix this...
 	int consoleWidth = 80;
 	int consoleHeight = 40;
-	
+
 	int speed = getGameSpeed();
-	
+
 	//The starting location of the snake
-	snakeXY[0][0] = 40; 
+	snakeXY[0][0] = 40;
 	snakeXY[1][0] = 10;
-	
+
 	loadEnviroment(consoleWidth, consoleHeight); //borders
 	prepairSnakeArray(snakeXY, snakeLength);
 	loadSnake(snakeXY, snakeLength);
@@ -923,12 +923,12 @@ int menuSelector(int x, int y, int yStart)
 	int i = 0;
 	x = x - 2;
 	gotoxy(x,yStart);
-	
+
 	printf(">");
-	
+
 	gotoxy(1,1);
 
-	
+
 	do
 	{
 		key = waitForAnyKey();
@@ -937,8 +937,8 @@ int menuSelector(int x, int y, int yStart)
 		{
 			gotoxy(x,yStart+i);
 			printf(" ");
-			
-			if (yStart >= yStart+i ) 
+
+			if (yStart >= yStart+i )
 				i = y - yStart - 2;
 			else
 				i--;
@@ -950,14 +950,14 @@ int menuSelector(int x, int y, int yStart)
 			{
 				gotoxy(x,yStart+i);
 				printf(" ");
-				
-				if (i+2 >= y - yStart ) 
+
+				if (i+2 >= y - yStart )
 					i = 0;
 				else
 					i++;
 				gotoxy(x,yStart+i);
-				printf(">");				
-			}	
+				printf(">");
+			}
 			//gotoxy(1,1);
 			//printf("%d", key);
 	} while(key != (char)ENTER_KEY); //While doesn't equal enter... (13 ASCII code for enter) - note ubuntu is 10
@@ -968,11 +968,11 @@ void welcomeArt(void)
 {
 	clrscr(); //clear the console
 	//Ascii art reference: http://www.chris.com/ascii/index.php?art=animals/reptiles/snakes
-	printf("\n");	
-	printf("\t\t    _________         _________ 			\n");	
-	printf("\t\t   /         \\       /         \\ 			\n");	
-	printf("\t\t  /  /~~~~~\\  \\     /  /~~~~~\\  \\ 			\n");	
-	printf("\t\t  |  |     |  |     |  |     |  | 			\n");		
+	printf("\n");
+	printf("\t\t    _________         _________ 			\n");
+	printf("\t\t   /         \\       /         \\ 			\n");
+	printf("\t\t  /  /~~~~~\\  \\     /  /~~~~~\\  \\ 			\n");
+	printf("\t\t  |  |     |  |     |  |     |  | 			\n");
 	printf("\t\t  |  |     |  |     |  |     |  | 			\n");
 	printf("\t\t  |  |     |  |     |  |     |  |         /	\n");
 	printf("\t\t  |  |     |  |     |  |     |  |       //	\n");
@@ -981,9 +981,9 @@ void welcomeArt(void)
 	printf("\t\t    |        ~~~~~~~~~         ~~~~~~~~ 		\n");
 	printf("\t\t    ^											\n");
 	printf("\t		Welcome To The Snake Game!			\n");
-	printf("\t			    Press Any Key To Continue...	\n");			
+	printf("\t			    Press Any Key To Continue...	\n");
 	printf("\n");
-	
+
 	waitForAnyKey();
 	return;
 }
@@ -1019,13 +1019,13 @@ void exitYN(void)
 	char pressed;
 	gotoxy(9,8);
 	printf("Are you sure you want to exit(Y/N)\n");
-	
+
 	do
 	{
 		pressed = waitForAnyKey();
 		pressed = tolower(pressed);
 	} while (!(pressed == 'y' || pressed == 'n'));
-	
+
 	if (pressed == 'y')
 	{
 		clrscr(); //clear the console
@@ -1038,9 +1038,9 @@ int mainMenu(void)
 {
 	int x = 10, y = 5;
 	int yStart = y;
-	
+
 	int selected;
-	
+
 	clrscr(); //clear the console
 	//Might be better with arrays of strings???
 	gotoxy(x,y++);
@@ -1064,9 +1064,9 @@ int main() //Need to fix this up
 {
 
 	welcomeArt();
-	
+
 	do
-	{	
+	{
 		switch(mainMenu())
 		{
 			case 0:
@@ -1074,15 +1074,15 @@ int main() //Need to fix this up
 				break;
 			case 1:
 				displayHighScores();
-				break;	
+				break;
 			case 2:
 				controls();
-				break;		
+				break;
 			case 3:
-				exitYN(); 
-				break;			
-		}		
+				exitYN();
+				break;
+		}
 	} while(1);	//
-	
+
 	return(0);
 }
