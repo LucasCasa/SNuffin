@@ -64,7 +64,7 @@ int loadGame(int numPl,Board *b){
   Point p3s = {BOARD_WIDTH / 2, 1};
   Point* p3f = malloc(sizeof(Point));
   p3f->x = BOARD_WIDTH / 2;
-  p3f->y = 1;
+  p3f->y = 5;
   Point p2s = {1,BOARD_HEIGHT / 2};
   Point* p2f = malloc(sizeof(Point));
   p2f->x = 5;
@@ -115,8 +115,8 @@ void loadSnake(Point start, Point *end, int pNum,Board *b){
   }
 
   while(start.x + px != end->x || start.y + py != end->y){
-    b->bB[b->pPos[pNum-1]->x + b->pDir[pNum-1]->x][b->pPos[pNum-1]->y + b->pDir[pNum-1]->y] = TAIL_CHAR;
-    b->gB[b->pPos[pNum-1]->x + b->pDir[pNum-1]->x][b->pPos[pNum-1]->y + b->pDir[pNum-1]->y] = pNum;
+    b->bB[start.x + pDir->x][start.y + pDir->y] = TAIL_CHAR;
+    b->gB[start.x + pDir->x][start.y + pDir->y] = pNum;
     px += pDir->x;
     py += pDir->y;
   }
@@ -125,13 +125,13 @@ void loadSnake(Point start, Point *end, int pNum,Board *b){
 }
 /* Timed  function that updates the board every cicle */
 void updateBoard(Board* b){
-  for(int i = 1; i<b->numPl+1;i++){
-    if(b->pDef[i] == 0){
+  for(int i = 0; i<b->numPl;i++){
+    if(1/*b->pDef[i] == 0*/){
       if(b->bB[b->pPos[i]->x + b->pDir[i]->x][b->pPos[i]->y + b->pDir[i]->y] == TAIL_CHAR){
         b->pDef[i] = 1;
       }else{
         b->bB[b->pPos[i]->x + b->pDir[i]->x][b->pPos[i]->y + b->pDir[i]->y] = TAIL_CHAR;
-        b->gB[b->pPos[i]->x + b->pDir[i]->x][b->pPos[i]->y + b->pDir[i]->y] = i;
+        b->gB[b->pPos[i]->x + b->pDir[i]->x][b->pPos[i]->y + b->pDir[i]->y] = i+1;
       }
     }
   }
