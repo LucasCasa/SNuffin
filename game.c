@@ -22,7 +22,7 @@ char pDef[4];
 int main(){
  Board b;
  Board* board = &b;
- initGraphicBoard(board);
+ initBoard(board);
  loadGame(4,board);
  game(board);
  return 0;
@@ -40,13 +40,16 @@ int game(Board *b){
   return 0;
   /*Show the winner, update db scores */
 }
-void initGraphicBoard(Board* b){
+void initBoard(Board* b){
   for(int i = 0;i<BOARD_WIDTH;i++){
     for(int j = 0; j<BOARD_HEIGHT;j++){
       b->gB[i][j] = 0;
       b->bB[i][j] = 0;
       //b->graphicBoard[i][j]
     }
+  }
+  for(int i = 0; i<4;i++){
+    b->pDef[i] = 0;
   }
 }
 /*this function is called by the server when it receives a change in direction by the client
@@ -117,8 +120,8 @@ void loadSnake(Point start, Point *end, int pNum,Board *b){
   do{
     px += pDir->x;
     py += pDir->y;
-    b->bB[start.x + px][start.y + py] = TAIL_CHAR;
-    b->gB[start.x + px][start.y + py] = pNum;
+    b->bB[start.y + py][start.x + px] = TAIL_CHAR;
+    b->gB[start.y + py][start.x + px] = pNum;
   }while(start.x + px != end->x || start.y + py != end->y);
 
   b->pPos[pNum-1] = end;
@@ -127,27 +130,33 @@ void loadSnake(Point start, Point *end, int pNum,Board *b){
 /* Timed  function that updates the board every cicle */
 void updateBoard(Board* b){
   for(int i = 0; i<b->numPl;i++){
-    if(1/*b->pDef[i] == 0*/){
-      if(b->bB[b->pPos[i]->x + b->pDir[i]->x][b->pPos[i]->y + b->pDir[i]->y] == TAIL_CHAR){
+    if(b->pDef[i] == 0){
+      if(b->bB[b->pPos[i]->y + b->pDir[i]->y][b->pPos[i]->x + b->pDir[i]->x] == TAIL_CHAR
+      || outOfBoard(pPos[i])){
         b->pDef[i] = 1;
+        printf("Player %d defeated\n",i+1 );
       }else{
-        b->bB[b->pPos[i]->x + b->pDir[i]->x][b->pPos[i]->y + b->pDir[i]->y] = TAIL_CHAR;
-        b->gB[b->pPos[i]->x + b->pDir[i]->x][b->pPos[i]->y + b->pDir[i]->y] = i+1;
+        b->bB[b->pPos[i]->y + b->pDir[i]->y][b->pPos[i]->x + b->pDir[i]->x] = TAIL_CHAR;
+        b->gB[b->pPos[i]->y + b->pDir[i]->y][b->pPos[i]->x + b->pDir[i]->x] = i+1;
         b->pPos[i]->x+=b->pDir[i]->x;
         b->pPos[i]->y+=b->pDir[i]->y;
       }
+    }else{
+      printf("Player %d defeated\n",i+1 );
     }
   }
 }
 void printBoard(Board *b){
+  //system("clear");
   printf("Start\n");
   for(int i = 0;i<BOARD_WIDTH;i++){
     for(int j = 0; j<BOARD_HEIGHT;j++){
-      printPlayerColor(b->gB[j][i]);
+      printPlayerColor(b->gB[i][j]);
       //b->graphicBoard[i][j]
     }
     printf("\n");
   }
+
 }
 char* getPlayerColor(int pNum){
   switch (pNum) {
@@ -173,14 +182,17 @@ void printPlayerColor(int pNum){
       printf(PLAYER2_COLOR "vv" COLOR_RESET);
     break;
     case 3:
-      printf(PLAYER3_COLOR "cv" COLOR_RESET);
+      printf(PLAYER3_COLOR "cc" COLOR_RESET);
     break;
     case 4:
       printf(PLAYER4_COLOR "dd" COLOR_RESET);
     break;
     default:
-    printf("0");
+    printf("  ");
   }
+}
+int outOfBoard(Point* pPos){
+  return pPos->x < 0 || pPos->x >= BOARD_WIDTH || pPos->y < 0 || pPos->y >= BOARD_HEIGHT;
 }
 int gameOver(){
   return 0;

@@ -30,7 +30,7 @@ Point *pPos[4];
 
 
 int game(Board *b);
-void initGraphicBoard(Board* b);
+void initBoard(Board* b);
 int gameOver();
 char* getPlayerColor(int pNum);
 void printBoard(Board *b);
