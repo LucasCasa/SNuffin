@@ -114,12 +114,13 @@ void loadSnake(Point start, Point *end, int pNum,Board *b){
     printf("Me mande una cagada\n");
   }
 
-  while(start.x + px != end->x || start.y + py != end->y){
-    b->bB[start.x + pDir->x][start.y + pDir->y] = TAIL_CHAR;
-    b->gB[start.x + pDir->x][start.y + pDir->y] = pNum;
+  do{
     px += pDir->x;
     py += pDir->y;
-  }
+    b->bB[start.x + px][start.y + py] = TAIL_CHAR;
+    b->gB[start.x + px][start.y + py] = pNum;
+  }while(start.x + px != end->x || start.y + py != end->y);
+
   b->pPos[pNum-1] = end;
   b->pDir[pNum-1] = pDir;
 }
@@ -132,6 +133,8 @@ void updateBoard(Board* b){
       }else{
         b->bB[b->pPos[i]->x + b->pDir[i]->x][b->pPos[i]->y + b->pDir[i]->y] = TAIL_CHAR;
         b->gB[b->pPos[i]->x + b->pDir[i]->x][b->pPos[i]->y + b->pDir[i]->y] = i+1;
+        b->pPos[i]->x+=b->pDir[i]->x;
+        b->pPos[i]->y+=b->pDir[i]->y;
       }
     }
   }
@@ -140,7 +143,7 @@ void printBoard(Board *b){
   printf("Start\n");
   for(int i = 0;i<BOARD_WIDTH;i++){
     for(int j = 0; j<BOARD_HEIGHT;j++){
-      printPlayerColor(b->gB[i][j]);
+      printPlayerColor(b->gB[j][i]);
       //b->graphicBoard[i][j]
     }
     printf("\n");
@@ -164,16 +167,16 @@ char* getPlayerColor(int pNum){
 void printPlayerColor(int pNum){
   switch (pNum) {
     case 1:
-      printf(PLAYER1_COLOR "a" COLOR_RESET);
+      printf(PLAYER1_COLOR "aa" COLOR_RESET);
     break;
     case 2:
-      printf(PLAYER2_COLOR "v" COLOR_RESET);
+      printf(PLAYER2_COLOR "vv" COLOR_RESET);
     break;
     case 3:
-      printf(PLAYER3_COLOR "c" COLOR_RESET);
+      printf(PLAYER3_COLOR "cv" COLOR_RESET);
     break;
     case 4:
-      printf(PLAYER4_COLOR "d" COLOR_RESET);
+      printf(PLAYER4_COLOR "dd" COLOR_RESET);
     break;
     default:
     printf("0");
