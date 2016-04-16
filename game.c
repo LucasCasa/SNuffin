@@ -54,8 +54,9 @@ void initBoard(Board* b){
 }
 /*this function is called by the server when it receives a change in direction by the client
 TBD how the direction is(?) passed by the client*/
-void chageDirection(int pNum, char direction){
-
+void chageDirection(int pNum, Point p){
+  b->pDir[pNum]->x = p.x;
+  b->pDir[pNum]->y = p.y;
 }
 
 /*Starts a new game,Probably the board should be created here, TBD*/

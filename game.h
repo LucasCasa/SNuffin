@@ -37,7 +37,7 @@ void printBoard(Board *b);
 void updateBoard(Board* b);
 void loadSnake(Point start, Point* end, int pNum,Board *b);
 int loadGame(int numPl,Board *b);
-void chageDirection(int pNum, char direction);
+void chageDirection(int pNum, Point p);
 void printPlayerColor(int pNum);
 
 #endif
