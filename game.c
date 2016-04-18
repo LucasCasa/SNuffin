@@ -55,8 +55,8 @@ void initBoard(Board* b){
 /*this function is called by the server when it receives a change in direction by the client
 TBD how the direction is(?) passed by the client*/
 void chageDirection(int pNum, Point p){
-  b->pDir[pNum]->x = p.x;
-  b->pDir[pNum]->y = p.y;
+  /*b->pDir[pNum]->x = p.x;
+  b->pDir[pNum]->y = p.y;*/
 }
 
 /*Starts a new game,Probably the board should be created here, TBD*/
@@ -133,7 +133,7 @@ void updateBoard(Board* b){
   for(int i = 0; i<b->numPl;i++){
     if(b->pDef[i] == 0){
       if(b->bB[b->pPos[i]->y + b->pDir[i]->y][b->pPos[i]->x + b->pDir[i]->x] == TAIL_CHAR
-      || outOfBoard(pPos[i])){
+      || outOfBoard(b->pPos[i])){
         b->pDef[i] = 1;
         printf("Player %d defeated\n",i+1 );
       }else{
