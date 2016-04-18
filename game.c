@@ -115,7 +115,7 @@ void loadSnake(Point start, Point *end, int pNum,Board *b){
       pDir->x = -1;
     }
   }else{
-    printf("Me mande una cagada\n");
+    printf("I Pooped\n");
   }
 
   do{
