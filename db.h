@@ -10,5 +10,6 @@ int createUser(char * user, char * pass);
 int getHighscore(char * player);
 int setHighscore(char * player,int highscore);
 int init();
-int close();
+int close2();
+static int callback(void *NotUsed, int argc, char **argv, char **azColName);
 #endif
