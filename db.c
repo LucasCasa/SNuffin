@@ -20,7 +20,9 @@ int init(){
 
 int main(){
   init();
-  //isPassword("lucas","hoyquiero");
+  isUser("lucas");
+  isPassword("lucas","hoyquiero");
+  createUser("kuyum","kuyum");
   getHighscore("maggie");
   setHighscore("maggie",0);
   getHighscore("maggie");
@@ -34,28 +36,29 @@ int isUser(char* user){
   int c = 0;
   sprintf(sql,"SELECT Count(*) FROM player WHERE name = '%s'",user);
   printf("SQL: %s\n",sql );
-  printf("Preparando: %d\n",sqlite3_prepare_v2(db,sql,-1,&stmt,NULL) );
-  printf("Stepeando: %d\n",sqlite3_step(stmt) );
-  printf("Resultado: %d\n",sqlite3_column_int(stmt, 0) );
-  printf("Finalizando: %d\n",sqlite3_finalize(stmt));
+  printError(sqlite3_prepare_v2(db,sql,-1,&stmt,NULL));
+  printError(sqlite3_step(stmt));
+  (sqlite3_column_int(stmt, 0) == 1)?printf("Exists\n"):printf("Don't Exist\n");
+  printError(sqlite3_finalize(stmt));
   return 0;
 }
 int isPassword(char* user, char * pass){
   char* sql = malloc(400);
   sqlite3_stmt* stmt;
+  char* result;
   int c = 0;
   sprintf(sql,"SELECT * FROM player WHERE name = '%s'",user);
   printf("SQL: %s\n",sql );
-  printf("Preparando: %d\n",sqlite3_prepare_v2(db,sql,-1,&stmt,NULL) );
-  printf("Stepeando: %d\n",sqlite3_step(stmt) );
-  char* result = sqlite3_column_text(stmt, 1);
+  printError(sqlite3_prepare_v2(db,sql,-1,&stmt,NULL) );
+  printError(sqlite3_step(stmt) );
+  result = sqlite3_column_text(stmt, 1);
 
-  if(strcmp(result,pass) == 0){
+  if(result != NULL && strcmp(result,pass) == 0){
     printf("Hay Match\n");
   }else{
     printf("No hay Match\n");
   }
-  printf("Finalizando: %d\n",sqlite3_finalize(stmt));
+  printError(sqlite3_finalize(stmt));
   return 0;
 }
 
@@ -86,11 +89,11 @@ int getHighscore(char * player){
   int c = 0;
   sprintf(sql,"SELECT * FROM player WHERE name = '%s'",player);
   printf("SQL: %s\n",sql );
-  printf("Preparando: %d\n",sqlite3_prepare_v2(db,sql,-1,&stmt,NULL) );
-  printf("Stepeando: %d\n",sqlite3_step(stmt) );
+  printError(sqlite3_prepare_v2(db,sql,-1,&stmt,NULL));
+  printError(sqlite3_step(stmt));
   int result = sqlite3_column_int(stmt, 2);
   printf("Score: %d\n",result );
-  printf("Finalizando: %s\n",sqlite3_finalize(stmt));
+  printError(sqlite3_finalize(stmt));
   return 0;
 }
 
@@ -120,4 +123,11 @@ int rs = sqlite3_close_v2(db);
   }else{
     fprintf(stderr, "Closed database successfully\n");
   }
+}
+
+int printError(int rv){
+  if(rv != 100 && rv != 0){
+    fprintf(stderr, "%s\n", sqlite3_errmsg(db));
+  }
+  return rv;
 }

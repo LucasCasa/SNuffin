@@ -12,4 +12,5 @@ int setHighscore(char * player,int highscore);
 int init();
 int close2();
 static int callback(void *NotUsed, int argc, char **argv, char **azColName);
+int printError(int rv);
 #endif
