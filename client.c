@@ -12,7 +12,12 @@
 #define UP_ARROW (char)'A' 
 #define LEFT_ARROW (char)'D'
 #define RIGHT_ARROW (char)'C'
-#define DOWN_ARROW (char)'B'
+#define DOWN_ARROW (char) 'B'
+
+typedef struct{
+	int x;
+	int y;
+}Point;
 
 typedef struct{
 	char * address;
@@ -34,7 +39,40 @@ int kbhit (void);
 RequestData marshalling(int direction[]);
 char * unmarshalling(ResponseData * data);
 
+void getInformation();
+
 int main(int argc, char *argv[]){
+	int sockfd, portno, n;
+   	struct sockaddr_in serv_addr;
+   	struct hostent *server;
+   	getInformation();
+   	printf("(Llegue hasta aca\n");
+	changemode(1);
+	int pressed;
+	Point p = {0,0};
+	while(/*deberia ser mientras no haya perdido */ 1){
+		while(!kbhit()){ /*If a key has been pressed */
+			pressed=getchar();
+			if(pressed == DOWN_ARROW ){
+				printf("ABAJO\n");
+				p.y = 1;
+			}else if(pressed == UP_ARROW){
+				printf("ARRIBA\n");
+				p.y = -1;
+			}else if(pressed == LEFT_ARROW){
+				printf("IZQUIERDA\n");
+				p.x = -1;
+			}else if(pressed == RIGHT_ARROW){
+				printf("DERECHA\n");
+				p.x = 1;
+			}
+		}
+	}
+	changemode(0);
+	return 0;
+}
+
+void getInformation(){
 	//deberia iniciar la coneccion con el servidor.
 	printf("Por favor escriba su nombre\n");
 	char string[10];
@@ -46,39 +84,32 @@ int main(int argc, char *argv[]){
 	}else{
 		printf("Ingrese su contraseña para ingresar\n");
 	}
+	int i=0;
+	int pressed;
 	char pass[10];
-	scanf("%s",pass);
+	changemode(1);
+	while(i<10 && !kbhit()){
+		pressed = getchar();
+		if(pressed != '\n'){
+			printf("*");
+			pass[i]=pressed;
+			i++;
+		}
+	}
 	if(!belongs){
 		//le mando la contraseña para que la guarde en el usuario
 	}else{
 		//pregunto si lo que escribio esta bien. sino que ingrese su contraseña de vuelta. 
 		//con un do while
 	}
-	changemode(1);
-	int pressed;
-	while(/*deberia ser mientras no haya perdido */ 1){
-		while(!kbhit()){ /*If a key has been pressed */
-			pressed=getchar();
-			if(pressed == DOWN_ARROW ){
-				printf("ABAJO\n");
-			}else if(pressed == UP_ARROW){
-				printf("ARRIBA\n");
-			}else if(pressed == LEFT_ARROW){
-				printf("IZQUIERDA\n");
-			}else if(pressed == RIGHT_ARROW){
-				printf("DERECHA\n");
-			}
-		}
-	}
 	changemode(0);
-	return 0;
+	return;
 }
 
 void changemode(int dir){
   static struct termios oldt, newt;
  
-  if ( dir == 1 )
-  {
+  if ( dir == 1 ){
     tcgetattr( STDIN_FILENO, &oldt);
     newt = oldt;
     newt.c_lflag &= ~( ICANON | ECHO );
