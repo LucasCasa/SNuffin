@@ -1,30 +1,21 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <string.h>
-#include <sys/un.h>
-#include <netdb.h>
-#include <netinet/in.h>
-
-#define BUFFER_LENGTH 256
-#define MAX_CONNECTION_QUEUE 50
-#define MY_SOCK_PORT 8080
-
-#define handle_error(msg) do{perror(msg);exit(EXIT_FAILURE);}while(0)
-
-void handle_request(int);
+#include "server.h"
 
 int main(void){
+	printf("Starting server...\n");
 
 	// File descriptors for server connection socket and client communication sockets repectively
-	int sfd, cfd;
-
-	printf("Starting server...\n");
+	int sfd, sd, i, max_sd, activity, flag, readValue, new_socket;
+	int clients[MAX_CLIENTS];
+	fd_set readfds;
+	// Buffer where read data will be copied
+	char buffer[BUFFER_LENGTH]; 
 
 	struct sockaddr_in my_addr, peer_addr;
     socklen_t peer_addr_size;
 
+    // Set clients on 0 (none exist yet)
+    for(i=0; i<MAX_CLIENTS; i++)
+    	clients[i] = 0;
 
 	// The socket fd
 	printf("Creating socket...\n");
@@ -34,7 +25,7 @@ int main(void){
 		handle_error("socket");
 
 	// Reserves memory for the structure
-	memset(&my_addr,0,sizeof(struct sockaddr_un));
+	memset(&my_addr,0,sizeof(struct sockaddr_in));
 
 	// Declare the type of connnection
 	my_addr.sin_family = AF_INET;
@@ -48,55 +39,117 @@ int main(void){
 	//strncpy(my_addr.sun_path, MY_SOCK_PORT,sizeof(my_addr.sun_path) - 1);
 
 	printf("Binding socket to specified port...\n");
-   	if (bind(sfd, (struct sockaddr *) &my_addr, sizeof(struct sockaddr_un)) == -1)
+   	if (bind(sfd, (struct sockaddr *) &my_addr, sizeof(struct sockaddr_in)) == -1)
        handle_error("bind");
 
    	// Marks sfd as a passive sockdet.  MAX_CONNECTION_QUEUE is the max n° of pending connections
-   	printf("Listening...\n");
+   	printf("Listening on port %d...\n", MY_SOCK_PORT);
    	if (listen(sfd, MAX_CONNECTION_QUEUE) == -1)
        handle_error("listen");
 
    	// Now incoming connections can be accepted
 
+    printf("Waiting for connections...\n");
    	peer_addr_size = sizeof(struct sockaddr_un);
 
-	while (1) {
-		cfd = accept(sfd, (struct sockaddr *) &peer_addr, &peer_addr_size);
+   	// Main cycle
+	while (TRUE) {
 
-		if(cfd<0)
-			handle_error("accept");
+		//clear the socket set
+        FD_ZERO(&readfds);
+  
+        //add master socket to set
+        FD_SET(sfd, &readfds);
+        max_sd = sfd;
+         
+        //add child sockets to set
+        for ( i = 0 ; i < MAX_CLIENTS ; i++) 
+        {
+            //socket descriptor
+            sd = clients[i];
+             
+            //if valid socket descriptor then add to read list
+            if(sd > 0)
+                FD_SET( sd , &readfds);
+             
+            //highest file descriptor number, need it for the select function
+            if(sd > max_sd)
+                max_sd = sd;
+        }
 
-		// Create child process
-		int pid = fork();
+        //set the timeout (s,ms)
+        struct timeval tv = {1, 0};  
+  
+        //wait for an activity on one of the sockets
+        activity = select( max_sd + 1 , &readfds , NULL , NULL , &tv);
+    
+        if (activity < 0) 
+        	handle_error("select");
+          
+        //If its sfd then its an INCOMING CONNECTION
+        if (FD_ISSET(sfd, &readfds)) 
+        {
+            if ((new_socket = accept(sfd, (struct sockaddr *)&my_addr, (socklen_t*)&peer_addr_size))<0)
+            {
+                handle_error("accept");
+                exit(EXIT_FAILURE);
+            }
+          
+            //inform user of socket number - used in send and receive commands
+            printf("New connection , socket fd is %d , ip is : %s , port : %d \n" , new_socket , inet_ntoa(my_addr.sin_addr) , ntohs(my_addr.sin_port));
+              
+            //add new socket to array of sockets
+            flag = FALSE;
+            for (i = 0; i < MAX_CLIENTS && !flag; i++) 
+            {
+                //if position is empty
+                if( clients[i] == 0 )
+                {
+                    clients[i] = new_socket;
+                    flag = TRUE;
+                }
+            }
+        }
+          
+        //else its some IO operation on some other socket :)
+        for (i = 0; i < MAX_CLIENTS; i++) 
+        {
+            sd = clients[i];
+              
+            if (FD_ISSET( sd , &readfds)) 
+            {
 
-		if (pid < 0) {
-			perror("ERROR on fork");
-			exit(1);
-		}
+				// Sets buffer values on 0
+			   	bzero(buffer,BUFFER_LENGTH);
 
-		if (pid == 0) {
-			// This is the child process
-			close(sfd);
-			handle_request(cfd);
-			exit(0);
-		}
-		else {
-			// This is the parent process
-			close(cfd);
-		}
+                //Check if it was for closing , and also read the incoming message
+                if ((readValue = read( sd , buffer, BUFFER_LENGTH)) == 0)
+                {
+                    //Somebody disconnected , get his details and print
+                    getpeername(sd , (struct sockaddr*)&my_addr , (socklen_t*)&peer_addr_size);
+                    printf("Host disconnected , ip %s , port %d \n" , inet_ntoa(my_addr.sin_addr) , ntohs(my_addr.sin_port));
+                      
+                    //Close the socket and mark as 0 in list for reuse
+                    close( sd );
+                    clients[i] = 0;
+                }
+                  
+                //Echo back the message that came in
+                else
+                {
+                    handle_request(sd, buffer);
+                }
+            }
+        }
 		
    	}
 
    return 0;
 }
 
-void handle_request(int cfd){
+void handle_request(int cfd, char * buffer){
 
-	// Buffer where read data will be copied
-	char buffer[BUFFER_LENGTH]; 
-
-	// Sets buffer values on 0
-   	bzero(buffer,BUFFER_LENGTH);
+	
 
    	printf("Reading data...\n");
    	if(read(cfd, buffer, BUFFER_LENGTH-1)==-1)
