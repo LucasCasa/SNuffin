@@ -20,12 +20,13 @@ int init(){
 
 int main(){
   init();
+  createUser("maggie","maggie");
   isUser("lucas");
   isPassword("lucas","hoyquiero");
-  createUser("kuyum","kuyum");
+  setHighscore("kuyum",420);
+  getHighscore("lucas");
   getHighscore("maggie");
-  setHighscore("maggie",0);
-  getHighscore("maggie");
+  getHighscore("kuyum");
   close2();
 }
 
@@ -126,7 +127,7 @@ int rs = sqlite3_close_v2(db);
 }
 
 int printError(int rv){
-  if(rv != 100 && rv != 0){
+  if(rv != 100 && rv != 101 && rv != 0){
     fprintf(stderr, "%s\n", sqlite3_errmsg(db));
   }
   return rv;
