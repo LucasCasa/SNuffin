@@ -8,11 +8,12 @@ typedef struct {
 typedef struct {
 char* data;
 int size;
+int senderId;
 } StreamData;
 
 //typedef StreamData (*RequestHandler)(StreamData* req);
 
-void start_ipc();
+void start_ipc(int info);
 void close_ipc();
 int  sendData(Connection * connection, StreamData * req);
 

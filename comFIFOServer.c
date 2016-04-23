@@ -1,15 +1,23 @@
 #include "com.h"
 #include <unistd.h>
+#include <string.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+
 
 #define BUFFER_SIZE 256
 char* srvFifo;
 char* cliFifo;
+int* ids;
 /** Aca va la comunicacion, hay que usar de estructura el com.h
     hay que hacer el listen para el server escuche las nuevas conexiones (me parece)
     CREO QUE EL SERVER Y EL CLIENT TIENEN DIFERENTES .C PERO EL .H ES EL MISMO
 **/
 
-void init_ipc(){
+void start_ipc(int isSuperServer){
   /*Cargo la configuracion de la conexion del txt*/
     FILE * fp;
     srvFifo = malloc(BUFFER_SIZE);
@@ -25,17 +33,16 @@ void init_ipc(){
    fgets(srvFifo,BUFFER_SIZE,fp);
    fgets(cliFifo,BUFFER_SIZE,fp);
    /*el server crea el fifo que se va a utilizar para la primera comunicacion*/
-   mkfifo(srvFifo,0666);
-   /*el cliente crea el fifo que se va a usar una vez que la comunicacion fue
-   establecida*/
-   char* cliaux = malloc(sizeof(cliFifo) + 6);
-   sprintf(cliaux, "%s%d",cliFifo, getpid());
-   mkfifo(cliaux, 0666);
-   free(cliaux);
+   if(!isSuperServer){
+     sprintf(srvFifo, "%s%d",srvFifo, getpid());
+   }
+     mkfifo(srvFifo,0666);
+
+
    if(!access(srvFifo,F_OK)){
-     printf("Se pudo acceder al FIFO del server")
+     printf("Se pudo acceder al FIFO del server\n");
    } else{
-     printf("NO Se pudo acceder al FIFO del server")
+     printf("NO Se pudo acceder al FIFO del server\n");
    }
 
 
@@ -48,6 +55,7 @@ void close_ipc(){
 }
 
 int sendData(Connection* c,StreamData* d){
+  int fd = 0;
     char* cliAux = malloc(sizeof(cliFifo) + 6);
     sprintf(cliAux,"%s%d",cliFifo,c->id);
     fd = open(cliAux, O_WRONLY);
@@ -57,14 +65,12 @@ int sendData(Connection* c,StreamData* d){
 }
 
 void receiveData(Connection* c, StreamData* b){
-  char* cliAux = malloc(sizeof(cliFifo) + 6);
-  sprintf(cliAux,"%s%d",cliFifo,c->id);
-  fd = open(cliAux, O_WRONLY);
+  int fd = 0;
+  fd = open(srvFifo, O_RDONLY);
   int a = 0, step = 0;
-  while((a = read(fd, b->data + step,b->size)) != 0){
+  while((a = read(fd, b->data + step,BUFFER_SIZE)) != 0){
     step+=a;
   }
   b->size = strlen(b->data);
   close(fd);
-  free(cliAux);
 }
