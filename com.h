@@ -2,8 +2,7 @@
 #define COM_H
 
 typedef struct {
-	char* address;
-	int port;
+	int id;
 } Connection;
 
 typedef struct {
@@ -11,13 +10,16 @@ char* data;
 int size;
 } StreamData;
 
-typedef StreamData (*RequestHandler)(StreamData* req);
+//typedef StreamData (*RequestHandler)(StreamData* req);
 
-StreamData * Request(Connection * connection, StreamData * req);
+void start_ipc();
+void close_ipc();
+int  sendData(Connection * connection, StreamData * req);
 
 //int Response(RequestData * req, ResponseData * resp); CREO QUE ES AL DOPE
 
-StreamData * ListenToRequest(Connection * connection, RequestHandler requestHandler);
+void receiveData(Connection * connection, StreamData * buffer);
 
+/* habria que hacer una con un select, pero no tengo ni idea de como hacerlo*/
 
 #endif
