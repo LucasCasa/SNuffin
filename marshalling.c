@@ -3,9 +3,9 @@
 #include <string.h>
 #include <stdlib.h>
 #include <math.h>
+#include <limits.h>
 
-void itoa(int n, char s[]);
-void reverse(char s[]);
+int numPlaces (int n) ;
 
 void * unmarshalling(char * data, int * type);
 
@@ -63,7 +63,6 @@ char * marshalling(void * struc, int type){
 }
 
 void unmarshString(char * data, String * s){
-	//data tiene la forma 1A#B donde A es el tamaño del string y B es el STRING
 	int i,j=0,k;
 	char num[3];
 	char * endptr;
@@ -83,7 +82,7 @@ void unmarshString(char * data, String * s){
 void unmarshPoint(char * data, Point * p){
 	char num[3];
 	char * endptr;
-	int i,j=0;
+	int i=1,j=0;
 	for(i =1;data[i]!=SEP;i++,j++){
 		num[j]=data[i];
 	}
@@ -129,47 +128,46 @@ void unmarshBoard(char * data, Board * b){
 
 char * marshPoint(Point * s){
 	char * d;
-	int i=0;
-	d = malloc (1 + 1 + 1 + sizeof(s->x) + sizeof(s->y));
-	d[i] = POINT;
-	itoa(s->x,d+1);
+	int size = 1 + 1 + 1 + numPlaces(s->x) + numPlaces(s->y);
+	d = malloc (size*sizeof(char));
+	sprintf(d,"%d%d%c%d",POINT - '0',s->x,SEP,s->y);
+	d[size -1]='\0';
 	return d;
 }
 char * marshBoard(Board* s){
-	return NULL;
+	char * d1;
+	char * d2;
+	int i,j;
+	int size1 = 1 + 1 + 1 + 1 + numPlaces(s -> filas) + numPlaces(s->columnas);
+	int size2 = (s->filas)*(s->columnas);
+	d1 = malloc ((size1 + size2)*sizeof(char));
+	d2 = malloc (size2 *sizeof(char));
+	sprintf(d1,"%d%d%c%d%c",BOARD - '0',s->filas, SEP, s->columnas,SEP);
+	for(i=0;i<s->filas;i++){
+		printf("%d\n", i);
+		for(j=0;j<s->columnas;j++){
+			d2[j + i*(s->filas)]= (s->board)[i][j];
+		}
+	}
+	strcat(d1,d2);
+	return d1;
 }
-char * marshString(String * s){
-	return NULL;
-}
- 
- /* reverse:  reverse string s in place */
- void reverse(char s[])
- {
-     int i, j;
-     char c;
- 
-     for (i = 0, j = strlen(s)-1; i<j; i++, j--) {
-         c = s[i];
-         s[i] = s[j];
-         s[j] = c;
-     }
- }
 
-  void itoa(int n, char s[])
- {
-     int i, sign;
+char * marshString(String * s){
+	char * d;
+	int size = 1 + 1 + 1 + s->size + numPlaces(s->size);
+	d = malloc (size*sizeof(char));
+	sprintf(d,"%d%d%c%s",STRING - '0', s->size,SEP, s->string);
+	d[size -1] ='\0';
+	return d;
+}
  
-     if ((sign = n) < 0)  /* record sign */
-         n = -n;          /* make n positive */
-     i = 0;
-     do {       /* generate digits in reverse order */
-         s[i++] = n % 10 + '0';   /* get next digit */
-     } while ((n /= 10) > 0);     /* delete it */
-     if (sign < 0)
-         s[i++] = '-';
-     s[i] = '\0';
-     reverse(s);
- }
+
+ int numPlaces (int n) {
+    if (n < 0) return numPlaces ((n == INT_MIN) ? INT_MAX : -n);
+    if (n < 10) return 1;
+    return 1 + numPlaces (n / 10);
+}
 
 
 
