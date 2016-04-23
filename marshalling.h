@@ -6,7 +6,7 @@ typedef struct {
 }Point;
 
 typedef struct {
-	char ** tablero;
+	char ** board;
 	int filas;
 	int columnas;
 }Board;
@@ -22,6 +22,6 @@ typedef struct {
 #define BOARD '5'
 #define SEP '#' //el separador
 
-void * unmarshalling(char * data);
+void * unmarshalling(char * data, int * type); //devuelve por parametro de que tipo es lo que se mando
 
 char * marshalling(void * struc, int type);
