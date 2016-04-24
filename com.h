@@ -8,7 +8,6 @@ typedef struct {
 typedef struct {
 char* data;
 int size;
-int senderId;
 } StreamData;
 
 //typedef StreamData (*RequestHandler)(StreamData* req);

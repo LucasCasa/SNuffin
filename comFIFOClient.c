@@ -34,10 +34,8 @@ void start_ipc(int info){
 
    /*el cliente crea el fifo que se va a usar una vez que la comunicacion fue
    establecida*/
-   cliaux = malloc(sizeof(cliFifo) + 6);
-   sprintf(cliaux, "%s%d",cliFifo, getpid());
-   mkfifo(cliaux, 0666);
-   free(cliaux);
+   sprintf(cliFifo, "%s%d",cliFifo, getpid());
+   mkfifo(cliFifo, 0666);
    if(!access(srvFifo,F_OK)){
      printf("Se pudo acceder al FIFO del server\n");
    } else{
@@ -55,20 +53,22 @@ void close_ipc(){
 
 int sendData(Connection* c,StreamData* d){
     int fd = 0;
-    char* cliAux = malloc(sizeof(cliFifo) + 6);
-    sprintf(cliAux,"%s%d",cliFifo,c->id);
+    char* srvAux = malloc(sizeof(cliFifo) + 6);
+    if(c->id != 0){
+    sprintf(srvAux,"%s%d",srvFifo,c->id);
+    fd = open(srvAux, O_WRONLY);
+  }else{
     fd = open(srvFifo, O_WRONLY);
+  }
     printf("Me llego %s, tamaño %d\n",d->data,d->size);
     write(fd, d->data,d->size);
     close(fd);
-    free(cliAux);
+    free(srvAux);
 }
 
 void receiveData(Connection* c, StreamData* b){
   int fd = 0;
-  char* cliAux = malloc(sizeof(cliFifo) + 6);
-  sprintf(cliAux,"%s%d",cliFifo,c->id);
-  fd = open(cliAux, O_RDONLY);
+  fd = open(cliFifo, O_RDONLY);
   int a = 0, step = 0;
   while((a = read(fd, b->data + step,BUFFER_SIZE)) != 0){
     step+=a;
