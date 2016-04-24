@@ -13,6 +13,7 @@
 #define LEFT_ARROW (char)'D'
 #define RIGHT_ARROW (char)'C'
 #define DOWN_ARROW (char) 'B'
+#define BACKSPACE 127
 
 #define BORRA_BUFFER while(getchar() != '\n');
 
@@ -102,8 +103,6 @@ int main(int argc, char *argv[]){
 			}else if(pressed == RIGHT_ARROW){
 				printf("DERECHA\n");
 				p.x = 1;
-			}else if(pressed == 127){
-				printf("BACKKKKK\n");
 			}
 		}
 	}
@@ -112,11 +111,14 @@ int main(int argc, char *argv[]){
 }
 
 void getInformation(){
-	char * nombre;
+	//String pass,name;
+	char * nombre = malloc (20 *sizeof(char));
    	char * pass = malloc(20 *sizeof(char));
    	int belongs=0;
 	printf("Por favor escriba su nombre\n");
-	scanf("%s",nombre);
+	scanf("%20s",nombre);
+	//manda el nombre
+	//name.string = nombre;
 
 	if(!belongs){
 		printf("Su nombre no esta registrado. Ingrese una contraseña para registrasrse\n");
@@ -137,32 +139,36 @@ void getInformation(){
 		}while(!w_pass);
 	}
 	free(pass);
+	free(nombre);
 	return;
 }
 
 char * getPass(){
 	int i=0,c;
 	char * pass = calloc(20,sizeof(char));
+	
 	while(i<20){
-		printf("ENTRA ACA DESPUES WHILE\n");
-		printf("%d\n", i);
+		changemode(1);
 		while(!kbhit()){
 			c = getchar();
 			if(c == 127 && i !=0){
 				i--;
-				printf("%c", 127);
+				printf("");
 				//back
-			}else if (c == '\n'){
+			}else if (c == '\n' && i != 0){
+				printf("\n");
 				return pass;
 			}else{
-				printf("*");
-				i++;
+				if(i!=0){
+					printf("*");
+				}
 				pass[i]=c;
+				i++;
 			}	
 		}
 	}
-	printf("%s\n",pass );
-	printf("ENTRA ACA SALE WHILE\n");
+	changemode(0);
+	printf("\n");
 	return pass;
 }
 
