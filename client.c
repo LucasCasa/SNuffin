@@ -151,7 +151,7 @@ char * getPass(){
 		changemode(1);
 		while(!kbhit()){
 			c = getchar();
-			if(c == 127 && i !=0){
+			if(c == BACKSPACE && i !=0){
 				i--;
 				printf("");
 				//back
