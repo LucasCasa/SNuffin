@@ -11,7 +11,7 @@
 	#include <netinet/in.h>
     #include <arpa/inet.h>
 
-	#include "db.h"
+	//#include "db.h"
 
 	
 	#define TRUE 1
@@ -23,6 +23,6 @@
 
 	#define handle_error(msg) do{perror(msg);exit(EXIT_FAILURE);}while(0)
 
-	void handle_request(int,char*);
+	int handle_request(int,char*);
 
 #endif
