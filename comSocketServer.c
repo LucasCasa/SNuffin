@@ -57,7 +57,7 @@ void start_ipc(int isSuperServer){
     clients[i] = 0;
 }
 
-void listen_requests(Connection ** connections, StreamData ** streams){
+void listen_requests(){
   int max_sd, space_available, i, sd, ans, ans_select;
   fd_set readfds;
 
@@ -100,7 +100,6 @@ void listen_requests(Connection ** connections, StreamData ** streams){
       sd = clients[i];
 
       if (sd!=0 && FD_ISSET( sd , &readfds)){
-        receiveData()
         char buffer[256];
         int j;
         for(j=0; j<256; j++)
