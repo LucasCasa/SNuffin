@@ -10,7 +10,6 @@ struct sockaddr_in my_addr;
 int * clients;
 int clientLimit;
 
-
 void start_ipc(int isSuperServer){
   int i;
 
@@ -44,7 +43,7 @@ void start_ipc(int isSuperServer){
     handle_error("listen");
 
   printf("Waiting for connections...\n");
-  addr_size = sizeof(struct sockaddr_un);
+  addr_size = sizeof(struct sockaddr_in);
 
   if(isSuperServer){
     clients = malloc(MAX_CLIENTS*sizeof(int));
@@ -58,7 +57,7 @@ void start_ipc(int isSuperServer){
     clients[i] = 0;
 }
 
-void listen_requests(){
+void listen_requests(Connection ** connections, StreamData ** streams){
   int max_sd, space_available, i, sd, ans, ans_select;
   fd_set readfds;
 
@@ -101,9 +100,23 @@ void listen_requests(){
       sd = clients[i];
 
       if (sd!=0 && FD_ISSET( sd , &readfds)){
-        printf("Receiving data\n");
+        receiveData()
+        char buffer[256];
+        int j;
+        for(j=0; j<256; j++)
+          buffer[j] = 0;
+        ans = recv(sd,buffer,256,0);
+        printf("Receiving data: %s\n", buffer);
+        Connection c;
+        StreamData stream;
+        c.id = sd;
+        stream.data = buffer;
+        stream.size = 256;
+        if(ans>0)
+          sendData(&c,&stream);
         //int ans = receiveData(sd, ); // TODO
         // if 0 then disconnect
+        printf("recv: %d\n",ans);
         if(ans==0)
           clients[i] = 0;
       }
@@ -115,6 +128,17 @@ return;
 void receiveData(Connection * connection, StreamData * buffer){
 
 }
+
+int  sendData(Connection * connection, StreamData * req){
+   /* Send message to the server */
+   int n = send(connection->id, req->data, req->size,MSG_NOSIGNAL);
+   
+   if (n < 0) {
+      perror("ERROR writing to socket");
+      exit(1);
+   }
+}
+
 
 // If disconnect request return 0 else return 1
 int handle_request(int cfd, char * buffer){

@@ -83,7 +83,7 @@ int main(void){
    StreamData sd;
 
 
-   sd.data = "lucas puto";
+   sd.data = "MagdaMuffin";
    sd.size = strlen(sd.data);
    
    while(1){

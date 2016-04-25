@@ -52,18 +52,18 @@ void close_ipc(){
 }
 
 int sendData(Connection* c,StreamData* d){
-    int fd = 0;
-    char* srvAux = malloc(sizeof(cliFifo) + 6);
-    if(c->id != 0){
+  int fd = 0;
+  char* srvAux = malloc(sizeof(cliFifo) + 6);
+  if(c->id != 0){
     sprintf(srvAux,"%s%d",srvFifo,c->id);
     fd = open(srvAux, O_WRONLY);
   }else{
     fd = open(srvFifo, O_WRONLY);
   }
-    printf("Me llego %s, tamaño %d\n",d->data,d->size);
-    write(fd, d->data,d->size);
-    close(fd);
-    free(srvAux);
+  printf("Me llego %s, tamaño %d\n",d->data,d->size);
+  write(fd, d->data,d->size);
+  close(fd);
+  free(srvAux);
 }
 
 void receiveData(Connection* c, StreamData* b){
