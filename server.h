@@ -16,10 +16,11 @@
 	
 	#define TRUE 1
 	#define FALSE 0
-	#define MAX_CLIENTS 50
+	#define MAX_CLIENTS 10
 	#define BUFFER_LENGTH 256
 	#define MAX_CONNECTION_QUEUE 50
 	#define MY_SOCK_PORT 8080
+	#define MAX_PLAYERS 4
 
 	#define handle_error(msg) do{perror(msg);exit(EXIT_FAILURE);}while(0)
 
