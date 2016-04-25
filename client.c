@@ -1,40 +1,4 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <termios.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <sys/types.h>
-#include <sys/time.h>
-
-#include <netdb.h>
-#include <netinet/in.h>
-
-#define UP_ARROW (char)'A' 
-#define LEFT_ARROW (char)'D'
-#define RIGHT_ARROW (char)'C'
-#define DOWN_ARROW (char) 'B'
-#define BACKSPACE 127
-
-#define BORRA_BUFFER while(getchar() != '\n');
-
-typedef struct{
-	int x;
-	int y;
-}Point;
-
-typedef struct{
-	char * address;
-}Connection;
-
-typedef struct {
-	char * data;
-	int size;
-} RequestData;
-
-typedef struct {
-	char * data;
-	int size;
-} ResponseData;
+#include "client.h"
 
 void changemode(int dir);
 int kbhit (void);
@@ -111,14 +75,16 @@ int main(int argc, char *argv[]){
 }
 
 void getInformation(){
-	//String pass,name;
+	String password,name;
 	char * nombre = malloc (20 *sizeof(char));
    	char * pass = malloc(20 *sizeof(char));
    	int belongs=0;
 	printf("Por favor escriba su nombre\n");
 	scanf("%20s",nombre);
+	name.size= strlen(nombre);
+	name.string = nombre;
+
 	//manda el nombre
-	//name.string = nombre;
 
 	if(!belongs){
 		printf("Su nombre no esta registrado. Ingrese una contraseña para registrasrse\n");
@@ -126,6 +92,8 @@ void getInformation(){
 		printf("Ingrese su contraseña para ingresar\n");
 	}
 	pass = getPass();
+	password.size = strlen(pass);
+	password.string = pass;
 	//manda el string a la base de datos y devuelve si lo encontro o no
 	if(!belongs){
 		//le mando la contraseña para que la guarde en el usuario
@@ -135,7 +103,9 @@ void getInformation(){
 		do{
 			printf("Contraseña incorrecta, ingrese de nuevo.\n");
 			pass = getPass();
-			//lo manda de vuelta
+			password.size = strlen(pass);
+			password.string = pass;
+			//lo manda de vuelta y cambio w_pass 
 		}while(!w_pass);
 	}
 	free(pass);
@@ -145,7 +115,7 @@ void getInformation(){
 
 char * getPass(){
 	int i=0,c;
-	char * pass = calloc(20,sizeof(char));
+	char * pass = malloc(20*sizeof(char));
 	
 	while(i<20){
 		changemode(1);
@@ -153,22 +123,17 @@ char * getPass(){
 			c = getchar();
 			if(c == BACKSPACE && i !=0){
 				i--;
-				printf("");
-				//back
 			}else if (c == '\n' && i != 0){
-				printf("\n");
+				pass[i]='\0';
 				return pass;
 			}else{
-				if(i!=0){
-					printf("*");
-				}
 				pass[i]=c;
 				i++;
 			}	
 		}
 	}
 	changemode(0);
-	printf("\n");
+	pass[i]='\0';
 	return pass;
 }
 
