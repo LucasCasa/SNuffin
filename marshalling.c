@@ -20,7 +20,7 @@ char * marshString(String * s);
 
 
 int main(){
-	Point point = {8,8};
+	Point point = {-13443,-144};
 	PlayerPos p;
 	p.pNumber = 9;
 	p.dir = &point;

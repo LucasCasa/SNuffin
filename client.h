@@ -9,12 +9,14 @@
 #include <sys/types.h>
 #include <sys/time.h>
 
-#include <strings.h>
+#include <string.h>
 
 #include <netdb.h>
 #include <netinet/in.h>
 
 #include "structs.h"
+
+//#include "com.h"
 
 
 #define UP_ARROW (char)'A' 

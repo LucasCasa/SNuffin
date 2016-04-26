@@ -1,5 +1,6 @@
 #include "client.h"
 
+void game();
 void changemode(int dir);
 int kbhit (void);
 
@@ -7,49 +8,13 @@ void getInformation();
 char * getPass();
 
 int main(int argc, char *argv[]){
-	// int sockfd, portno, n;
- //   	struct sockaddr_in serv_addr;
- //   	struct hostent *server;
-
- //   	if (argc < 3) {
- //      fprintf(stderr,"usage %s hostname port\n", argv[0]);
- //      exit(0);
- //   }
-
- //   portno = atoi(argv[2]);
-   
- //   /* Create a socket point */
- //   sockfd = socket(AF_INET, SOCK_STREAM, 0);
-   
- //   if (sockfd < 0) {
- //      perror("ERROR opening socket");
- //      exit(1);
- //   }
-	
- //   server = gethostbyname(argv[1]);
-   
- //   if (server == NULL) {
- //      fprintf(stderr,"ERROR, no such host\n");
- //      exit(0);
- //   }
-
- //   bzero((char *) &serv_addr, sizeof(serv_addr));
- //   serv_addr.sin_family = AF_INET;
- //   bcopy((char *)server->h_addr, (char *)&serv_addr.sin_addr.s_addr, server->h_length);
- //   serv_addr.sin_port = htons(portno);
-   
- //   /* Now connect to the server */
- //   if (connect(sockfd, (struct sockaddr*)&serv_addr, sizeof(serv_addr)) < 0) {
- //      perror("ERROR connecting");
- //      exit(1);
- //   }
-
- //   /* Now ask for a message from the user, this message
- //      * will be read by server
- //   */
-
    	getInformation();
-   	changemode(1);
+	game();
+	return 0;
+}
+
+void game(){
+	changemode(1);
 	int pressed;
 	Point p = {0,0};
 	while(/*deberia ser mientras no haya perdido */ 1){
@@ -71,7 +36,6 @@ int main(int argc, char *argv[]){
 		}
 	}
 	changemode(0);
-	return 0;
 }
 
 void getInformation(){
@@ -79,7 +43,7 @@ void getInformation(){
 	char * nombre = malloc (20 *sizeof(char));
    	char * pass = malloc(20 *sizeof(char));
    	int belongs=0;
-	printf("Por favor escriba su nombre\n");
+	printf("Por favor escriba su nombre:\t");
 	scanf("%20s",nombre);
 	name.size= strlen(nombre);
 	name.string = nombre;
@@ -87,9 +51,9 @@ void getInformation(){
 	//manda el nombre
 
 	if(!belongs){
-		printf("Su nombre no esta registrado. Ingrese una contraseña para registrasrse\n");
+		printf("Su nombre no esta registrado. Ingrese una contraseña para poder registrasrse\n");
 	}else{
-		printf("Ingrese su contraseña para ingresar\n");
+		printf("Ingrese su contraseña para poder ingresar\n");
 	}
 	pass = getPass();
 	password.size = strlen(pass);
@@ -101,7 +65,7 @@ void getInformation(){
 		int w_pass=1;
 		//pregunto si lo que escribio esta bien. sino que ingrese su contraseña de vuelta. 
 		do{
-			printf("Contraseña incorrecta, ingrese de nuevo.\n");
+			printf("Contraseña incorrecta, ingresela de nuevo.\n");
 			pass = getPass();
 			password.size = strlen(pass);
 			password.string = pass;
@@ -112,6 +76,8 @@ void getInformation(){
 	free(nombre);
 	return;
 }
+
+
 
 char * getPass(){
 	int i=0,c;
