@@ -2,7 +2,7 @@
 #define COM_H
 
 typedef struct {
-	int id;
+	char* addr;
 } Connection;
 
 typedef struct {
