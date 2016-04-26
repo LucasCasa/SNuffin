@@ -20,7 +20,7 @@ int main(int argc, const char* argv[]){
 
    fgets(srvAddr,BUFFER_SIZE,fp);
    fgets(cliAddr,BUFFER_SIZE,fp);
-
+   fprintf(cliAddr,"%s%d",cliAddr,getpid());
 
     Connection * selfc = start_ipc(cliAddr);
     Connection * server = malloc(sizeof(Connection));
@@ -29,6 +29,11 @@ int main(int argc, const char* argv[]){
     buffer->data = "Probando";
     buffer->size = 9;
     sendData(server,buffer);
+    Connection * fserver = accept(server);
+    StreamData * buffer2 = malloc(sizeof(buffer));
+    buffer->data = "Probando con el hijo";
+    buffer->size = 21;
+    sendData(fserver,buffer2);
     close_ipc(selfc);
     printf("Me fui\n");
 }
