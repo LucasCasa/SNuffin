@@ -13,7 +13,7 @@ int size;
 //typedef StreamData (*RequestHandler)(StreamData* req);
 
 Connection* start_ipc(char* addr);
-void close_ipc();
+void close_ipc(Connection * c);
 int  sendData(Connection * connection, StreamData * req);
 Connection* accept(Connection *c);
 //int Response(RequestData * req, ResponseData * resp); CREO QUE ES AL DOPE

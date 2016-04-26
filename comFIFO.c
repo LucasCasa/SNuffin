@@ -19,20 +19,7 @@
 
 Connection * start_ipc(char * addr){
   /*Cargo la configuracion de la conexion del txt ESTO SE HACE EN EL CLIENT SERVER DUH*/
-    /*FILE * fp;
-    srvFifo = malloc(BUFFER_SIZE);
-    cliFifo = malloc(BUFFER_SIZE);
-    char* cliaux;
-    size_t len = 0;
-    ssize_t read;
 
-    fp = fopen("./config", "r");
-    if (fp == NULL)
-        exit(EXIT_FAILURE);
-
-   fgets(srvFifo,BUFFER_SIZE,fp);
-   fgets(cliFifo,BUFFER_SIZE,fp);
-   */
    /*el server crea el fifo que se va a utilizar para la primera comunicacion*/
      mkfifo(addr,0666);
 
@@ -44,7 +31,7 @@ Connection * start_ipc(char * addr){
    }
 
    Connection *c = malloc(sizeof(Connection));
-   int size = strlen(addr) + 1
+   int size = strlen(addr) + 1;
    c->addr = malloc(size);
    memcpy(c->addr,addr,size);
    return c;
@@ -64,6 +51,8 @@ void close_ipc(Connection *c){
 
 int sendData(Connection* c,StreamData* d){
   int fd = 0;
+  printf("Sending data to: %s\n",c->addr);
+  printf("Data: %s\n",d->data);
     //char* cliAux = malloc(sizeof(cliFifo) + 6);
     fd = open(c->addr, O_WRONLY);
     write(fd, d->data,d->size);
@@ -74,9 +63,11 @@ void receiveData(Connection* c, StreamData* b){
   int fd = 0;
   fd = open(c->addr, O_RDONLY);
   int a = 0, step = 0;
-  while((a = read(fd, b->data + step,BUFFER_SIZE)) != 0){
+  /*while((*/a = read(fd, b->data + step,BUFFER_SIZE);/*) != 0){
     step+=a;
-  }
+  }*/
+  printf("STRING: %s\n",b->data);
+  printf("SIZE: %d\n",a );
   b->size = strlen(b->data);
   close(fd);
 }

@@ -3,6 +3,7 @@
 #include <sqlite3.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 sqlite3 *db;
 int init(){
      char *zErrMsg = 0;
@@ -18,15 +19,21 @@ int init(){
      }
 }
 
-int main(){
+int manageDataBase(){
   init();
-  createUser("maggie","maggie");
-  isUser("lucas");
-  isPassword("lucas","hoyquiero");
-  setHighscore("kuyum",420);
-  getHighscore("lucas");
-  getHighscore("maggie");
-  getHighscore("kuyum");
+  // createUser("maggie","maggie");
+  // isUser("lucas");
+  // isPassword("lucas","hoyquiero");
+  // setHighscore("kuyum",420);
+  // getHighscore("lucas");
+  // getHighscore("maggie");
+  // getHighscore("kuyum");
+  while(1){
+    exit(0);
+    //printf("Base de Datos sigue funcionado\n");
+  }
+  /* Abro el pipe y me pongo a esuchar...
+  */
   close2();
 }
 
