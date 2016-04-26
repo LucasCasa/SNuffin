@@ -17,7 +17,7 @@
     CREO QUE EL SERVER Y EL CLIENT TIENEN DIFERENTES .C PERO EL .H ES EL MISMO
 **/
 
-Connection * c start_ipc(char * addr){
+Connection * start_ipc(char * addr){
   /*Cargo la configuracion de la conexion del txt ESTO SE HACE EN EL CLIENT SERVER DUH*/
     /*FILE * fp;
     srvFifo = malloc(BUFFER_SIZE);
@@ -43,11 +43,19 @@ Connection * c start_ipc(char * addr){
      printf("No se pudo crear el FIFO\n");
    }
 
-
+   Connection *c = malloc(sizeof(Connection));
+   int size = strlen(addr) + 1
+   c->addr = malloc(size);
+   memcpy(c->addr,addr,size);
+   return c;
 }
 
 Connection * accept(Connection * c){
-  /* Forkeo el server y le devuelvo la nueva conexion(?)*/
+  /* Forkeo el server y le devuelvo la nueva conexion(?)
+  Creo que lo que habria que hacer es llamar a la conexion y esperar que te
+  devuelva una nueva conexion. Esta funcion solo se llamaria desde el cliente y
+  esta pensada para que envie un mensaje predeterminado que el servidor va a enteder
+  que es para pasarle el nuevo server.*/
   return c; // por testeo
 }
 void close_ipc(Connection *c){
