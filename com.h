@@ -3,6 +3,7 @@
 
 typedef struct {
 	char* addr;
+	int fd;
 } Connection;
 
 typedef struct {
@@ -12,11 +13,12 @@ int size;
 
 //typedef StreamData (*RequestHandler)(StreamData* req);
 
-Connection * connect(char* addr);
-Connection * listen(char* addr);
+// int va a ser puerto para sockets y id para fifo
+Connection * connect(char* addr,int);
+Connection * listen(int);
 void closeConn(Connection * c);
 int  sendData(Connection * connection, StreamData * req);
-Connection* accept(Connection *c);
+Connection * accept(Connection *c);
 //int Response(RequestData * req, ResponseData * resp); CREO QUE ES AL DOPE
 
 void receiveData(Connection * connection, StreamData * buffer);
@@ -25,6 +27,7 @@ void receiveData(Connection * connection, StreamData * buffer);
 
 #endif
 
+/*
 connectionRequests = listen(addressObject);
 
 while(1) {
@@ -33,3 +36,4 @@ while(1) {
 	response = process(whatever);
 	write(connection, response);
 }
+*/

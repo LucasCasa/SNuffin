@@ -28,10 +28,7 @@ void start_ipc(int isSuperServer){
   // Declare the type of connnection
   my_addr.sin_family = AF_INET;
   my_addr.sin_addr.s_addr = INADDR_ANY;
-  if(isSuperServer)
-    my_addr.sin_port = htons(MY_SOCK_PORT);
-  else
-    my_addr.sin_port = htons(8081); // TODO
+  my_addr.sin_port = htons(MY_SOCK_PORT);
 
   printf("Binding socket to specified port...\n");
   if (bind(server_sfd, (struct sockaddr *) &my_addr, sizeof(struct sockaddr_in)) == -1)
@@ -57,7 +54,7 @@ void start_ipc(int isSuperServer){
     clients[i] = 0;
 }
 
-void listen_requests(){
+Connection * accept(Connection * c){
   int max_sd, space_available, i, sd, ans, ans_select;
   fd_set readfds;
 
