@@ -8,8 +8,8 @@ typedef struct {
 
 typedef struct {
 	char ** board;
-	int filas;
-	int columnas;
+	int rows;
+	int columns;
 }Board;
 
 typedef struct {

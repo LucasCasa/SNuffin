@@ -16,7 +16,8 @@
 
 #include "structs.h"
 
-//#include "com.h"
+#include "com.h"
+#include "marshalling.h"
 
 
 #define UP_ARROW (char)'A' 
