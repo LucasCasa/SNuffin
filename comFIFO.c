@@ -7,8 +7,12 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
-Connection * self;
 #define BUFFER_SIZE 256
+
+
+int fdr;
+int fdw;
+char* ADDR = "/tmp/server"
 //char* srvFifo;
 //char* cliFifo;
 //int* ids;
@@ -18,13 +22,40 @@ Connection * self;
 **/
 /* Puede ser que cuando envie datos, antes de enviar el dato en si mande quien es*/
 
-Connection * start_ipc(char * addr){
+Connection * listen(int id){
+  if(id == 0){
+    mkfifo(ADDR,0666);
+  }else{
+    //concat
+  }
+   Connection *c = malloc(sizeof(Connection));
+   int size = strlen(addr) + 1;
+   c->addr = malloc(size);
+   memcpy(c->addr,addr,size);
+   return c;
+}
+Connection * connect(char * addr,int id){
   /*Cargo la configuracion de la conexion del txt ESTO SE HACE EN EL CLIENT SERVER DUH*/
 
    /*el server crea el fifo que se va a utilizar para la primera comunicacion*/
-     mkfifo(addr,0666);
-
-
+    char* aux = malloc(BUFFER_SIZE);
+    char* auxr = malloc(BUFFER_SIZE);
+    char* auxw = malloc(BUFFER_SIZE);
+    sprintf(aux,"/tmp/client%d",getpid());
+    sprintf(auxr,"%sr",aux);
+    sprintf(auxw,"%sw",aux);
+    mkfifo(auxr,0666);
+    fdw = open(auxw,O_WRONLY);
+    fdr = open(auxr,O_RDONLY);
+    if(id == 0){
+      int fd = open(addr,O_WRONLY);
+    }else{
+      //concat
+    }
+    write(fd,aux,sizeof(aux));
+    Connection *c = malloc(sizeof(Connection));
+    c->addr =
+/*
    if(!access(addr,F_OK)){
      printf("Se pudo crear el FIFO\n");
    } else{
@@ -37,6 +68,9 @@ Connection * start_ipc(char * addr){
    memcpy(c->addr,addr,size);
    self = c;
    return c;
+   */
+   free(auxr);
+   free(auxw);
 }
 
 Connection * accept(Connection * c){
@@ -47,9 +81,8 @@ Connection * accept(Connection * c){
   que es para pasarle el nuevo server.*/
   StreamData *d = malloc(sizeof(StreamData));
   d->data = malloc(BUFFER_SIZE);
-  sprintf(d->data,"@%d",getpid());
-  d->size = strlen(d->data);
-  sendData(c,d);
+  receiveData(c,d);
+  Connection * newc = malloc(sizeof(Connection));
   StreamData *d2 = malloc(sizeof(StreamData));
   d->data = malloc(BUFFER_SIZE);
   receiveData(self,d2);
@@ -57,8 +90,9 @@ Connection * accept(Connection * c){
   c2->addr = d2->data;
   return c2; // por testeo
 }
-void close_ipc(Connection *c){
+void closeComm(Connection *c){
   unlink(c->addr);
+
 }
 
 int sendData(Connection* c,StreamData* d){
