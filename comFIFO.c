@@ -23,15 +23,19 @@ char* ADDR = "/tmp/server"
 /* Puede ser que cuando envie datos, antes de enviar el dato en si mande quien es*/
 
 Connection * listen(int id){
+  char* aux = malloc(strlen(ADDR) + 7);
   if(id == 0){
+    aux = ADDR;
     mkfifo(ADDR,0666);
   }else{
-    //concat
+    sprintf(aux,"%s%d",ADDR,id);
+    mkfifo(aux,0666);
   }
    Connection *c = malloc(sizeof(Connection));
-   int size = strlen(addr) + 1;
+   int size = strlen(aux) + 1;
    c->addr = malloc(size);
-   memcpy(c->addr,addr,size);
+   memcpy(c->addr,aux,size);
+   free(aux);
    return c;
 }
 Connection * connect(char * addr,int id){
@@ -44,23 +48,14 @@ Connection * connect(char * addr,int id){
     sprintf(aux,"/tmp/client%d",getpid());
     sprintf(auxr,"%sr",aux);
     sprintf(auxw,"%sw",aux);
-    mkfifo(auxr,0666);
+    if(access(auxr,F_OK) != 0){
+      mkfifo(auxr,0666);
+    }
+    if(access(auxw,F_OK) != 0){
+      mkfifo(auxw,0666);
+    }
     fdw = open(auxw,O_WRONLY);
     fdr = open(auxr,O_RDONLY);
-    if(id == 0){
-      int fd = open(addr,O_WRONLY);
-    }else{
-      //concat
-    }
-    write(fd,aux,sizeof(aux));
-    Connection *c = malloc(sizeof(Connection));
-    c->addr =
-/*
-   if(!access(addr,F_OK)){
-     printf("Se pudo crear el FIFO\n");
-   } else{
-     printf("No se pudo crear el FIFO\n");
-   }
 
    Connection *c = malloc(sizeof(Connection));
    int size = strlen(addr) + 1;
@@ -68,7 +63,6 @@ Connection * connect(char * addr,int id){
    memcpy(c->addr,addr,size);
    self = c;
    return c;
-   */
    free(auxr);
    free(auxw);
 }
