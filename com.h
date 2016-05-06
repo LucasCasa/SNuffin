@@ -2,8 +2,8 @@
 #define COM_H
 
 typedef struct {
-	char* addr;
 	int fd;
+	int fd2;
 } Connection;
 
 typedef struct {

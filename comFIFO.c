@@ -26,15 +26,13 @@ Connection * listen(int id){
   char* aux = malloc(strlen(ADDR) + 7);
   if(id == 0){
     aux = ADDR;
-    mkfifo(ADDR,0666);
   }else{
     sprintf(aux,"%s%d",ADDR,id);
-    mkfifo(aux,0666);
   }
+   mkfifo(aux,0666);
+
    Connection *c = malloc(sizeof(Connection));
-   int size = strlen(aux) + 1;
-   c->addr = malloc(size);
-   memcpy(c->addr,aux,size);
+   c->fd = open(aux,O_RDONLY);
    free(aux);
    return c;
 }
@@ -58,13 +56,23 @@ Connection * connect(char * addr,int id){
     fdr = open(auxr,O_RDONLY);
 
    Connection *c = malloc(sizeof(Connection));
-   int size = strlen(addr) + 1;
+   /*int size = strlen(addr) + 1;
    c->addr = malloc(size);
-   memcpy(c->addr,addr,size);
-   self = c;
-   return c;
+   memcpy(c->addr,addr,size);*/
+   c->fd = open(addr,O_WRONLY);
+   StreamData *d = malloc(sizeof(StreamData));
+   d->data = malloc(BUFFER_SIZE);
+   sprintf(d->data,"@%d",getpid());
+   d->size = strlen(d->data);
+
+   sendData(c,d);
+   free(d->data);
+   free(d);
    free(auxr);
    free(auxw);
+   free(aux);
+   return c;
+
 }
 
 Connection * accept(Connection * c){
@@ -77,43 +85,39 @@ Connection * accept(Connection * c){
   d->data = malloc(BUFFER_SIZE);
   receiveData(c,d);
   Connection * newc = malloc(sizeof(Connection));
-  StreamData *d2 = malloc(sizeof(StreamData));
-  d->data = malloc(BUFFER_SIZE);
-  receiveData(self,d2);
-  Connection *c2 = malloc(sizeof(Connection));
-  c2->addr = d2->data;
-  return c2; // por testeo
+  if(d->data[0] == '@'){
+    int id = atoi(d->data + 1);
+  }
+  char* aux = malloc(BUFFER_SIZE);
+  char* auxr = malloc(BUFFER_SIZE);
+  char* auxw = malloc(BUFFER_SIZE);
+  sprintf(aux,"/tmp/client%d",id);
+  sprintf(auxr,"%sr",aux);
+  sprintf(auxw,"%sw",aux);
+  int fdw = open(auxw,O_WRONLY);
+  int fdr = open(auxr,O_RDONLY);
+  newc->fd = fdw;
+  newc->fd2 = fdr;
+  /* tendria que tener 2 fd
+  o 2 connections*/
+
+  return newc; // por testeo
 }
 void closeComm(Connection *c){
-  unlink(c->addr);
+  close(c->id);
 
 }
 
 int sendData(Connection* c,StreamData* d){
-  int fd = 0;
   printf("Sending data to: %s\n",c->addr);
   printf("Data: %s\n",d->data);
-    //char* cliAux = malloc(sizeof(cliFifo) + 6);
-    fd = open(c->addr, O_WRONLY);
-    write(fd, d->data,d->size);
-    close(fd);
+  write(c->id, d->data,d->size);
 }
 
 void receiveData(Connection* c, StreamData* b){
-  int fd = 0;
-  printf("receiving data in: %s \n",c->addr );
-  if(c == NULL){ // NO ESTOY SEGURO DE ESTO
-    fd = open(self, O_RDONLY);
-  }else{
-    fd = open(c->addr, O_RDONLY);
-  }
-
-  int a = 0, step = 0;
-  /*while((*/a = read(fd, b->data + step,BUFFER_SIZE);/*) != 0){
-    step+=a;
-  }*/
+  int a = 0;
+  a = read(c->id, b->data,BUFFER_SIZE);
   printf("STRING: %s\n",b->data);
   printf("SIZE: %d\n",a );
   b->size = strlen(b->data);
-  close(fd);
 }
