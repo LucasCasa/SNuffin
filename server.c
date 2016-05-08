@@ -14,10 +14,8 @@ int split (const char *str, char c, char ***arr);
 
 int main(int argc, const char* argv[]){
 
-  /*  int db = fork();
-    if(db == 0){
-      //manageDataBase();
-    }*/
+    int pipeDB[2] = setDB(); //Devuelvo 2 pipes, uno donde se escribe y otro donde se lee
+                                        //Posicion 0 escribe, posiocion 1 lee
     /*FILE * fp;
     char * srvAddr = malloc(BUFFER_SIZE);
 
@@ -29,14 +27,14 @@ int main(int argc, const char* argv[]){
 
    EN UN FUTURO HAY QUE HACER ESTO BIEN, ESTO ES SOLO PARA TEST
     */
-    Connection * selfc = listen(0);
+    Connection * selfc = listenConnection(0);
     printf("Estoy esuchando\n");
     while(1){
      StreamData * buffer = malloc(sizeof(StreamData));
      buffer->data = malloc(2048);
     // receiveData(selfc,buffer);
     printf("Accept en %d\n",selfc->fd2);
-    Connection *new = accept(selfc);
+    Connection *new = acceptConnection(selfc);
     printf("Nueva conexion\n");
     /*receiveData(new,buffer);
     printf("Recibi: %s\n",buffer->data);*/
@@ -80,6 +78,26 @@ int main(int argc, const char* argv[]){
     printf("Me fui\n");
 }
 
+int setDB(){
+  int pipe1[2];
+  int pipe2[2];
+  if (pipe(pipe1) || pipe(pipe2)){
+    fprintf (stderr, "Pipe failed.\n");
+    return EXIT_FAILURE;
+  }
+  int db = fork();
+  if(db == 0){
+    close(pipe1[1]);
+    close(pipe2[0]);
+    manageDataBase(pipe1[0],pipe2[1]);
+  }
+  close(pipe1[0]);
+  close(pipe2[1]);
+  int p[2];
+  p[0] = pipe1[1];
+  p[1] = pipe2[0];
+  return p;
+}
 int split (const char *str, char c, char ***arr)
 {
     int count = 1;

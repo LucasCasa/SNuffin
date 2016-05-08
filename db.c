@@ -23,7 +23,6 @@ int manageDataBase(){
   init();
   // createUser("maggie","maggie");
   // isUser("lucas");
-  // isPassword("lucas","hoyquiero");
   // setHighscore("kuyum",420);
   // getHighscore("lucas");
   // getHighscore("maggie");

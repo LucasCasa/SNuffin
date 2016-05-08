@@ -23,7 +23,7 @@ char* ADDR = "/tmp/server";
 **/
 /* Puede ser que cuando envie datos, antes de enviar el dato en si mande quien es*/
 
-Connection * listen(int id){
+Connection * listenConnection(int id){
   char* aux = malloc(strlen(ADDR) + 7);
   printf("Malloquee\n");
   if(id == 0){
@@ -41,7 +41,7 @@ Connection * listen(int id){
    printf("libero aux\n");
    return c;
 }
-Connection * connect(char * addr,int id){
+Connection * connectToPeer(char * addr,int id){
   /*Cargo la configuracion de la conexion del txt ESTO SE HACE EN EL CLIENT SERVER DUH*/
 
    /*el server crea el fifo que se va a utilizar para la primera comunicacion*/
@@ -91,7 +91,7 @@ Connection * connect(char * addr,int id){
 
 }
 
-Connection * accept(Connection * c){
+Connection * acceptConnection(Connection * c){
   /* Forkeo el server y le devuelvo la nueva conexion(?)
   Creo que lo que habria que hacer es llamar a la conexion y esperar que te
   devuelva una nueva conexion. Esta funcion solo se llamaria desde el cliente y
