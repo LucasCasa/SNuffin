@@ -11,8 +11,12 @@ void printPlayerColor(int pNum);
 void printBoard(Board *b);
 
 void getInformation();
+
 void getPass(char * pass);
 void getName(char * name);
+
+int checkStringGame(String * s);
+int checkStringInfo(String * s);
 
 int sendPoint(Point * p);
 int sendString(String * p);
@@ -22,49 +26,69 @@ Connection * c;
 char * address; //address leo la primera linea del archivo de configuracion y mando la primera línea.
 
 StreamData sd,buffer;
+StreamData sd2;
 
 int main(){
 	return 0;
 }
 
 void start_game(){
+<<<<<<< Updated upstream
 	/*TODO OJO MAGGIE QUE AHORA TENES QUE LEER LAS PRIMERAS 2 , la primera linea es un char* y la segunda es un int
 	que tenes que pasarle al connect.*/
 	c = connect(address);
+=======
+	    /*TODO OJO MAGGIE QUE AHORA TENES QUE LEER LAS PRIMERAS 2 , la primera linea es un char* y la segunda es un int
+		que tenes que pasarle al connect.*/
+>>>>>>> Stashed changes
 
-	//getInformation();
-	game();
-}
-
-void game(){
-	changemode(1);
-	int pressed;
-	int rta;
-	Point * p = malloc(sizeof(Point));
-	while(/*deberia ser mientras no haya perdido */ 1){
-		while(!kbhit()){ /*If a key has been pressed */
 			pressed=getchar();
 			if(pressed == DOWN_ARROW ){
 				p.x = 0;
 				p.y = 1;
 				sendPoint(p);
 			}else if(pressed == UP_ARROW){
-				p.x = 0;
-				p.y = -1;
+				p->x = 0;
+				p->y = -1;
 				sendPoint(p);
 			}else if(pressed == LEFT_ARROW){
-				p.x = -1;
-				p.y = 0;
+				p->x = -1;
+				p->y = 0;
 				sendPoint(p);
 			}else if(pressed == RIGHT_ARROW){
-				p.x = 1;
-				p.y = 0;
+				p->x = 1;
+				p->y = 0;
 				sendPoint(p);
 			}
+
 		}
+		int type;
+		recieveData(c,sd2);
+		void * info = unmarshalling(sd2->data,&type);
+		if(type == BOARD){
+			printBoard((Board * )info);
+		}else if(type == STRING){
+			String * s = (String *)info;
+			checkStringGame(s);
+		}
+
 	}
 	free(p);
 	changemode(0);
+}
+
+int checkStringGame(String * s){
+	if(strcmp(s-> string,"Terminado")){
+		return 0;
+	}
+	return 1;
+}
+
+int checkStringInfo(String * s){
+	if(strcmp(s-> string,"Pertenece")){
+		return 1;
+	}
+	return 0;
 }
 
 int sendPoint(Point * p){
@@ -82,7 +106,7 @@ void getInformation(){
 	String * name = malloc(sizeof(String));
 	char * nombre = malloc (20 *sizeof(char));
    	char * pass = malloc(20 *sizeof(char));
-   	int belongs,rta,type;
+   	int belongs=0,rta,type;
 
    	getName(nombre);
 	name->size= strlen(nombre);
@@ -94,6 +118,11 @@ void getInformation(){
 
 	recieveData(c,buffer);
 	void * recieved = unmarshalling(buffer.data,&type);
+
+	if(type = STRING){
+		String * s = (String *) recieved;
+		belongs = checkStringInfo(s);
+	}
 
 	if(belongs){
 		printf("Ingrese su contraseña para poder ingresar\n");
@@ -108,7 +137,12 @@ void getInformation(){
 	rta = sendString(sd);
 	if(rta == 0)
 		printf("Error conectandose con el servidor\n");
-	recieveData();
+	recieveData(c,buffer);
+	void * passRec = unmarshalling(buffer.data,&type);
+	if(type = STRING){
+		String * s = (String *) recieved;
+		belongs = checkStringInfo(s);
+	}
 
 	if(belongs){
 
@@ -141,13 +175,13 @@ void getPass(char * pass){
 	int i=0,c;
 	while(i<20){
 		changemode(1);
-		while(!kbhit()){
+		while(!kbhit() && i<20){
 			c = getchar();
 			if(c == BACKSPACE && i !=0){
 				i--;
 			}else if (c == '\n' && i != 0){
 				pass[i]='\0';
-				break;
+				i=20;
 			}else{
 				pass[i]=c;
 				i++;
@@ -155,7 +189,7 @@ void getPass(char * pass){
 		}
 	}
 	changemode(0);
-	pass[i]='\0';
+	pass[i-1]='\0';
 }
 
 void getName(char * name){
