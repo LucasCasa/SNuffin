@@ -20,20 +20,21 @@ int main(int argc, const char* argv[]){
 
    fgets(srvAddr,BUFFER_SIZE,fp);
    fgets(cliAddr,BUFFER_SIZE,fp);
-   fprintf(cliAddr,"%s%d",cliAddr,getpid());
-
-    Connection * selfc = start_ipc(cliAddr);
-    Connection * server = malloc(sizeof(Connection));
-    server->addr = srvAddr;
-    StreamData * buffer = malloc(sizeof(buffer));
-    buffer->data = "Probando";
-    buffer->size = 9;
-    sendData(server,buffer);
-    Connection * fserver = accept(server);
-    StreamData * buffer2 = malloc(sizeof(buffer));
-    buffer->data = "Probando con el hijo";
-    buffer->size = 21;
-    sendData(fserver,buffer2);
-    close_ipc(selfc);
+   printf("%s\n",srvAddr);
+   Connection *c = connect(srvAddr,0);
+   int i = 0;
+   printf("Abri la conexion,Esperando Datos\n");
+   /*StreamData *d  = malloc(sizeof(StreamData));
+   d->data = "1";
+   d->size = 2;
+   sendData(c,d);*/
+  while(i < 2){
+     StreamData *b = malloc(sizeof(StreamData));
+    b->data = malloc(256);
+    printf("EN el WHILE\n");
+    receiveData(c,b);
+    i++;
+    printf("%s\n",b->data);
+  }
     printf("Me fui\n");
 }

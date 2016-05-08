@@ -6,13 +6,14 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <errno.h>
 
 #define BUFFER_SIZE 256
 
 
 int fdr;
 int fdw;
-char* ADDR = "/tmp/server"
+char* ADDR = "/tmp/server";
 //char* srvFifo;
 //char* cliFifo;
 //int* ids;
@@ -24,16 +25,20 @@ char* ADDR = "/tmp/server"
 
 Connection * listen(int id){
   char* aux = malloc(strlen(ADDR) + 7);
+  printf("Malloquee\n");
   if(id == 0){
-    aux = ADDR;
+    memcpy(aux,ADDR,strlen(ADDR));
   }else{
     sprintf(aux,"%s%d",ADDR,id);
   }
+  printf("Setee ADDr\n");
    mkfifo(aux,0666);
-
+   printf("Hice FIFO, %s\n",aux);
    Connection *c = malloc(sizeof(Connection));
-   c->fd = open(aux,O_RDONLY);
+   c->fd2 = open(aux,0666);
+   printf("Setee fd %d\n",c->fd2);
    free(aux);
+   printf("libero aux\n");
    return c;
 }
 Connection * connect(char * addr,int id){
@@ -47,25 +52,36 @@ Connection * connect(char * addr,int id){
     sprintf(auxr,"%sr",aux);
     sprintf(auxw,"%sw",aux);
     if(access(auxr,F_OK) != 0){
-      mkfifo(auxr,0666);
+      int a = mkfifo(auxr,0666);
+      printf("Cree el fifo read %d\n",a );
     }
     if(access(auxw,F_OK) != 0){
-      mkfifo(auxw,0666);
+      int a = mkfifo(auxw,0666); // VER PORQUE NO DEJA O_RDONLY
+      printf("Cree el fifo write %d\n",a );
     }
-    fdw = open(auxw,O_WRONLY);
-    fdr = open(auxr,O_RDONLY);
-
+    printf("Hola\n");
+    fdw = open(auxw,0666);
+    fdr = open(auxr,0666);
+    printf("CHAU\n");
    Connection *c = malloc(sizeof(Connection));
    /*int size = strlen(addr) + 1;
    c->addr = malloc(size);
    memcpy(c->addr,addr,size);*/
-   c->fd = open(addr,O_WRONLY);
+   addr[strlen(addr) -1] = 0;
+   printf("Abriendo %s\n",addr );
+   printf("%d\n",access(addr,F_OK) );
+   c->fd = open(addr,0666);
+   if(c->fd == -1){
+     perror("ERROR: ");
+   }
+   printf("Abierto\n");
    StreamData *d = malloc(sizeof(StreamData));
    d->data = malloc(BUFFER_SIZE);
    sprintf(d->data,"@%d",getpid());
    d->size = strlen(d->data);
-
+   printf("Mando inicio de conexio a: %d, %s\n",c->fd,addr);
    sendData(c,d);
+   printf("Mandando\n");
    free(d->data);
    free(d);
    free(auxr);
@@ -85,8 +101,9 @@ Connection * accept(Connection * c){
   d->data = malloc(BUFFER_SIZE);
   receiveData(c,d);
   Connection * newc = malloc(sizeof(Connection));
+  int id  = 0;
   if(d->data[0] == '@'){
-    int id = atoi(d->data + 1);
+    id = atoi(d->data + 1);
   }
   char* aux = malloc(BUFFER_SIZE);
   char* auxr = malloc(BUFFER_SIZE);
@@ -94,29 +111,33 @@ Connection * accept(Connection * c){
   sprintf(aux,"/tmp/client%d",id);
   sprintf(auxr,"%sr",aux);
   sprintf(auxw,"%sw",aux);
-  int fdw = open(auxw,O_WRONLY);
-  int fdr = open(auxr,O_RDONLY);
-  newc->fd = fdw;
-  newc->fd2 = fdr;
+  int fdw = open(auxw,0666);
+  int fdr = open(auxr,0666);
+  newc->fd = fdr; // el fdr es donde el peer va a hablarle al otro peer
+  newc->fd2 = fdw; // el fdw es donde el peer va a escuchar al peer
   /* tendria que tener 2 fd
   o 2 connections*/
 
   return newc; // por testeo
 }
 void closeComm(Connection *c){
-  close(c->id);
+  close(c->fd);
 
 }
 
 int sendData(Connection* c,StreamData* d){
-  printf("Sending data to: %s\n",c->addr);
+  printf("Sending data to: %d\n",c->fd);
   printf("Data: %s\n",d->data);
-  write(c->id, d->data,d->size);
+  write(c->fd, d->data,d->size);
 }
 
 void receiveData(Connection* c, StreamData* b){
   int a = 0;
-  a = read(c->id, b->data,BUFFER_SIZE);
+  if(c->fd2 == 0){
+    a = read(fdr, b->data,BUFFER_SIZE);
+  }else{
+    a = read(c->fd2, b->data,BUFFER_SIZE);
+  }
   printf("STRING: %s\n",b->data);
   printf("SIZE: %d\n",a );
   b->size = strlen(b->data);

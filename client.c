@@ -20,6 +20,7 @@ int sendString(String * p);
 
 Connection * c;
 char * address; //address leo la primera linea del archivo de configuracion y mando la primera línea.
+
 StreamData sd,buffer;
 
 int main(){
@@ -27,6 +28,8 @@ int main(){
 }
 
 void start_game(){
+	/*TODO OJO MAGGIE QUE AHORA TENES QUE LEER LAS PRIMERAS 2 , la primera linea es un char* y la segunda es un int
+	que tenes que pasarle al connect.*/
 	c = connect(address);
 
 	//getInformation();
@@ -88,7 +91,7 @@ void getInformation(){
 	int rta = sendString(name);
 	if(rta == 0)
 		printf("Error conectandose con el servidor\n");
-	
+
 	recieveData(c,buffer);
 	void * recieved = unmarshalling(buffer.data,&type);
 
@@ -111,18 +114,18 @@ void getInformation(){
 
 	}else if{
 		int w_pass=1;
-		//pregunto si lo que escribio esta bien. sino que ingrese su contraseña de vuelta. 
+		//pregunto si lo que escribio esta bien. sino que ingrese su contraseña de vuelta.
 		do{
 			printf("Contraseña incorrecta, ingresela de nuevo.\n");
 			getPass(pass);
 			password.size = strlen(pass);
 			password.string = pass;
-			
+
 			rta = sendString(sd);
 			if(rta == 0)
 				printf("Error conectandose con el servidor\n");
 			recieveData(c,buffer);
-			//lo manda de vuelta y cambio w_pass 
+			//lo manda de vuelta y cambio w_pass
 		}while(!w_pass);
 	}
 	free(pass);
@@ -148,7 +151,7 @@ void getPass(char * pass){
 			}else{
 				pass[i]=c;
 				i++;
-			}	
+			}
 		}
 	}
 	changemode(0);
@@ -162,7 +165,7 @@ void getName(char * name){
 
 void changemode(int dir){
   static struct termios oldt, newt;
- 
+
   if ( dir == 1 ){
     tcgetattr( STDIN_FILENO, &oldt);
     newt = oldt;
@@ -172,20 +175,20 @@ void changemode(int dir){
   else
     tcsetattr( STDIN_FILENO, TCSANOW, &oldt);
 }
- 
+
 int kbhit (void){
   struct timeval tv;
   fd_set rdfs;
- 
+
   tv.tv_sec = 0;
   tv.tv_usec = 0;
- 
+
   FD_ZERO(&rdfs);
   FD_SET (STDIN_FILENO, &rdfs);
- 
+
   select(STDIN_FILENO+1, &rdfs, NULL, NULL, &tv);
   return FD_ISSET(STDIN_FILENO, &rdfs);
- 
+
 }
 
 void printBoard(Board *b){
@@ -218,6 +221,3 @@ void printBoard(Board *b){
      printf("  ");
    }
  }
-
-
-

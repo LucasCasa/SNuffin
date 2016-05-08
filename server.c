@@ -6,7 +6,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include "com.h"
-#include "db.h"
+//include "db.h"
 
 
 #define BUFFER_SIZE 1024
@@ -14,11 +14,11 @@ int split (const char *str, char c, char ***arr);
 
 int main(int argc, const char* argv[]){
 
-    int db = fork();
+  /*  int db = fork();
     if(db == 0){
-      manageDataBase();
-    }
-    FILE * fp;
+      //manageDataBase();
+    }*/
+    /*FILE * fp;
     char * srvAddr = malloc(BUFFER_SIZE);
 
     fp = fopen("./configFIFO", "r");
@@ -27,38 +27,56 @@ int main(int argc, const char* argv[]){
 
    fgets(srvAddr,BUFFER_SIZE,fp);
 
-
-    Connection * selfc = start_ipc(srvAddr);
-
+   EN UN FUTURO HAY QUE HACER ESTO BIEN, ESTO ES SOLO PARA TEST
+    */
+    Connection * selfc = listen(0);
+    printf("Estoy esuchando\n");
     while(1){
-    StreamData * buffer = malloc(sizeof(buffer));
-    buffer->data = malloc(2048);
-    receiveData(selfc,buffer);
-
-    if(buffer->data[0] == '@'){
-      printf("Lei un accept\n");
-      int child = fork();
-      if(child == 0){
-        printf("Me forkee soy hijo\n");
-        char * aux = malloc(sizeof(srvAddr) + 6);
-        sprintf(aux,"%s%d",srvAddr,getpid());
-        selfc = start_ipc(aux);
-
-      }else{
-        Connection *c = malloc(sizeof(Connection));
-        c->addr = buffer->data + 1;
-        StreamData *daux = malloc(sizeof(StreamData));
-        daux->data = malloc(BUFFER_SIZE);
-        sprintf(daux->data,"%s%d",srvAddr,getpid());
-        daux->size = strlen(daux->data);
-        sendData(c,daux);
-      }
-    }else{
+     StreamData * buffer = malloc(sizeof(StreamData));
+     buffer->data = malloc(2048);
+    // receiveData(selfc,buffer);
+    printf("Accept en %d\n",selfc->fd2);
+    Connection *new = accept(selfc);
+    printf("Nueva conexion\n");
+    /*receiveData(new,buffer);
+    printf("Recibi: %s\n",buffer->data);*/
+    /* ACA tendria que haber un marshalling*/
+    int joinServer = atoi(buffer->data);
+    StreamData *d = malloc(sizeof(StreamData));
+    int child = fork();
+    if(child == 0){
+      d->data = "Soy el hijo y te mande un mensaje";
       printf("%s\n",buffer->data);
+      d->size = 34;
+      sendData(new, d);
+    }else{
+      d->data = "Soy el padre y te mande un mensaje";
+      d->size = 35;
+      sendData(new, d);
     }
-    }
-
-    close_ipc(selfc);
+    // if(buffer->data[0] == '@'){
+    //   printf("Lei un accept\n");
+    //   int child = fork();
+    //   if(child == 0){
+    //     printf("Me forkee soy hijo\n");
+    //     char * aux = malloc(sizeof(srvAddr) + 6);
+    //     sprintf(aux,"%s%d",srvAddr,getpid());
+    //     selfc = start_ipc(aux);
+    //
+    //   }else{
+    //     Connection *c = malloc(sizeof(Connection));
+    //     c->addr = buffer->data + 1;
+    //     StreamData *daux = malloc(sizeof(StreamData));
+    //     daux->data = malloc(BUFFER_SIZE);
+    //     sprintf(daux->data,"%s%d",srvAddr,getpid());
+    //     daux->size = strlen(daux->data);
+    //     sendData(c,daux);
+    //   }
+    //}else{
+    //  printf("%s\n",buffer->data);
+    //}
+    //}
+  }
     printf("Me fui\n");
 }
 
