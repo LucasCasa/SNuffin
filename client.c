@@ -23,25 +23,27 @@ int sendString(String * p);
 
 
 Connection * c;
-char * address; //address leo la primera linea del archivo de configuracion y mando la primera línea.
+char * address;
 
 StreamData sd,buffer;
 StreamData sd2;
 
-int main(){
-	return 0;
+void game(){
+/*TODO OJO MAGGIE QUE AHORA TENES QUE LEER LAS PRIMERAS 2 , la primera linea es un char* y la segunda es un int
+	que tenes que pasarle al connect.*/
+	c = connect(address);
+
+	getInformation();
+	start_game();
 }
 
 void start_game(){
-<<<<<<< Updated upstream
-	/*TODO OJO MAGGIE QUE AHORA TENES QUE LEER LAS PRIMERAS 2 , la primera linea es un char* y la segunda es un int
-	que tenes que pasarle al connect.*/
-	c = connect(address);
-=======
-	    /*TODO OJO MAGGIE QUE AHORA TENES QUE LEER LAS PRIMERAS 2 , la primera linea es un char* y la segunda es un int
-		que tenes que pasarle al connect.*/
->>>>>>> Stashed changes
-
+	changemode(1);
+	int game = 1;
+	int pressed;
+	Point * p = malloc(sizeof(Point));
+	while(game){
+		while(!kbhit() && game){ /*If a key has been pressed */
 			pressed=getchar();
 			if(pressed == DOWN_ARROW ){
 				p.x = 0;
@@ -69,7 +71,7 @@ void start_game(){
 			printBoard((Board * )info);
 		}else if(type == STRING){
 			String * s = (String *)info;
-			checkStringGame(s);
+			game = checkStringGame(s);
 		}
 
 	}
