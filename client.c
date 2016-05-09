@@ -227,8 +227,10 @@ int kbhit (void){
 }
 
 void printBoard(Board *b){
-  for(int i = 0;i<b->rows;i++){
-    for(int j = 0; j<b->columns;j++){
+  int i;
+  int j;
+  for(i = 0;i<b->rows;i++){
+    for(j = 0; j<b->columns;j++){
       printPlayerColor(b->board[i][j]);
     }
     printf("\n");
