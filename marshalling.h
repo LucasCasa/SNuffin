@@ -7,6 +7,12 @@
 #define STRING '3'
 #define POINT '1'
 #define BOARD '5'
+
+#define STRING_N STRING - '0'
+#define POINT_N POINT - '0'
+#define BOARD_N BOARD - '0'
+#define PLAYER_N PLAYER - '0'
+
 #define SEP '#' //el separador
 
 void * unmarshalling(char * data, int * type); //devuelve por parametro de que tipo es lo que se mando y el void * con la estructura

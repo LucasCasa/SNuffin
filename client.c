@@ -1,10 +1,12 @@
 #include "client.h"
 
 
-void start_game();
+void startGame();
 void game();
 
-void changemode(int dir);
+void readFile();
+
+void changeMode(int dir);
 int kbhit (void);
 
 void printPlayerColor(int pNum);
@@ -24,6 +26,7 @@ int sendString(String * p);
 
 Connection * c;
 char * address;
+int f2;
 
 StreamData sd,buffer;
 StreamData sd2;
@@ -31,14 +34,24 @@ StreamData sd2;
 void game(){
 /*TODO OJO MAGGIE QUE AHORA TENES QUE LEER LAS PRIMERAS 2 , la primera linea es un char* y la segunda es un int
 	que tenes que pasarle al connect.*/
-	c = connect(address);
-
+	readFile();
+	c = connectToPeer(address,f2);
 	getInformation();
-	start_game();
+	startGame();
 }
 
-void start_game(){
-	changemode(1);
+void readFile(){
+	FILE * f;
+	f = fopen(ARCHIVO, "r");
+	if(f == NULL){
+		perror("config");
+	}
+
+
+}
+
+void startGame(){
+	changeMode(1);
 	int game = 1;
 	int pressed;
 	Point * p = malloc(sizeof(Point));
@@ -46,8 +59,8 @@ void start_game(){
 		while(!kbhit() && game){ /*If a key has been pressed */
 			pressed=getchar();
 			if(pressed == DOWN_ARROW ){
-				p.x = 0;
-				p.y = 1;
+				p->x = 0;
+				p->y = 1;
 				sendPoint(p);
 			}else if(pressed == UP_ARROW){
 				p->x = 0;
@@ -62,21 +75,19 @@ void start_game(){
 				p->y = 0;
 				sendPoint(p);
 			}
-
+			int type;
+			receiveData(c,&sd2);
+			void * info = unmarshalling(sd2.data,&type);
+			if(type == BOARD_N){
+				printBoard((Board * )info);
+			}else if(type == STRING_N){
+				String * s = (String *)info;
+				game = checkStringGame(s);
+			}
 		}
-		int type;
-		recieveData(c,sd2);
-		void * info = unmarshalling(sd2->data,&type);
-		if(type == BOARD){
-			printBoard((Board * )info);
-		}else if(type == STRING){
-			String * s = (String *)info;
-			game = checkStringGame(s);
-		}
-
 	}
 	free(p);
-	changemode(0);
+	changeMode(0);
 }
 
 int checkStringGame(String * s){
@@ -95,12 +106,12 @@ int checkStringInfo(String * s){
 
 int sendPoint(Point * p){
 	sd.data = marshalling(p,POINT,&(sd.size));
-	return sendData(c,sd);
+	return sendData(c,&sd);
 }
 
 int sendString(String * string){
 	sd.data = marshalling(string,STRING, &(sd.size));
-	return sendData(c,sd);
+	return sendData(c,&sd);
 }
 
 void getInformation(){
@@ -114,14 +125,14 @@ void getInformation(){
 	name->size= strlen(nombre);
 	name->string = nombre;
 
-	int rta = sendString(name);
+	rta = sendString(name);
 	if(rta == 0)
 		printf("Error conectandose con el servidor\n");
 
-	recieveData(c,buffer);
+	receiveData(c,&buffer);
 	void * recieved = unmarshalling(buffer.data,&type);
 
-	if(type = STRING){
+	if(type == STRING_N){
 		String * s = (String *) recieved;
 		belongs = checkStringInfo(s);
 	}
@@ -133,36 +144,41 @@ void getInformation(){
 	}
 
 	getPass(pass);
-	password.size = strlen(pass);
-	password.string = pass;
+	password->size = strlen(pass);
+	password->string = pass;
 
-	rta = sendString(sd);
+	rta = sendString(password);
 	if(rta == 0)
 		printf("Error conectandose con el servidor\n");
-	recieveData(c,buffer);
+
+	receiveData(c,&buffer);
 	void * passRec = unmarshalling(buffer.data,&type);
-	if(type = STRING){
+	if(type == STRING_N){
 		String * s = (String *) recieved;
 		belongs = checkStringInfo(s);
 	}
 
 	if(belongs){
-
-	}else if{
+		printf("Su nombre ha sido registrado correctamente\n");
+	}else{
 		int w_pass=1;
-		//pregunto si lo que escribio esta bien. sino que ingrese su contraseña de vuelta.
 		do{
 			printf("Contraseña incorrecta, ingresela de nuevo.\n");
 			getPass(pass);
-			password.size = strlen(pass);
-			password.string = pass;
+			password->size = strlen(pass);
+			password->string = pass;
 
-			rta = sendString(sd);
+			rta = sendString(password);
 			if(rta == 0)
 				printf("Error conectandose con el servidor\n");
-			recieveData(c,buffer);
-			//lo manda de vuelta y cambio w_pass
+			receiveData(c,&buffer);
+			void * passRec = unmarshalling(buffer.data,&type);
+			if(type == STRING_N){
+				String * s = (String *) recieved;
+				w_pass = checkStringInfo(s);
+			}
 		}while(!w_pass);
+		printf("Se ha podido registrar correctamente\n");
 	}
 	free(pass);
 	free(nombre);
@@ -176,7 +192,7 @@ void getInformation(){
 void getPass(char * pass){
 	int i=0,c;
 	while(i<20){
-		changemode(1);
+		changeMode(1);
 		while(!kbhit() && i<20){
 			c = getchar();
 			if(c == BACKSPACE && i !=0){
@@ -190,7 +206,7 @@ void getPass(char * pass){
 			}
 		}
 	}
-	changemode(0);
+	changeMode(0);
 	pass[i-1]='\0';
 }
 
@@ -199,7 +215,7 @@ void getName(char * name){
 	scanf("%20s",name);
 }
 
-void changemode(int dir){
+void changeMode(int dir){
   static struct termios oldt, newt;
 
   if ( dir == 1 ){
@@ -233,7 +249,6 @@ void printBoard(Board *b){
   for(int i = 0;i<b->rows;i++){
     for(int j = 0; j<b->columns;j++){
       printPlayerColor(b->board[i][j]);
-      b->graphicBoard[i][j]
     }
     printf("\n");
   }
