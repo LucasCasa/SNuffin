@@ -28,10 +28,34 @@ int manageDataBase(){
   // getHighscore("lucas");
   // getHighscore("maggie");
   // getHighscore("kuyum");
-  printf("Entro al WHile\n");
+  printf("Entro al While\n");
   while(1){
-    if(shmPointer[0] != 0){
-      printf("%c\n",shmPointer[0]);
+    if(shmPointer[TYPEPOS] != READY){
+      switch(shmPointer[TYPEPOS]){
+        case ISUSER:
+          shmPointer[RETURNPOS] = (char) isUser(shmPointer + FIRSTARGUMENT);
+          shmPointer[TYPEPOS] = READY;
+        break;
+        case ISPASSWORD:
+          shmPointer[RETURNPOS] = (char) isPassword(shmPointer + FIRSTARGUMENT, shmPointer + SECONDARGUMENT);
+          shmPointer[TYPEPOS] = READY;
+        break;
+        case GETHIGHSCORE:
+          loadInt(shmPointer + RETURNPOS,getHighscore(shmPointer + FIRSTARGUMENT));
+          shmPointer[TYPEPOS] = READY;
+        break;
+        case SETHIGHSCORE:
+          shmPointer[RETURNPOS] = setHighscore(shmPointer + FIRSTARGUMENT, atoi(shmPointer + SECONDARGUMENT));
+          shmPointer[TYPEPOS] = READY;
+        break;
+        case CREATEUSER:
+          shmPointer[RETURNPOS] = createUser(shmPointer + FIRSTARGUMENT, shmPointer + SECONDARGUMENT);
+          shmPointer[TYPEPOS] = READY;
+        break;
+        default:
+          printf("Comando enviado a la DB invalido\n");
+        break;
+      }
 
    }
     //printf("Base de Datos sigue funcionado\n");
@@ -47,12 +71,13 @@ int isUser(char* user){
   sqlite3_stmt* stmt;
   int c = 0;
   sprintf(sql,"SELECT Count(*) FROM player WHERE name = '%s'",user);
-  printf("SQL: %s\n",sql );
+  //printf("SQL: %s\n",sql );
   printError(sqlite3_prepare_v2(db,sql,-1,&stmt,NULL));
   printError(sqlite3_step(stmt));
-  (sqlite3_column_int(stmt, 0) == 1)?printf("Exists\n"):printf("Don't Exist\n");
+  c = sqlite3_column_int(stmt, 0);
+  //(c == 1)?printf("Exists\n"):printf("Don't Exist\n");
   printError(sqlite3_finalize(stmt));
-  return 0;
+  return c;
 }
 int isPassword(char* user, char * pass){
   char* sql = malloc(400);
@@ -60,32 +85,33 @@ int isPassword(char* user, char * pass){
   char* result;
   int c = 0;
   sprintf(sql,"SELECT * FROM player WHERE name = '%s'",user);
-  printf("SQL: %s\n",sql );
+  //printf("SQL: %s\n",sql );
   printError(sqlite3_prepare_v2(db,sql,-1,&stmt,NULL) );
   printError(sqlite3_step(stmt) );
   result = sqlite3_column_text(stmt, 1);
-
-  if(result != NULL && strcmp(result,pass) == 0){
-    printf("Hay Match\n");
-  }else{
-    printf("No hay Match\n");
-  }
   printError(sqlite3_finalize(stmt));
-  return 0;
+  if(result != NULL && strcmp(result,pass) == 0){
+    return 1;
+  }else{
+    return 0;
+  }
 }
 
 int createUser(char * user, char * pass){
 char * sql = malloc(500);
 char *zErrMsg = 0;
 sprintf(sql,"INSERT INTO player VALUES ('%s','%s',%d)",user,pass,0);
-printf("SQL: %s\n",sql);
+//printf("SQL: %s\n",sql);
 int rc = sqlite3_exec(db, sql, callback, 0, &zErrMsg);
 if( rc != SQLITE_OK ){
       fprintf(stderr, "SQL error: %s\n", zErrMsg);
       sqlite3_free(zErrMsg);
+      return 1;
    }else{
       fprintf(stdout, "Records created successfully\n");
+      return 0;
    }
+
 }
 static int callback(void *NotUsed, int argc, char **argv, char **azColName){
    int i;
@@ -106,7 +132,7 @@ int getHighscore(char * player){
   int result = sqlite3_column_int(stmt, 2);
   printf("Score: %d\n",result );
   printError(sqlite3_finalize(stmt));
-  return 0;
+  return result;
 }
 
 int setHighscore(char * player,int highscore){
@@ -116,13 +142,15 @@ int setHighscore(char * player,int highscore){
   int c = 0;
   int rc = 0;
   sprintf(sql,"UPDATE player set score = %d where name = '%s' ",highscore,player);
-  printf("SQL: %s\n",sql );
+  //printf("SQL: %s\n",sql );
   rc = sqlite3_exec(db, sql, callback, 0, &zErrMsg);
    if( rc != SQLITE_OK ){
       fprintf(stderr, "SQL error: %s\n", zErrMsg);
       sqlite3_free(zErrMsg);
+      return 1;
    }else{
       fprintf(stdout, "Operation done successfully\n");
+      return 0;
    }
 }
 int close2(){
@@ -142,4 +170,20 @@ int printError(int rv){
     fprintf(stderr, "%s\n", sqlite3_errmsg(db));
   }
   return rv;
+}
+void loadInt(char* pos, int value){
+  int aux = value;
+  int digits = 0;
+  while(aux > 0){
+    digits++;
+    //printf("%d\n", digits);
+    aux = aux / 10;
+  }
+  pos[digits] = 0;
+  while(value > 0){
+    //printf("%d\n", digits);
+    pos[--digits] = value % 10 + '0';
+    value = value / 10;
+  }
+  //printf("%s\n",pos );
 }

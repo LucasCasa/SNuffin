@@ -151,15 +151,15 @@ char * marshBoard(Board* s,int * size){
 	char * d1;
 	char * d2;
 	int i,j;
-	int size1 = 1 + 1 + 1 + 1 + numPlaces(s -> filas) + numPlaces(s->columnas);
-	int size2 = (s->filas)*(s->columnas);
+	int size1 = 1 + 1 + 1 + 1 + numPlaces(s -> rows) + numPlaces(s->columns);
+	int size2 = (s->rows)*(s->columns);
 	d1 = malloc ((size1 + size2)*sizeof(char));
 	d2 = malloc (size2 *sizeof(char));
-	sprintf(d1,"%d%d%c%d%c",BOARD - '0',s->filas, SEP, s->columnas,SEP);
+	sprintf(d1,"%d%d%c%d%c",BOARD - '0',s->rows, SEP, s->columns,SEP);
 	for(i=0;i<s->rows;i++){
 		printf("%d\n", i);
 		for(j=0;j<s->columns;j++){
-			d2[j + i*(s->filas)]= (s->board)[i][j];
+			d2[j + i*(s->rows)]= (s->board)[i][j];
 		}
 	}
 	strcat(d1,d2);
@@ -172,16 +172,17 @@ char * marshString(String * s, int * size){
 	int cant = 1 + 1 + 1 + s->size + numPlaces(s->size);
 	d = malloc (cant*sizeof(char));
 	sprintf(d,"%d%d%c%s",STRING - '0', s->size,SEP, s->string);
-	d[size -1] ='\0';
+	d[cant -1] ='\0';
 	*size = cant;
 	return d;
 }
 
-char * marshPlayerPos(PlayerPos * p){
+char * marshPlayerPos(PlayerPos * p,int * size){
 	char * d;
-	int size = 1 + 1 + 1 + numPlaces(p->dir->x) + numPlaces(p->dir->y) + 1;
-	d = malloc(size * sizeof(char));
+	int cant = 1 + 1 + 1 + numPlaces(p->dir->x) + numPlaces(p->dir->y) + 1;
+	d = malloc(cant * sizeof(char));
 	sprintf(d,"%d%d%d%c%d",PLAYER - '0',p->pNumber,p->dir->x,SEP,p->dir->y);
+	*size = cant;
 	return d;
 }
 

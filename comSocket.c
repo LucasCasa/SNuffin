@@ -10,7 +10,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
-#define MAX_CONNECTIONS 4 
+#define MAX_CONNECTIONS 4
 #define MAX_CONNECTION_QUEUE 4
 
 struct sockaddr_in my_addr;
@@ -163,7 +163,7 @@ Connection * acceptConnection(Connection * c){
 				printf("isset\n");
 				Connection * conn = malloc(sizeof(Connection));
 				conn->fd = sd;
-				return conn; 
+				return conn;
 			}
 		}
 	//}
@@ -178,7 +178,7 @@ void closeConn(Connection * c){
 int sendData(Connection * connection, StreamData * req){
    /* Send message to the server */
    int n = send(connection->fd, req->data, req->size,MSG_NOSIGNAL);
-   
+
    if (n < 0) {
       perror("ERROR writing to socket");
       exit(1);
@@ -220,7 +220,7 @@ int main(){
 
 	StreamData * sd = malloc(sizeof(StreamData));
 	sd->data = malloc(BUFFER_SIZE);
-	
+
 	sprintf(sd->data,"hello testing");
 	printf("send data\n");
 	sendData(self,sd);
