@@ -7,6 +7,7 @@
 #define STRING '3'
 #define POINT '1'
 #define BOARD '5'
+#define SERVER_ID '8'
 
 #define STRING_N STRING - '0'
 #define POINT_N POINT - '0'
@@ -18,8 +19,7 @@
 void * unmarshalling(char * data, int * type); //devuelve por parametro de que tipo es lo que se mando y el void * con la estructura
 
 
-// el marshalling recibe un puntero a void con la estructura, un type con que tipo de estructura es. Devuelve el char * y por
-//parámetro el tamaño del char *.
-char * marshalling(void * struc, int type, int * size);
+// el marshalling recibe un puntero a void con la estructura, un type con que tipo de estructura es.Devuelve un streamData
+StreamData * marshalling(void * struc, int type);
 
 #endif

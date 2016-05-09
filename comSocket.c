@@ -14,8 +14,8 @@
 #define MAX_CONNECTION_QUEUE 4
 
 struct sockaddr_in my_addr;
-int peerLimit;
-int * peers;
+//int peerLimit;
+//int * peers;
 socklen_t addr_size;
 
 
@@ -93,17 +93,27 @@ Connection * listenConnection(int port){
 	printf("Waiting for connections...\n");
   	addr_size = sizeof(struct sockaddr_in);
 
-  	peers = malloc(MAX_CONNECTIONS*sizeof(int));
+  	/*peers = malloc(MAX_CONNECTIONS*sizeof(int));
     peerLimit = MAX_CONNECTIONS;
 
     // Set peers on 0
   	for(i=0; i<peerLimit; i++)
-    	peers[i] = 0;
+    	peers[i] = 0;*/
 	return c;
 }
 
-Connection* acceptConnection(Connection * c){
-	int max_sd, space_available, i, sd, ans, ans_select;
+Connection * acceptConnection(Connection * c){
+
+	Connection * newConn = malloc(sizeof(Connection));
+
+	if ((newConn->fd = accept(c->fd, (struct sockaddr *)&my_addr, (socklen_t*) &addr_size))<0){
+ 		perror("accept");
+ 		exit(1);
+	}
+
+	return newConn;
+
+	/*int max_sd, space_available, i, sd, ans, ans_select;
 	fd_set readfds;
 
 	FD_ZERO(&readfds);
@@ -143,24 +153,26 @@ Connection* acceptConnection(Connection * c){
 	}
 	if(!space_available)
 	  printf("Server is full.\n");
-	}else{
+	}//else{
 		//else its an operation for an existing socket
 		for (i = 0; i < peerLimit; i++){
 			sd = peers[i];
+			printf("sd=%d\n",sd);
 
-			if (sd!=0 && FD_ISSET( sd , &readfds)){
+			if (sd!=0 && FD_ISSET(sd, &readfds)){
+				printf("isset\n");
 				Connection * conn = malloc(sizeof(Connection));
 				conn->fd = sd;
 				return conn;
 			}
 		}
-	}
-	return NULL;
+	//}
+	return NULL;*/
 }
 
 void closeConn(Connection * c){
 	close(c->fd);
-	free(peers);
+	//free(peers);
 }
 
 int sendData(Connection * connection, StreamData * req){
@@ -182,14 +194,13 @@ void receiveData(Connection * connection, StreamData * buffer){
   	    perror("receive");
    	}
    	// if 0 then peer closed connection
-  	else if(ans==0){
+  	/*else if(ans==0){
   		closePeer(connection->fd);
-  	}
+  	}*/
    	buffer->size = ans;
-   	printf("EN RECEIVE ANS: %d\n",ans);
 }
 
-void closePeer(int fd){
+/*void closePeer(int fd){
 	int i;
 	for(i=0; i<peerLimit; i++){
 		if(peers[i]==fd){
@@ -197,7 +208,7 @@ void closePeer(int fd){
 			return;
 		}
 	}
-}
+}*/
 
 // Main for client
 
@@ -211,36 +222,44 @@ int main(){
 	sd->data = malloc(BUFFER_SIZE);
 
 	sprintf(sd->data,"hello testing");
-
+	printf("send data\n");
 	sendData(self,sd);
+
+	printf("receive data\n");
 	receiveData(self,sd2);
+	printf("after receive\n");
 
 	printf("Received: %s\n", sd2->data);
 }
 
-/*
-// Main for server
 
+// Main for server
+/*
 int main(){
 	Connection * self = listenConnection(8080);
 	Connection * connection;
 
 	StreamData * sd = malloc(sizeof(StreamData));
 	sd->data = malloc(BUFFER_SIZE);
+
+	StreamData * sd2 = malloc(sizeof(StreamData));
+	sd2->data = malloc(BUFFER_SIZE);
+
 	while(1) {
-		printf("while\n");
 		connection = acceptConnection(self);
-		printf("After acceptConnection\n");
 		if(connection!=NULL){
 			receiveData(connection, sd);
 			printf("Received: %s\n", sd->data);
 			printf("Size: %d\n", sd->size);
+			receiveData(connection, sd2);
+			printf("Received2: %s\n", sd2->data);
+			printf("Size2: %d\n", sd2->size);
 			if(sd->size>0)
 				sendData(connection, sd);
 		}
 	}
-}
-*/
+}*/
+
 /*
 //returns length of ip address (bytes)
 int processIP(char * addr, int * port){

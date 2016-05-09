@@ -6,19 +6,20 @@
 
 int numPlaces (int n) ;
 
-void * unmarshalling(char * data, int * type);
+void * unmarshalling(StreamData * data, int * type);
 
 void unmarshString(char * data, String * s );
 void unmarshPoint(char * data, Point * p);
 void unmarshBoard(char * data, Board * b);
 void unmarshPlayerPos(char * data, PlayerPos * p);
 
-char * marshalling(void * struc, int type, int * size);
+StreamData * marshalling(void * struc, int type);
 
 char * marshPoint(Point * s, int * size);
 char * marshPlayerPos(PlayerPos * p, int * size);
 char * marshBoard(Board* s, int * size);
 char * marshString(String * s, int * size);
+char * marshInt(Integer * s, int * size);
 
 void * unmarshalling(char * data, int * type){
 	if(data == NULL){
@@ -51,19 +52,26 @@ void * unmarshalling(char * data, int * type){
 	return NULL;
 }
 
-char * marshalling(void * struc, int type, int * size){
+StreamData * marshalling(void * struc, int type){
+	StreamData * sd = maloc(sizeof(StreamData));
+	char * aux;
+	int size;
 	type = type + '0';
 	if(type == STRING){
-		return marshString((String * )struc,size);
+		aux = marshString((String * )struc,&size);
 	}else if(type == BOARD){
-		return marshBoard((Board *)struc,size);
+		aux = marshBoard((Board *)struc,&size);
 	}else if(type == POINT){
-		return marshPoint((Point *)struc,size);
+		aux = marshPoint((Point *)struc,&size);
 	}else if (type == PLAYER){
-		return marshPlayerPos((PlayerPos *)struc,size);
+		aux = marshPlayerPos((PlayerPos *)struc,&size);
 	}else {
-		return NULL;
+		aux = NULL;
+		size = 0;
 	}
+	sd -> data = aux;
+	sd -> size = size;
+	return sd;
 }
 
 void unmarshPlayerPos(char * data, PlayerPos * p){
