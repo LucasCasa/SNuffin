@@ -1,26 +1,5 @@
 #include "client.h"
 
-void startGame();
-void game();
-
-void changeMode(int dir);
-int kbhit (void);
-
-void printPlayerColor(int pNum);
-void printBoard(Board *b);
-
-void getInformation();
-
-void getPass(char * pass);
-void getName(char * name);
-
-int checkStringGame(String * s);
-int checkStringInfo(String * s);
-
-int sendPoint(Point * p);
-int sendString(String * p);
-
-
 Connection * c;
 char * address;
 int f2;
@@ -28,7 +7,9 @@ int f2;
 StreamData sd,buffer;
 StreamData sd2;
 
+int main(){
 
+}
 void game(){
 /*TODO OJO MAGGIE QUE AHORA TENES QUE LEER LAS PRIMERAS 2 , la primera linea es un char* y la segunda es un int
 	que tenes que pasarle al connect.*/

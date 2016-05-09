@@ -18,4 +18,5 @@ int manageDataBase();
 int close2();
 static int callback(void *NotUsed, int argc, char **argv, char **azColName);
 int printError(int rv);
+void loadInt(char* pos, int value);
 #endif

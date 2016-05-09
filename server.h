@@ -8,8 +8,16 @@
 #include <sys/mman.h>
 #include "com.h"
 #include "db.h"
+#include "dbconst.h"
 
 extern char* shmPointer;
 
 int split (const char *str, char c, char ***arr);
+
+
 void setDB();
+char ExistUserDB(char * user);
+int validPasswordDB(char* user, char* password);
+int getHighScoreDB(char * user);
+int setHighscoreDB(char* user, int value);
+int createUserDB(char* user, char* password);

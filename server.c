@@ -21,12 +21,16 @@ int main(int argc, const char* argv[]){
    EN UN FUTURO HAY QUE HACER ESTO BIEN, ESTO ES SOLO PARA TEST
    */
    //Esto es para probar que se cambia el valor en ambos procesos.
-   sleep(1);
-   shmPointer[0] = '6';
-   sleep(1);
-   shmPointer[0] = '9';
-   sleep(1);
-   shmPointer[0] = 0;
+   (ExistUserDB("kuyum") )?printf("SI existe Kuyum\n"):printf("NO kuyum\n");
+   (ExistUserDB("LALALAAAAA") )?printf("SI existe ALALA\n"):printf("NO LALA\n");
+   (ExistUserDB("lucas") )?printf("SI existe lucas\n"):printf("NO lucas\n");
+   (validPasswordDB("lucas","lucas") )?printf("FUNCIONAA\n"):printf("NO lucas\n");
+
+   printf("Score de Lucas: %d\n",getHighScoreDB("lucas"));
+   int aux = getHighScoreDB("lucas") + 1;
+   setHighscoreDB("lucas",aux);
+   printf("Nuevo Score de Lucas: %d\n",getHighScoreDB("lucas"));
+
    Connection * selfc = listenConnection(0);
    printf("Estoy esuchando\n");
    while(1){
@@ -86,6 +90,44 @@ void setDB(){
   }
   printf("Soy el padre\n");
 }
+char ExistUserDB(char * user){
+  shmPointer[TYPEPOS] = ISUSER;
+  memcpy(shmPointer + FIRSTARGUMENT,user,strlen(user));
+  shmPointer[strlen(user) + 1 ] = 0;
+  while(shmPointer[TYPEPOS] != READY);
+  char c = shmPointer[RETURNPOS];
+  return c;
+}
+int validPasswordDB(char* user, char* password){
+ shmPointer[TYPEPOS] = ISPASSWORD;
+ memcpy(shmPointer + FIRSTARGUMENT,user,strlen(user)+1);
+ memcpy(shmPointer + SECONDARGUMENT,password, strlen(password) + 1);
+ while(shmPointer[TYPEPOS] != READY);
+ char c = shmPointer[RETURNPOS];
+ return c;
+}
+int getHighScoreDB(char * user){
+  shmPointer[TYPEPOS] = GETHIGHSCORE;
+  memcpy(shmPointer + FIRSTARGUMENT,user,strlen(user) + 1);
+  while(shmPointer[TYPEPOS] != READY);
+  int i = atoi(shmPointer+ RETURNPOS);
+  return i;
+}
+int setHighscoreDB(char* user, int value){
+  shmPointer[TYPEPOS] = SETHIGHSCORE;
+  memcpy(shmPointer + FIRSTARGUMENT, user, strlen(user) + 1);
+  loadInt(shmPointer + SECONDARGUMENT, value);
+  while(shmPointer[TYPEPOS] != READY);
+  return shmPointer[RETURNPOS];
+}
+int createUserDB(char* user, char* password){
+  shmPointer[TYPEPOS] = CREATEUSER;
+  memcpy(shmPointer + FIRSTARGUMENT,user, strlen(user) + 1);
+  memcpy(shmPointer + SECONDARGUMENT,password, strlen(password) + 1);
+  while(shmPointer[TYPEPOS] != READY);
+  return shmPointer[RETURNPOS];
+}
+
 int split (const char *str, char c, char ***arr)
 {
     int count = 1;
