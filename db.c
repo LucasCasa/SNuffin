@@ -1,10 +1,9 @@
 
 #include "db.h"
-#include <sqlite3.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
+
+
 sqlite3 *db;
+
 int init(){
      char *zErrMsg = 0;
      int rc;
@@ -20,15 +19,21 @@ int init(){
 }
 
 int manageDataBase(){
+   printf("Inicio DB\n");
   init();
+
   // createUser("maggie","maggie");
   // isUser("lucas");
   // setHighscore("kuyum",420);
   // getHighscore("lucas");
   // getHighscore("maggie");
   // getHighscore("kuyum");
+  printf("Entro al WHile\n");
   while(1){
-    exit(0);
+    if(shmPointer[0] != 0){
+      printf("%c\n",shmPointer[0]);
+
+   }
     //printf("Base de Datos sigue funcionado\n");
   }
   /* Abro el pipe y me pongo a esuchar...
