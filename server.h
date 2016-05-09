@@ -6,6 +6,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <sys/mman.h>
+#include <semaphore.h>
 #include "com.h"
 #include "db.h"
 #include "dbconst.h"

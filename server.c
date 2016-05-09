@@ -1,8 +1,10 @@
 #include "server.h"
 
 char* shmPointer;
+sem_t semDB;
 int main(int argc, const char* argv[]){
-
+    /*set de db semaphore*/
+    sem_init(&semDB,1,1);
    /* map into memory */
    shmPointer = mmap(NULL, 1024, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANON, -1, 0);
    for(int i = 0; i<1024;i++){
@@ -91,40 +93,50 @@ void setDB(){
   printf("Soy el padre\n");
 }
 char ExistUserDB(char * user){
+  sem_wait(&semDB);
   shmPointer[TYPEPOS] = ISUSER;
   memcpy(shmPointer + FIRSTARGUMENT,user,strlen(user));
   shmPointer[strlen(user) + 1 ] = 0;
   while(shmPointer[TYPEPOS] != READY);
   char c = shmPointer[RETURNPOS];
+  sem_post(&semDB);
   return c;
 }
 int validPasswordDB(char* user, char* password){
+  sem_wait(&semDB);
  shmPointer[TYPEPOS] = ISPASSWORD;
  memcpy(shmPointer + FIRSTARGUMENT,user,strlen(user)+1);
  memcpy(shmPointer + SECONDARGUMENT,password, strlen(password) + 1);
  while(shmPointer[TYPEPOS] != READY);
  char c = shmPointer[RETURNPOS];
+ sem_post(&semDB);
  return c;
 }
 int getHighScoreDB(char * user){
+  sem_wait(&semDB);
   shmPointer[TYPEPOS] = GETHIGHSCORE;
   memcpy(shmPointer + FIRSTARGUMENT,user,strlen(user) + 1);
   while(shmPointer[TYPEPOS] != READY);
   int i = atoi(shmPointer+ RETURNPOS);
+  sem_post(&semDB);
   return i;
 }
 int setHighscoreDB(char* user, int value){
+  sem_wait(&semDB);
   shmPointer[TYPEPOS] = SETHIGHSCORE;
   memcpy(shmPointer + FIRSTARGUMENT, user, strlen(user) + 1);
   loadInt(shmPointer + SECONDARGUMENT, value);
   while(shmPointer[TYPEPOS] != READY);
+  sem_post(&semDB);
   return shmPointer[RETURNPOS];
 }
 int createUserDB(char* user, char* password){
+  sem_wait(&semDB);
   shmPointer[TYPEPOS] = CREATEUSER;
   memcpy(shmPointer + FIRSTARGUMENT,user, strlen(user) + 1);
   memcpy(shmPointer + SECONDARGUMENT,password, strlen(password) + 1);
   while(shmPointer[TYPEPOS] != READY);
+  sem_post(&semDB);
   return shmPointer[RETURNPOS];
 }
 
