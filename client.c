@@ -7,12 +7,13 @@ int f2;
 StreamData sd,buffer;
 StreamData sd2;
 
-int main(){
-
+int int main(int argc, char const *argv[])
+{
+	/* code */
+	return 0;
 }
+
 void game(){
-/*TODO OJO MAGGIE QUE AHORA TENES QUE LEER LAS PRIMERAS 2 , la primera linea es un char* y la segunda es un int
-	que tenes que pasarle al connect.*/
 	char * aux;
 	FILE * f;
 	f = fopen(ARCHIVO, "r");
@@ -28,6 +29,8 @@ void game(){
 	}
 	fscanf(f,"%d",&f2);
 	c = connectToPeer(address,f2);
+	//mando la sala que recibo por parámtero
+	//me quedo esperanod hasta que el servidor me conteste que se pudo conectar. 
 	getInformation();
 	startGame();
 	free(address);

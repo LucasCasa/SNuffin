@@ -22,4 +22,8 @@ typedef struct{
 	Point * dir;
 }PlayerPos;
 
+typedef struct{
+	int info;
+}Integer;
+
 #endif
