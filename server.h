@@ -11,6 +11,8 @@
 #include "db.h"
 #include "dbconst.h"
 
+#define MAX_LOBBY 24
+
 extern char* shmPointer;
 
 int split (const char *str, char c, char ***arr);

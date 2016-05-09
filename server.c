@@ -2,6 +2,8 @@
 
 char* shmPointer;
 sem_t semDB;
+int servers[MAX_LOBBY];
+
 int main(int argc, const char* argv[]){
     /*set de db semaphore*/
     sem_init(&semDB,1,1);
@@ -23,7 +25,7 @@ int main(int argc, const char* argv[]){
    EN UN FUTURO HAY QUE HACER ESTO BIEN, ESTO ES SOLO PARA TEST
    */
    //Esto es para probar que se cambia el valor en ambos procesos.
-   (ExistUserDB("kuyum") )?printf("SI existe Kuyum\n"):printf("NO kuyum\n");
+   /*(ExistUserDB("kuyum") )?printf("SI existe Kuyum\n"):printf("NO kuyum\n");
    (ExistUserDB("LALALAAAAA") )?printf("SI existe ALALA\n"):printf("NO LALA\n");
    (ExistUserDB("lucas") )?printf("SI existe lucas\n"):printf("NO lucas\n");
    (validPasswordDB("lucas","lucas") )?printf("FUNCIONAA\n"):printf("NO lucas\n");
@@ -32,8 +34,8 @@ int main(int argc, const char* argv[]){
    int aux = getHighScoreDB("lucas") + 1;
    setHighscoreDB("lucas",aux);
    printf("Nuevo Score de Lucas: %d\n",getHighScoreDB("lucas"));
-
-   Connection * selfc = listenConnection(0);
+   */
+   Connection * selfc = listenConnection(0); // PROXIMAMENTE LEO CONFIG PASO NUMERO
    printf("Estoy esuchando\n");
    while(1){
       StreamData * buffer = malloc(sizeof(StreamData));
@@ -42,22 +44,21 @@ int main(int argc, const char* argv[]){
       printf("Accept en %d\n",selfc->fd2);
       Connection *new = acceptConnection(selfc);
       printf("Nueva conexion\n");
-      /*receiveData(new,buffer);
-      printf("Recibi: %s\n",buffer->data);*/
+      receiveData(new,buffer);
+      printf("Recibi: %s\n",buffer->data);
       /* ACA tendria que haber un marshalling*/
       int joinServer = atoi(buffer->data);
-      StreamData *d = malloc(sizeof(StreamData));
-      int child = fork();
-      if(child == 0){
-         d->data = "Soy el hijo y te mande un mensaje";
-         printf("%s\n",buffer->data);
-         d->size = 34;
-         sendData(new, d);
+      if(servers[joinServer] != 0){
+        sendData(new,marshalling(servers[joinServer], SERVER_ID));
       }else{
-         d->data = "Soy el padre y te mande un mensaje";
-         d->size = 35;
-         sendData(new, d);
+        int child = fork();
+        if(child == 0){
+            lobby();
+        }else{
+         servers[joinServer] = child;
+         sendData(new,marshalling(servers[joinServer],SERVER_ID));
       }
+    }
       // if(buffer->data[0] == '@'){
       //   printf("Lei un accept\n");
       //   int child = fork();
@@ -84,6 +85,9 @@ int main(int argc, const char* argv[]){
    printf("Me fui\n");
 }
 
+void lobby(){
+
+}
 void setDB(){
   int db = fork();
   if(db == 0){

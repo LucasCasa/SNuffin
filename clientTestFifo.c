@@ -6,8 +6,6 @@
 #include <fcntl.h>
 #include "com.h"
 
-#define BUFFER_SIZE 1024
-
 
 int main(int argc, const char* argv[]){
 
@@ -21,7 +19,7 @@ int main(int argc, const char* argv[]){
    fgets(srvAddr,BUFFER_SIZE,fp);
    fgets(cliAddr,BUFFER_SIZE,fp);
    printf("%s\n",srvAddr);
-   Connection *c = connect(srvAddr,0);
+   Connection *c = connectToPeer(srvAddr,0);
    int i = 0;
    printf("Abri la conexion,Esperando Datos\n");
    /*StreamData *d  = malloc(sizeof(StreamData));
