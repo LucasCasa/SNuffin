@@ -1,20 +1,36 @@
 #include "com.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <string.h>
+#include <sys/un.h>
+#include <netdb.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
 
 #define MAX_CONNECTIONS 4 
 #define MAX_CONNECTION_QUEUE 4
 
 struct sockaddr_in my_addr;
-int sockfd, peerLimit;
+int peerLimit;
 int * peers;
+socklen_t addr_size;
 
-Connection * connect(char* addr, int port){
-	int port, n;
+
+void closePeer(int);
+
+Connection * connectToPeer(char* addr, int port){
+	int n;
 	struct hostent *server;
 
-	/* Create a socket point */
-	sockfd = socket(AF_INET, SOCK_STREAM, 0);
+	Connection * c = malloc(sizeof(Connection));
 
-	if (sockfd < 0) {
+	/* Create a socket point */
+	c->fd = socket(AF_INET, SOCK_STREAM, 0);
+
+	if (c->fd < 0) {
 	  perror("ERROR opening socket");
 	  exit(1);
 	}
@@ -22,35 +38,37 @@ Connection * connect(char* addr, int port){
 	server = gethostbyname(addr);
 
 	if (server == NULL) {
-	  fprintf(stderr,"ERROR, no such host\n");
-	  exit(0);
-	}
-
-	bzero((char *) &serv_addr, sizeof(serv_addr));
-	serv_addr.sin_family = AF_INET;
-	bcopy((char *)server->h_addr, (char *)&serv_addr.sin_addr.s_addr, server->h_length);
-	serv_addr.sin_port = htons(port);
-
-	/* Now connect to the server */
-	if (connect(sockfd, (struct sockaddr*)&serv_addr, sizeof(serv_addr)) < 0) {
-	  perror("ERROR connecting");
+	  perror("No such host");
 	  exit(1);
 	}
 
-	Connection * c = malloc(sizeof(Connection));
-	c->fd = sockfd;
+	bzero((char *) &my_addr, sizeof(my_addr));
+	my_addr.sin_family = AF_INET;
+	bcopy((char *)server->h_addr, (char *)&my_addr.sin_addr.s_addr, server->h_length);
+	my_addr.sin_port = htons(port);
+
+	/* Now connect to the server */
+	if (connect(c->fd, (struct sockaddr*)&my_addr, sizeof(my_addr)) < 0) {
+	  perror("ERROR connecting");
+	  exit(1);
+	}
 	return c;
 }
 
 
-Connection * listen(int port){
+Connection * listenConnection(int port){
+	int i;
 	printf("Starting server...\n");
 
-	// The socket fd
-	sockfd = socket(AF_INET,SOCK_STREAM,0);
+    Connection * c = malloc(sizeof(Connection));
 
-	if(sockfd==-1)
-		handle_error("socket");
+	// The socket fd
+	c->fd = socket(AF_INET,SOCK_STREAM,0);
+
+	if(c->fd==-1){
+		perror("socket");
+		exit(1);
+	}
 
 	// Reserves memory for the structurelisten
 	memset(&my_addr,0,sizeof(struct sockaddr_in));
@@ -60,13 +78,17 @@ Connection * listen(int port){
 	my_addr.sin_addr.s_addr = INADDR_ANY;
 	my_addr.sin_port = htons(port);
 
-	if (bind(sockfd, (struct sockaddr *) &my_addr, sizeof(struct sockaddr_in)) == -1)
-		handle_error("bind");
+	if (bind(c->fd, (struct sockaddr *) &my_addr, sizeof(struct sockaddr_in)) == -1){
+		perror("bind");
+		exit(1);
+	}
 
 	// Marks sfd as a passive sockdet.  MAX_CONNECTION_QUEUE is the max n° of pending connections
 	printf("Listening on port %d...\n", port);
-	if (listen(sockfd, MAX_CONNECTION_QUEUE) == -1)
-		handle_error("listen");
+	if (listen(c->fd, MAX_CONNECTION_QUEUE) == -1){
+		perror("listen");
+		exit(1);
+	}
 
 	printf("Waiting for connections...\n");
   	addr_size = sizeof(struct sockaddr_in);
@@ -75,24 +97,21 @@ Connection * listen(int port){
     peerLimit = MAX_CONNECTIONS;
 
     // Set peers on 0
-  	for(i=0; i<clientLimit; i++)
+  	for(i=0; i<peerLimit; i++)
     	peers[i] = 0;
-
-    Connection * c = malloc(sizeof(Connection));
-	c->fd = sockfd;
 	return c;
 }
 
-Connection* accept(Connection * c){
+Connection* acceptConnection(Connection * c){
 	int max_sd, space_available, i, sd, ans, ans_select;
 	fd_set readfds;
 
 	FD_ZERO(&readfds);
 	//add master socket to set
 	FD_SET(c->fd, &readfds);
-	max_sd = server_sfd;
+	max_sd = c->fd;
 	//add all other
-	for(i=0;i<clientLimit;i++){
+	for(i=0;i<peerLimit;i++){
 		if(peers[i]!=0){
 			FD_SET(peers[i], &readfds);
 			if(peers[i]>max_sd)
@@ -102,19 +121,23 @@ Connection* accept(Connection * c){
 	struct timeval tv = {1, 0}; //the timeout (s,ms)
 	//wait for an activity on one of the sockets
 	ans_select = select( max_sd + 1 , &readfds , NULL , NULL , &tv);
-	if (ans_select < 0)
-		handle_error("select");
+	if (ans_select < 0){
+		perror("select");
+		exit(1);
+	}
 	//If its server_sfd then its an INCOMING CONNECTION
 	if (FD_ISSET(c->fd, &readfds)){
-		if ((new_socket = accept(server_sfd, (struct sockaddr *)&my_addr, (socklen_t*) &addr_size))<0)
-	 		handle_error("accept");
+		if ((sd = accept(c->fd, (struct sockaddr *)&my_addr, (socklen_t*) &addr_size))<0){
+	 		perror("accept");
+	 		exit(1);
+		}
 		printf("New connection\n");
 		//add new socket to array of sockets
 		space_available = FALSE;
-		for (i = 0; i < MAX_peers && !space_available; i++){
+		for (i = 0; i < peerLimit && !space_available; i++){
 	  	//if position is empty use it
 	  	if( peers[i] == 0 ){
-	    	peers[i] = new_socket;
+	    	peers[i] = sd;
 	    	space_available = TRUE;
 	  	}
 	}
@@ -122,46 +145,105 @@ Connection* accept(Connection * c){
 	  printf("Server is full.\n");
 	}else{
 		//else its an operation for an existing socket
-		for (i = 0; i < MAX_peers; i++){
-		  sd = peers[i];
+		for (i = 0; i < peerLimit; i++){
+			sd = peers[i];
 
-		  if (sd!=0 && FD_ISSET( sd , &readfds)){
-		  	char buffer[256];
-		    int j;
-		    for(j=0; j<256; j++)
-		    	buffer[j] = 0;
-		    ans = recv(sd,buffer,256,0);
-		    printf("Receiving data: %s\n", buffer);
-		    Connection c;
-		    StreamData stream;
-		    c.fd = sd;
-		    stream.data = buffer;
-		    stream.size = 256;
-		    if(ans>0)
-		    	sendData(&c,&stream);
-		    //int ans = receiveData(sd, ); // TODO
-		    // if 0 then disconnect
-		    printf("recv: %d\n",ans);
-		    if(ans==0)
-		    	peers[i] = 0;
-		  }
+			if (sd!=0 && FD_ISSET( sd , &readfds)){
+				Connection * conn = malloc(sizeof(Connection));
+				conn->fd = sd;
+				return conn; 
+			}
 		}
 	}
-	return;
+	return NULL;
 }
 
-vofd closeConn(Connection * c){
+void closeConn(Connection * c){
 	close(c->fd);
 	free(peers);
 }
 
-int  sendData(Connection * connection, StreamData * req);
+int sendData(Connection * connection, StreamData * req){
+   /* Send message to the server */
+   int n = send(connection->fd, req->data, req->size,MSG_NOSIGNAL);
+   
+   if (n < 0) {
+      perror("ERROR writing to socket");
+      exit(1);
+   }
+   return 1;
+}
 
-vofd receiveData(Connection * connection, StreamData * buffer);
+void receiveData(Connection * connection, StreamData * buffer){
+	int ans;
 
+   	ans=recv(connection->fd,buffer->data,BUFFER_SIZE,0);
+   	if(ans==-1){
+  	    perror("receive");
+   	}
+   	// if 0 then peer closed connection
+  	else if(ans==0){
+  		closePeer(connection->fd);
+  	}
+   	buffer->size = ans;
+   	printf("EN RECEIVE ANS: %d\n",ans);
+}
 
+void closePeer(int fd){
+	int i;
+	for(i=0; i<peerLimit; i++){
+		if(peers[i]==fd){
+			peers[i] = 0;
+			return;
+		}
+	}
+}
+
+// Main for client
+
+int main(){
+	Connection * self = connectToPeer("localhost",8080);
+
+	StreamData * sd2 = malloc(sizeof(StreamData));
+	sd2->data = calloc(BUFFER_SIZE,1);
+
+	StreamData * sd = malloc(sizeof(StreamData));
+	sd->data = malloc(BUFFER_SIZE);
+	
+	sprintf(sd->data,"hello testing");
+
+	sendData(self,sd);
+	receiveData(self,sd2);
+
+	printf("Received: %s\n", sd2->data);
+}
+
+/*
+// Main for server
+
+int main(){
+	Connection * self = listenConnection(8080);
+	Connection * connection;
+
+	StreamData * sd = malloc(sizeof(StreamData));
+	sd->data = malloc(BUFFER_SIZE);
+	while(1) {
+		printf("while\n");
+		connection = acceptConnection(self);
+		printf("After acceptConnection\n");
+		if(connection!=NULL){
+			receiveData(connection, sd);
+			printf("Received: %s\n", sd->data);
+			printf("Size: %d\n", sd->size);
+			if(sd->size>0)
+				sendData(connection, sd);
+		}
+	}
+}
+*/
+/*
 //returns length of ip address (bytes)
-/*int processIP(char * addr, int * port){
+int processIP(char * addr, int * port){
 	int i=0, length=0;
 	*port = 0;
 	char c;

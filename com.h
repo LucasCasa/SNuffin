@@ -1,6 +1,10 @@
 #ifndef COM_H
 #define COM_H
 
+#define BUFFER_SIZE 256
+#define TRUE 1
+#define FALSE 0
+
 typedef struct {
 	int fd;
 	int fd2;
@@ -14,11 +18,11 @@ int size;
 //typedef StreamData (*RequestHandler)(StreamData* req);
 
 // int va a ser puerto para sockets y id para fifo
-Connection * connect(char* addr,int);
-Connection * listen(int);
+Connection * connectToPeer(char* addr,int);
+Connection * listenConnection(int);
 void closeConn(Connection * c);
 int  sendData(Connection * connection, StreamData * req);
-Connection * accept(Connection *c);
+Connection * acceptConnection(Connection *c);
 //int Response(RequestData * req, ResponseData * resp); CREO QUE ES AL DOPE
 
 void receiveData(Connection * connection, StreamData * buffer);
