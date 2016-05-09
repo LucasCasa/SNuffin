@@ -1,10 +1,7 @@
 #include "client.h"
 
-
 void startGame();
 void game();
-
-void readFile();
 
 void changeMode(int dir);
 int kbhit (void);
@@ -31,23 +28,28 @@ int f2;
 StreamData sd,buffer;
 StreamData sd2;
 
+
 void game(){
 /*TODO OJO MAGGIE QUE AHORA TENES QUE LEER LAS PRIMERAS 2 , la primera linea es un char* y la segunda es un int
 	que tenes que pasarle al connect.*/
-	readFile();
-	c = connectToPeer(address,f2);
-	getInformation();
-	startGame();
-}
-
-void readFile(){
+	char * aux;
 	FILE * f;
 	f = fopen(ARCHIVO, "r");
 	if(f == NULL){
 		perror("config");
 	}
-
-
+	address = malloc(BUFFER * sizeof(char));
+	aux = fgets(address,BUFFER,f);
+	if(aux == NULL){
+		//error no se pudo leer
+	}else{
+		address = aux;
+	}
+	fscanf(f,"%d",&f2);
+	c = connectToPeer(address,f2);
+	getInformation();
+	startGame();
+	free(address);
 }
 
 void startGame(){
@@ -56,7 +58,7 @@ void startGame(){
 	int pressed;
 	Point * p = malloc(sizeof(Point));
 	while(game){
-		while(!kbhit() && game){ /*If a key has been pressed */
+		while(!kbhit() && game){
 			pressed=getchar();
 			if(pressed == DOWN_ARROW ){
 				p->x = 0;
@@ -154,7 +156,7 @@ void getInformation(){
 	receiveData(c,&buffer);
 	void * passRec = unmarshalling(buffer.data,&type);
 	if(type == STRING_N){
-		String * s = (String *) recieved;
+		String * s = (String *) passRec;
 		belongs = checkStringInfo(s);
 	}
 
@@ -174,7 +176,7 @@ void getInformation(){
 			receiveData(c,&buffer);
 			void * passRec = unmarshalling(buffer.data,&type);
 			if(type == STRING_N){
-				String * s = (String *) recieved;
+				String * s = (String *) passRec;
 				w_pass = checkStringInfo(s);
 			}
 		}while(!w_pass);
@@ -244,8 +246,6 @@ int kbhit (void){
 }
 
 void printBoard(Board *b){
-  //system("clear");
-  printf("Start\n");
   for(int i = 0;i<b->rows;i++){
     for(int j = 0; j<b->columns;j++){
       printPlayerColor(b->board[i][j]);
@@ -254,21 +254,22 @@ void printBoard(Board *b){
   }
 }
 
- void printPlayerColor(int pNum){
-   switch (pNum) {
-     case 1:
-       printf(PLAYER1_COLOR "aa" COLOR_RESET);
-     break;
-     case 2:
-       printf(PLAYER2_COLOR "vv" COLOR_RESET);
-     break;
-     case 3:
-       printf(PLAYER3_COLOR "cc" COLOR_RESET);
-     break;
-     case 4:
-       printf(PLAYER4_COLOR "dd" COLOR_RESET);
-     break;
-     default:
-     printf("  ");
-   }
- }
+void printPlayerColor(int pNum){
+   	switch (pNum) {
+	    case 1:
+       		printf(PLAYER1_COLOR "aa" COLOR_RESET);
+    		break;
+     	case 2:
+       		printf(PLAYER2_COLOR "vv" COLOR_RESET);
+     		break;
+     	case 3:
+       		printf(PLAYER3_COLOR "cc" COLOR_RESET);
+     		break;
+     	case 4:
+       		printf(PLAYER4_COLOR "dd" COLOR_RESET);
+     		break;
+     	default:
+     		printf("  ");
+     		break;
+    }
+}

@@ -26,7 +26,7 @@
 #define DOWN_ARROW (char) 'B'
 #define BACKSPACE 127
 
-#define BUFFER_SIZE 256
+#define BUFFER 256
 #define ARCHIVO "./config"
 
 #define PLAYER1_COLOR   "\x1b[31;41m"
