@@ -54,8 +54,4 @@ void getName(char * name);
 int checkStringGame(String * s);
 int checkStringInfo(String * s);
 
-int sendPoint(Point * p);
-int sendString(String * p);
-
-
 #endif

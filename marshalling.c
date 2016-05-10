@@ -20,6 +20,7 @@ char * marshPlayerPos(PlayerPos * p, int * size);
 char * marshBoard(Board* s, int * size);
 char * marshString(String * s, int * size);
 char * marshInt(Integer * s, int * size);
+char * marshServerId(Integer * p, int * size);
 
 void * unmarshalling(char * data, int * type){
 	if(data == NULL){
@@ -45,6 +46,11 @@ void * unmarshalling(char * data, int * type){
 		*type = BOARD - '0';
 		unmarshBoard(data,t);
 		return t;
+	}else if(data[0] == SERVER_ID){
+		String * t = malloc(sizeof(String));
+		*type = SERVER_ID - '0';
+		unmarshServerId(data,t);
+		return t;
 	}else{
 		type = NULL;
 		return NULL;
@@ -65,7 +71,9 @@ StreamData * marshalling(void * struc, int type){
 		aux = marshPoint((Point *)struc,&size);
 	}else if (type == PLAYER){
 		aux = marshPlayerPos((PlayerPos *)struc,&size);
-	}else {
+	}else if(type == SERVER_ID){
+		aux = marshServerId((Integer *)struc,&size);
+	}else{
 		aux = NULL;
 		size = 0;
 	}
@@ -80,8 +88,19 @@ void unmarshPlayerPos(char * data, PlayerPos * p){
 	unmarshPoint(data + 1,(p->dir));
 }
 
+void unmarshServerId(char * data, Integer * p){
+	char num[5];
+	int i,j=0;
+	char * endptr;
+	for(i=1;data[i]!='\0';i++,j++){
+		num[j]=data[i];
+	}
+	long m = strtol(num, &endptr,10);
+	p->info = (int)m;
+}
+
 void unmarshPoint(char * data, Point * p){
-	char num[3];
+	char num[5];
 	char * endptr;
 	int i=1,j=0;
 	for(i =1;data[i]!=SEP;i++,j++){
@@ -99,7 +118,7 @@ void unmarshPoint(char * data, Point * p){
 
 void unmarshString(char * data, String * s){
 	int i,j=0,k;
-	char num[3];
+	char num[5];
 	char * endptr;
 	for(i=1;data[i]!=SEP;i++){
 		num[i-1]=data[i];
@@ -115,7 +134,7 @@ void unmarshString(char * data, String * s){
 }
 
 void unmarshBoard(char * data, Board * b){
-	char num[3],num2[3];
+	char num[5],num2[5];
 	char ** board;
 	int f,c,cont;
 	int i,j,k=-1;
@@ -191,6 +210,15 @@ char * marshPlayerPos(PlayerPos * p,int * size){
 	d = malloc(cant * sizeof(char));
 	sprintf(d,"%d%d%d%c%d",PLAYER - '0',p->pNumber,p->dir->x,SEP,p->dir->y);
 	*size = cant;
+	return d;
+}
+
+char * marshServerId(Integer * p, int * size){
+	char * d;
+	int cant = 1 + numPlaces(p->info) + 1;
+	d = malloc(cant * sizeof(char));
+	*size = cant;
+	sprintf(d,"%d%d",SERVER_ID -'0');
 	return d;
 }
 

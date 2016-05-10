@@ -4,18 +4,28 @@ Connection * c;
 char * address;
 int f2;
 
-StreamData sd,buffer;
+StreamData * buffer = malloc(sizeof(StreamData));
 StreamData sd2;
 
 int int main(int argc, char const *argv[])
 {
-	/* code */
+	int slot;
+	if(argc > 1){
+		slot = argc[1];
+	}else{
+		slot = 1; //el default.
+	}
+	game(slot);
+
 	return 0;
 }
 
-void game(){
+void game(int slot){
 	char * aux;
+	StreamData buffer;
+	String * s = malloc(sizeof(String));
 	FILE * f;
+	int rta;
 	f = fopen(ARCHIVO, "r");
 	if(f == NULL){
 		perror("config");
@@ -29,11 +39,19 @@ void game(){
 	}
 	fscanf(f,"%d",&f2);
 	c = connectToPeer(address,f2);
-	//mando la sala que recibo por parámtero
+	s->info = slot;
+	rta = sendData(c,marshalling(s,SERVER_ID -'0'));
+	if(rta == 0){
+		printf("Error conectandose con el servidor\n");
+	}
+	recieved = receiveData(c,&buffer);
 	//me quedo esperanod hasta que el servidor me conteste que se pudo conectar. 
+	//nose que me manda,
 	getInformation();
 	startGame();
+	fclose(f);
 	free(address);
+	free(s);
 }
 
 void startGame(){
@@ -95,10 +113,6 @@ int sendPoint(Point * p){
 	return sendData(c,&sd);
 }
 
-int sendString(String * string){
-	sd.data = marshalling(string,STRING, &(sd.size));
-	return sendData(c,&sd);
-}
 
 void getInformation(){
 	String * password = malloc(sizeof(String));
@@ -111,11 +125,11 @@ void getInformation(){
 	name->size= strlen(nombre);
 	name->string = nombre;
 
-	rta = sendString(name);
+	rta = sendData(c,marshalling(string,STRING));
 	if(rta == 0)
 		printf("Error conectandose con el servidor\n");
 
-	receiveData(c,&buffer);
+	receiveData(c,buffer);
 	void * recieved = unmarshalling(buffer.data,&type);
 
 	if(type == STRING_N){
@@ -133,11 +147,11 @@ void getInformation(){
 	password->size = strlen(pass);
 	password->string = pass;
 
-	rta = sendString(password);
+	rta = sendData(c,marshalling(password,STRING));
 	if(rta == 0)
 		printf("Error conectandose con el servidor\n");
 
-	receiveData(c,&buffer);
+	receiveData(c,buffer);
 	void * passRec = unmarshalling(buffer.data,&type);
 	if(type == STRING_N){
 		String * s = (String *) passRec;
@@ -154,10 +168,10 @@ void getInformation(){
 			password->size = strlen(pass);
 			password->string = pass;
 
-			rta = sendString(password);
+			rta = sendData(c,marshalling(password,STRING));
 			if(rta == 0)
 				printf("Error conectandose con el servidor\n");
-			receiveData(c,&buffer);
+			receiveData(c,buffer);
 			void * passRec = unmarshalling(buffer.data,&type);
 			if(type == STRING_N){
 				String * s = (String *) passRec;
