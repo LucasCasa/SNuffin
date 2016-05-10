@@ -46,7 +46,7 @@ void game(int slot){
 	}
 	recieved = receiveData(c,&buffer);
 	//me quedo esperanod hasta que el servidor me conteste que se pudo conectar. 
-	//nose que me manda,
+	//un server id. llamo otra vez a connect con ese id
 	getInformation();
 	startGame();
 	fclose(f);

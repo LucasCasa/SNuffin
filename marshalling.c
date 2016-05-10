@@ -8,10 +8,10 @@ int numPlaces (int n) ;
 
 void * unmarshalling(StreamData * data, int * type);
 
-void unmarshString(char * data, String * s );
-void unmarshPoint(char * data, Point * p);
-void unmarshBoard(char * data, Board * b);
-void unmarshPlayerPos(char * data, PlayerPos * p);
+int unmarshString(char * data, String * s );
+int unmarshPoint(char * data, Point * p);
+int unmarshBoard(char * data, Board * b);
+int unmarshPlayerPos(char * data, PlayerPos * p);
 
 StreamData * marshalling(void * struc, int type);
 
@@ -82,27 +82,51 @@ StreamData * marshalling(void * struc, int type){
 	return sd;
 }
 
-void unmarshPlayerPos(char * data, PlayerPos * p){
+int unmarshPlayerPos(char * data, PlayerPos * p){
+	if(data[0] != PLAYER){
+		p = NULL;
+		return 0;
+	}
 	p->pNumber = data[1] - '0';
 	p->dir = malloc(sizeof(Point));
-	unmarshPoint(data + 1,(p->dir));
+	int i = 2,j=0;
+	for(i =2;data[i]!=SEP;i++,j++){
+		num[j]=data[i];
+	}
+	long m= strtol(num, &endptr,10);
+	p->dir->x = (int)m;
+	for(i = i+1,j=0;data[i]!='\0';i++,j++){
+		num[j]=data[i];
+	}
+	m=strtol(num,&endptr,10);
+	p->dir->y =(int)m;
+	return 1;
 }
 
-void unmarshServerId(char * data, Integer * p){
+int unmarshServerId(char * data, Integer * p){
 	char num[5];
 	int i,j=0;
 	char * endptr;
+	if(data[0] != SERVER_ID){
+		p = NULL;
+		return 0;
+	}
 	for(i=1;data[i]!='\0';i++,j++){
 		num[j]=data[i];
 	}
 	long m = strtol(num, &endptr,10);
 	p->info = (int)m;
+	return 1;
 }
 
-void unmarshPoint(char * data, Point * p){
+int unmarshPoint(char * data, Point * p){
 	char num[5];
 	char * endptr;
 	int i=1,j=0;
+	if(data[0] != POINT){
+		p = NULL;
+		return 0;
+	}
 	for(i =1;data[i]!=SEP;i++,j++){
 		num[j]=data[i];
 	}
@@ -113,13 +137,18 @@ void unmarshPoint(char * data, Point * p){
 	}
 	m=strtol(num,&endptr,10);
 	p->y =(int)m;
+	return 1;
 
 }
 
-void unmarshString(char * data, String * s){
+int unmarshString(char * data, String * s){
 	int i,j=0,k;
 	char num[5];
 	char * endptr;
+	if(data[0] == STRING){
+		s = NULL;
+		return 0;
+	}
 	for(i=1;data[i]!=SEP;i++){
 		num[i-1]=data[i];
 	}
@@ -131,14 +160,19 @@ void unmarshString(char * data, String * s){
 		aux[j]=data[i];
 	}
 	s->string=aux;	
+	return 1;
 }
 
-void unmarshBoard(char * data, Board * b){
+int unmarshBoard(char * data, Board * b){
 	char num[5],num2[5];
 	char ** board;
 	int f,c,cont;
 	int i,j,k=-1;
 	char * endptr;
+	if(data[0] != BOARD){
+		b = NULL;
+		return 0;
+	}
 	for(i=1,j=0;data[i]!=SEP;i++,j++){
 		num[j]=data[i];
 	}
@@ -162,6 +196,7 @@ void unmarshBoard(char * data, Board * b){
 		j++;
 	}
 	b->board = board;
+	return 1;
 }
 
 char * marshPoint(Point * s,int * size){

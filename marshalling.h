@@ -16,10 +16,22 @@
 
 #define SEP '#' //el separador
 
-void * unmarshalling(char * data, int * type); //devuelve por parametro de que tipo es lo que se mando y el void * con la estructura
+int numPlaces (int n) ;
 
+void * unmarshalling(StreamData * data, int * type);
 
-// el marshalling recibe un puntero a void con la estructura, un type con que tipo de estructura es.Devuelve un streamData
+int unmarshString(char * data, String * s );
+int unmarshPoint(char * data, Point * p);
+int unmarshBoard(char * data, Board * b);
+int unmarshPlayerPos(char * data, PlayerPos * p);
+
 StreamData * marshalling(void * struc, int type);
+
+char * marshPoint(Point * s, int * size);
+char * marshPlayerPos(PlayerPos * p, int * size);
+char * marshBoard(Board* s, int * size);
+char * marshString(String * s, int * size);
+char * marshInt(Integer * s, int * size);
+char * marshServerId(Integer * p, int * size);
 
 #endif
