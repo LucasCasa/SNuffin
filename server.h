@@ -13,9 +13,20 @@
 #include "dbconst.h"
 
 #define MAX_LOBBY 24
+#define MAX_PLAYERS 4
+
+/*Defino lo que puedo llegar a esperar del cliente*/
+
+#define USER            1
+#define PASSWORD        2
+#define MOVEMENT        3
+#define READY_TO_PLAY   4
+
+/*End Define*/
 
 typedef struct Client{
   int state;
+  int expecting;
   Connection *con;
 }Client;
 

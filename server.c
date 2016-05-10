@@ -95,24 +95,54 @@ void lobby(){
   //threads LALALALA
   pthread_t* listenThread = malloc(sizeof(pthread_t));
   pthread_create(listenThread, NULL,startListening, NULL);
-  listenToClients();
+  int cliNum = listenToClients();
+  if(cliNum != -1){
+     resolveRequest(cliNum);
+   }else{
+      printf("ERROR ON SELECT\n");
+   }
   //select LALALALA
   //Habria que crear una struct para saber cada cliente en que estado esta??? SIII
   //NO se cuando empezar el juego LALALALA
 
 }
+void ResolveRequest(int nClient){
+   Connection *c = clients[nClient]->con;
+   StreamData *d = malloc(sizeof(StreamData));
+   d->data = malloc(BUFFER_SIZE);
+   receiveData(c,d);
+   int* type = malloc(sizeof(int));
+   switch(clients[nClient]->expecting){
+      case USER:
+
+      break;
+      case PASSWORD:
+
+      break;
+      case MOVEMENT:
+
+      break;
+      case READY_TO_PLAY:
+
+
+      break;
+      default:
+      fprintf(stderr, "ERROR: expecting not valid\n");
+   }
+
+}
 int listenToClients(){
   fd_set* cli;
   int nfds = 0;
-  for(int i = 0; i<4;i++){
+  for(int i = 0; i<MAX_PLAYERS;i++){
     if(clients[i] != NULL){
       nfds++;
       FD_SET(client[i]->con->fd,cli);
     }
   }
   select(nfds,cli,NULL,NULL,NULL);
-  for(int i = 0; i<4;i++){
-    if(FD_ISSET(clients[i]->con->fd)){
+  for(int i = 0; i<MAX_PLAYERS;i++){
+    if(clients[i] != NULL && FD_ISSET(clients[i]->con->fd)){
       return i; // o leo los datos??
     }
   }
@@ -122,7 +152,7 @@ void startListening(){
   int nPlayers = 0;
   Connection *s = listenConnection(getpid()); //cambiar cuando este sockets
 
-  while(nPlayers < 4){
+  while(nPlayers < MAX_PLAYERS){
     Connection *new = acceptConnection(s);
     Client *c = malloc(sizeof(Client));
     c->con = new;
