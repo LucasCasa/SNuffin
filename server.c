@@ -3,9 +3,15 @@
 char* shmPointer;
 sem_t semDB;
 int servers[MAX_LOBBY];
+Client **clients;
 
 int main(int argc, const char* argv[]){
     /*set de db semaphore*/
+    clients = malloc(sizeof(Client*) * 4);
+    clients[0] = NULL;
+    clients[1] = NULL;
+    clients[2] = NULL;
+    clients[3] = NULL; //MAL
     sem_init(&semDB,1,1);
    /* map into memory */
    shmPointer = mmap(NULL, 1024, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANON, -1, 0);
@@ -86,7 +92,44 @@ int main(int argc, const char* argv[]){
 }
 
 void lobby(){
+  //threads LALALALA
+  pthread_t* listenThread = malloc(sizeof(pthread_t));
+  pthread_create(listenThread, NULL,startListening, NULL);
+  listenToClients();
+  //select LALALALA
+  //Habria que crear una struct para saber cada cliente en que estado esta??? SIII
+  //NO se cuando empezar el juego LALALALA
 
+}
+int listenToClients(){
+  fd_set* cli;
+  int nfds = 0;
+  for(int i = 0; i<4;i++){
+    if(clients[i] != NULL){
+      nfds++;
+      FD_SET(client[i]->con->fd,cli);
+    }
+  }
+  select(nfds,cli,NULL,NULL,NULL);
+  for(int i = 0; i<4;i++){
+    if(FD_ISSET(clients[i]->con->fd)){
+      return i; // o leo los datos??
+    }
+  }
+  return -1;
+}
+void startListening(){
+  int nPlayers = 0;
+  Connection *s = listenConnection(getpid()); //cambiar cuando este sockets
+
+  while(nPlayers < 4){
+    Connection *new = acceptConnection(s);
+    Client *c = malloc(sizeof(Client));
+    c->con = new;
+    c->state = 0; // define
+    clients[nPlayers] = c;
+  }
+  pthread_exit(NULL);
 }
 void setDB(){
   int db = fork();

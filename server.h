@@ -7,11 +7,17 @@
 #include <fcntl.h>
 #include <sys/mman.h>
 #include <semaphore.h>
+#include <pthread.h>
 #include "com.h"
 #include "db.h"
 #include "dbconst.h"
 
 #define MAX_LOBBY 24
+
+typedef struct Client{
+  int state;
+  Connection *con;
+}Client;
 
 extern char* shmPointer;
 
@@ -24,3 +30,6 @@ int validPasswordDB(char* user, char* password);
 int getHighScoreDB(char * user);
 int setHighscoreDB(char* user, int value);
 int createUserDB(char* user, char* password);
+void startListening();
+void lobby();
+int listenToClients();
