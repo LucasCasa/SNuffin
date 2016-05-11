@@ -24,6 +24,15 @@
 
 /*End Define*/
 
+/*Defino los estados del cliente*/
+
+#define LOGGING         0
+#define WAITNG          1
+#define READY           2
+#define PLAYING         3
+#define LOOSE           4
+
+/* End Define */
 typedef struct Client{
   int state;
   int expecting;

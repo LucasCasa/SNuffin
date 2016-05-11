@@ -112,24 +112,33 @@ void ResolveRequest(int nClient){
    d->data = malloc(BUFFER_SIZE);
    receiveData(c,d);
    int* type = malloc(sizeof(int));
-   switch(clients[nClient]->expecting){
-      case USER:
+   int expecting = clients[nClient]->expecting
+   if(expecting == USER){
+      validateUser();
+   }else if(expecting == PASSWORD){
+      validatePassword();
+   }else if(expecting == MOVEMENT){
+      //llamo al que setea los movements de los jugadores
+   }else if(expecting == READY_TO_PLAY){
 
-      break;
-      case PASSWORD:
-
-      break;
-      case MOVEMENT:
-
-      break;
-      case READY_TO_PLAY:
-
-
-      break;
-      default:
-      fprintf(stderr, "ERROR: expecting not valid\n");
+   }else{
+      fprintf(stderr, "ERROR: expecting not valid\n"); // aca tamnbien iria un messague queue de error
    }
 
+
+}
+void validateUser(){
+   char *s = malloc(d->size);
+   unmarshString(d->data,s);
+   if(s != NULL){
+      if(ExistUserDB(s)){
+         //te envio un ok
+      }else{
+         //te envio un user no existe
+      }
+   }else{
+      //te envio un mensaje de error
+   }
 }
 int listenToClients(){
   fd_set* cli;
@@ -156,8 +165,10 @@ void startListening(){
     Connection *new = acceptConnection(s);
     Client *c = malloc(sizeof(Client));
     c->con = new;
-    c->state = 0; // define
+    c->state = LOGGING; // define
+    c->expecting = USER;
     clients[nPlayers] = c;
+    //tengo que mandar un mensaje a los demas jugadores
   }
   pthread_exit(NULL);
 }
