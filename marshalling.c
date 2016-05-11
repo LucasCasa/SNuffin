@@ -23,9 +23,6 @@ char * marshString(String * s, int * size);
 char * marshInt(Integer * s, int * size);
 char * marshServerId(Integer * p, int * size);
 
-int main(){
-	
-}
 
 void * unmarshalling(StreamData * d, int * type){
 	if(d == NULL || d->data == NULL){
@@ -166,7 +163,7 @@ int unmarshString(char * data, String * s){
 	for(i= i+1;i<'\0';i++,j++){
 		aux[j]=data[i];
 	}
-	s->string=aux;	
+	s->string=aux;
 	return 1;
 }
 
@@ -269,6 +266,3 @@ char * marshServerId(Integer * p, int * size){
     if (n < 10) return 1;
     return 1 + numPlaces (n / 10);
 }
-
-
-

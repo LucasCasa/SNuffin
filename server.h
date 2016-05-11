@@ -1,3 +1,7 @@
+#ifndef _SRV_H
+#define _SRV_H
+
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -11,9 +15,12 @@
 #include "com.h"
 #include "db.h"
 #include "dbconst.h"
+#include "marshalling.h"
+#include <sys/select.h>
 
-#define MAX_LOBBY 24
-#define MAX_PLAYERS 4
+#define MAX_PLAYERS  4
+#define TRUE         1
+#define FALSE        0
 
 /*Defino lo que puedo llegar a esperar del cliente*/
 
@@ -28,15 +35,18 @@
 
 #define LOGGING         0
 #define WAITNG          1
-#define READY           2
+#define READY_PLAY      2
 #define PLAYING         3
 #define LOOSE           4
 
 /* End Define */
+
+
 typedef struct Client{
-  int state;
-  int expecting;
-  Connection *con;
+    char* name;
+    int state;
+    int expecting;
+    Connection *con;
 }Client;
 
 extern char* shmPointer;
@@ -50,6 +60,12 @@ int validPasswordDB(char* user, char* password);
 int getHighScoreDB(char * user);
 int setHighscoreDB(char* user, int value);
 int createUserDB(char* user, char* password);
-void startListening();
+void* startListening(void*);
 void lobby();
 int listenToClients();
+void resolveRequest(int nClient);
+void validateUser(StreamData * d);
+void validatePassword(StreamData * d);
+
+
+#endif

@@ -55,14 +55,14 @@ int main(int argc, const char* argv[]){
       /* ACA tendria que haber un marshalling*/
       int joinServer = atoi(buffer->data);
       if(servers[joinServer] != 0){
-        sendData(new,marshalling(servers[joinServer], SERVER_ID));
+        sendData(new,marshalling(servers + joinServer, SERVER_ID));
       }else{
         int child = fork();
         if(child == 0){
             lobby();
         }else{
          servers[joinServer] = child;
-         sendData(new,marshalling(servers[joinServer],SERVER_ID));
+         sendData(new,marshalling(servers + joinServer ,SERVER_ID));
       }
     }
       // if(buffer->data[0] == '@'){
@@ -106,17 +106,17 @@ void lobby(){
   //NO se cuando empezar el juego LALALALA
 
 }
-void ResolveRequest(int nClient){
+void resolveRequest(int nClient){
    Connection *c = clients[nClient]->con;
    StreamData *d = malloc(sizeof(StreamData));
    d->data = malloc(BUFFER_SIZE);
    receiveData(c,d);
    int* type = malloc(sizeof(int));
-   int expecting = clients[nClient]->expecting
+   int expecting = clients[nClient]->expecting;
    if(expecting == USER){
-      validateUser();
+      validateUser(d,nClient);
    }else if(expecting == PASSWORD){
-      validatePassword();
+      validatePassword(d,nClient);
    }else if(expecting == MOVEMENT){
       //llamo al que setea los movements de los jugadores
    }else if(expecting == READY_TO_PLAY){
@@ -127,17 +127,23 @@ void ResolveRequest(int nClient){
 
 
 }
-void validateUser(){
+void validatePassword(StreamData * d){
+
+}
+void validateUser(StreamData * d){
    char *s = malloc(d->size);
    unmarshString(d->data,s);
    if(s != NULL){
+      StreamData *d;
       if(ExistUserDB(s)){
-         //te envio un ok
+         d = marshalling(TRUE,BOOLEAN);
       }else{
-         //te envio un user no existe
+         d = marshalling(FALSE,BOOLEAN);
       }
+      sendData(clients[nClient]->com, d);
+      clients[nClient]->name = s;
    }else{
-      //te envio un mensaje de error
+      //NO SE
    }
 }
 int listenToClients(){
@@ -146,18 +152,18 @@ int listenToClients(){
   for(int i = 0; i<MAX_PLAYERS;i++){
     if(clients[i] != NULL){
       nfds++;
-      FD_SET(client[i]->con->fd,cli);
+      FD_SET(clients[i]->con->fd,cli);
     }
   }
   select(nfds,cli,NULL,NULL,NULL);
   for(int i = 0; i<MAX_PLAYERS;i++){
-    if(clients[i] != NULL && FD_ISSET(clients[i]->con->fd)){
+    if(clients[i] != NULL && FD_ISSET(clients[i]->con->fd,cli)){
       return i; // o leo los datos??
     }
   }
   return -1;
 }
-void startListening(){
+void*  startListening(void* info){
   int nPlayers = 0;
   Connection *s = listenConnection(getpid()); //cambiar cuando este sockets
 
