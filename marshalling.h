@@ -23,6 +23,7 @@ void * unmarshalling(StreamData * data, int * type);
 int unmarshString(char * data, String * s );
 int unmarshPoint(char * data, Point * p);
 int unmarshBoard(char * data, Board * b);
+int unmarshServerId(char * data, Integer * p);
 int unmarshPlayerPos(char * data, PlayerPos * p);
 
 StreamData * marshalling(void * struc, int type);

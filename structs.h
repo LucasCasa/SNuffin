@@ -1,6 +1,8 @@
 #ifndef _STRUCTS_H
 #define _STRUCTS_H
 
+#include "com.h"
+
 typedef struct {
 	int x;
 	int y;

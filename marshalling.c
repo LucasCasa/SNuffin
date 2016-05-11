@@ -11,6 +11,7 @@ void * unmarshalling(StreamData * data, int * type);
 int unmarshString(char * data, String * s );
 int unmarshPoint(char * data, Point * p);
 int unmarshBoard(char * data, Board * b);
+int unmarshServerId(char * data, Integer * p);
 int unmarshPlayerPos(char * data, PlayerPos * p);
 
 StreamData * marshalling(void * struc, int type);
@@ -22,34 +23,38 @@ char * marshString(String * s, int * size);
 char * marshInt(Integer * s, int * size);
 char * marshServerId(Integer * p, int * size);
 
-void * unmarshalling(char * data, int * type){
-	if(data == NULL){
+int main(){
+	
+}
+
+void * unmarshalling(StreamData * d, int * type){
+	if(d == NULL || d->data == NULL){
 		return NULL;
 	}
-	if(data[0] == STRING){
+	if(d->data[0] == STRING){
 		String * s = malloc(sizeof(String));
 		*type = STRING - '0';
-		unmarshString(data,s);
+		unmarshString(d->data,s);
 		return s;
-	}else if(data[0] == PLAYER){
+	}else if(d->data[0] == PLAYER){
 		PlayerPos * p = malloc(sizeof(PlayerPos));
 		*type = PLAYER - '0';
-		unmarshPlayerPos(data,p);
+		unmarshPlayerPos(d->data,p);
 		return p;
-	}else if(data[0] == POINT){
+	}else if(d->data[0] == POINT){
 		Point * p = malloc(sizeof(Point));
 		*type = POINT - '0';
-		unmarshPoint(data,p);
+		unmarshPoint(d->data,p);
 		return p;
-	}else if (data[0] == BOARD){
+	}else if (d->data[0] == BOARD){
 		Board * t = malloc(sizeof(Board));
 		*type = BOARD - '0';
-		unmarshBoard(data,t);
+		unmarshBoard(d->data,t);
 		return t;
-	}else if(data[0] == SERVER_ID){
-		String * t = malloc(sizeof(String));
+	}else if(d->data[0] == SERVER_ID){
+		Integer * t = malloc(sizeof(Integer));
 		*type = SERVER_ID - '0';
-		unmarshServerId(data,t);
+		unmarshServerId(d->data,t);
 		return t;
 	}else{
 		type = NULL;
@@ -59,7 +64,7 @@ void * unmarshalling(char * data, int * type){
 }
 
 StreamData * marshalling(void * struc, int type){
-	StreamData * sd = maloc(sizeof(StreamData));
+	StreamData * sd = malloc(sizeof(StreamData));
 	char * aux;
 	int size;
 	type = type + '0';
@@ -83,6 +88,8 @@ StreamData * marshalling(void * struc, int type){
 }
 
 int unmarshPlayerPos(char * data, PlayerPos * p){
+	char * endptr;
+	char num[5];
 	if(data[0] != PLAYER){
 		p = NULL;
 		return 0;
@@ -253,7 +260,7 @@ char * marshServerId(Integer * p, int * size){
 	int cant = 1 + numPlaces(p->info) + 1;
 	d = malloc(cant * sizeof(char));
 	*size = cant;
-	sprintf(d,"%d%d",SERVER_ID -'0');
+	sprintf(d,"%d%d",SERVER_ID -'0',p->info);
 	return d;
 }
 
