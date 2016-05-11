@@ -128,7 +128,7 @@ void closeComm(Connection *c){
 int sendData(Connection* c,StreamData* d){
   printf("Sending data to: %d\n",c->fd);
   printf("Data: %s\n",d->data);
-  write(c->fd, d->data,d->size);
+  return write(c->fd, d->data,d->size);
 }
 
 void receiveData(Connection* c, StreamData* b){

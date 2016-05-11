@@ -117,9 +117,11 @@ void resolveRequest(int nClient){
       validateUser(d,nClient);
    }else if(expecting == PASSWORD){
       validatePassword(d,nClient);
+   }else if(expecting == READY_TO_PLAY){
+
    }else if(expecting == MOVEMENT){
       //llamo al que setea los movements de los jugadores
-   }else if(expecting == READY_TO_PLAY){
+
 
    }else{
       fprintf(stderr, "ERROR: expecting not valid\n"); // aca tamnbien iria un messague queue de error
@@ -127,8 +129,20 @@ void resolveRequest(int nClient){
 
 
 }
-void validatePassword(StreamData * d){
-
+void validatePassword(StreamData * d,int nClient){
+   char *s = malloc(d->size);
+   unmarshString(d->data,s);
+   if(s != NULL){
+      StreamData *d;
+      if(validPasswordDB(clients[nCLient]->name,s)){
+         d = marshalling(TRUE,BOOLEAN);
+         clients[nClient]->expecting = READY_TO_PLAY;
+         clients[nClient]->state = WAITING;
+      }else{
+         d = marshalling(FALSE,BOOLEAN);
+      }
+      sendData(clients[nClient]->com, d);
+   }
 }
 void validateUser(StreamData * d){
    char *s = malloc(d->size);
@@ -142,6 +156,7 @@ void validateUser(StreamData * d){
       }
       sendData(clients[nClient]->com, d);
       clients[nClient]->name = s;
+      clients[nClient]->expecting = PASSWORD;
    }else{
       //NO SE
    }
@@ -174,9 +189,13 @@ void*  startListening(void* info){
     c->state = LOGGING; // define
     c->expecting = USER;
     clients[nPlayers] = c;
+    notifyNewPlayer(c,nPlayers + 1);
     //tengo que mandar un mensaje a los demas jugadores
   }
   pthread_exit(NULL);
+}
+void notifyNewPlayer(Client c,int nPlayer){
+
 }
 void setDB(){
   int db = fork();

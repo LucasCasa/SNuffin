@@ -34,7 +34,7 @@
 /*Defino los estados del cliente*/
 
 #define LOGGING         0
-#define WAITNG          1
+#define WAITING         1
 #define READY_PLAY      2
 #define PLAYING         3
 #define LOOSE           4
@@ -66,6 +66,7 @@ int listenToClients();
 void resolveRequest(int nClient);
 void validateUser(StreamData * d);
 void validatePassword(StreamData * d);
+void notifyNewPlayer(Client c,int nPlayer);
 
 
 #endif
