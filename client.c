@@ -4,17 +4,21 @@ Connection * c;
 char * address;
 int f2;
 
-StreamData * buffer = malloc(sizeof(StreamData));
+StreamData * buffer;
 StreamData sd2;
 
-int int main(int argc, char const *argv[])
+int sendPoint(Point * p);
+
+
+int main(int argc, char const *argv[])
 {
 	int slot;
 	if(argc > 1){
-		slot = argc[1];
+		slot = argv[1];
 	}else{
 		slot = 1; //el default.
 	}
+	buffer = malloc(sizeof(StreamData));
 	game(slot);
 
 	return 0;
@@ -23,7 +27,7 @@ int int main(int argc, char const *argv[])
 void game(int slot){
 	char * aux;
 	StreamData buffer;
-	String * s = malloc(sizeof(String));
+	Integer * s = malloc(sizeof(Integer));
 	FILE * f;
 	int rta;
 	f = fopen(ARCHIVO, "r");
@@ -44,7 +48,7 @@ void game(int slot){
 	if(rta == 0){
 		printf("Error conectandose con el servidor\n");
 	}
-	recieved = receiveData(c,&buffer);
+	receiveData(c,&buffer);
 	//me quedo esperanod hasta que el servidor me conteste que se pudo conectar. 
 	//un server id. llamo otra vez a connect con ese id
 	getInformation();
@@ -80,14 +84,14 @@ void startGame(){
 				sendPoint(p);
 			}
 			int type;
-			receiveData(c,&sd2);
-			void * info = unmarshalling(sd2.data,&type);
-			if(type == BOARD_N){
-				printBoard((Board * )info);
-			}else if(type == STRING_N){
-				String * s = (String *)info;
-				game = checkStringGame(s);
-			}
+			//receiveData(c,&sd2);
+			//void * info = unmarshalling(sd2.data,&type);
+			//if(type == BOARD_N){
+			//	printBoard((Board * )info);
+			//}else if(type == STRING_N){
+			//	String * s = (String *)info;
+			//	game = checkStringGame(s);
+			//}
 		}
 	}
 	free(p);
@@ -101,16 +105,8 @@ int checkStringGame(String * s){
 	return 1;
 }
 
-int checkStringInfo(String * s){
-	if(strcmp(s-> string,"Pertenece")){
-		return 1;
-	}
-	return 0;
-}
-
 int sendPoint(Point * p){
-	sd.data = marshalling(p,POINT,&(sd.size));
-	return sendData(c,&sd);
+	return sendData(c,marshalling(p,POINT));
 }
 
 
@@ -125,18 +121,12 @@ void getInformation(){
 	name->size= strlen(nombre);
 	name->string = nombre;
 
-	rta = sendData(c,marshalling(string,STRING));
+	rta = sendData(c,marshalling(name,STRING));
 	if(rta == 0)
 		printf("Error conectandose con el servidor\n");
 
 	receiveData(c,buffer);
-	void * recieved = unmarshalling(buffer.data,&type);
-
-	if(type == STRING_N){
-		String * s = (String *) recieved;
-		belongs = checkStringInfo(s);
-	}
-
+	rta = unmarshBoolean(buffer->data,&belongs);
 	if(belongs){
 		printf("Ingrese su contraseña para poder ingresar\n");
 	}else{
@@ -152,11 +142,7 @@ void getInformation(){
 		printf("Error conectandose con el servidor\n");
 
 	receiveData(c,buffer);
-	void * passRec = unmarshalling(buffer.data,&type);
-	if(type == STRING_N){
-		String * s = (String *) passRec;
-		belongs = checkStringInfo(s);
-	}
+	rta = unmarshBoolean(buffer->data,&belongs);
 
 	if(belongs){
 		printf("Su nombre ha sido registrado correctamente\n");
@@ -172,12 +158,8 @@ void getInformation(){
 			if(rta == 0)
 				printf("Error conectandose con el servidor\n");
 			receiveData(c,buffer);
-			void * passRec = unmarshalling(buffer.data,&type);
-			if(type == STRING_N){
-				String * s = (String *) passRec;
-				w_pass = checkStringInfo(s);
-			}
-		}while(!w_pass);
+			rta = unmarshBoolean(buffer->data,&w_pass);
+		}while(w_pass);
 		printf("Se ha podido registrar correctamente\n");
 	}
 	free(pass);
