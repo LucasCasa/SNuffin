@@ -116,7 +116,9 @@ void resolveRequest(int nClient){
    if(expecting == USER){
       validateUser(d,nClient);
    }else if(expecting == PASSWORD){
-      validatePassword(d,nClient);
+      if(validatePassword(d,nClient)){
+        notifyNewPlayer(nClient);
+      }
    }else if(expecting == READY_TO_PLAY){
 
    }else if(expecting == MOVEMENT){
@@ -129,20 +131,25 @@ void resolveRequest(int nClient){
 
 
 }
-void validatePassword(StreamData * d,int nClient){
+int validatePassword(StreamData * d,int nClient){
    char *s = malloc(d->size);
    unmarshString(d->data,s);
+   int res;
    if(s != NULL){
       StreamData *d;
       if(validPasswordDB(clients[nCLient]->name,s)){
          d = marshalling(TRUE,BOOLEAN);
          clients[nClient]->expecting = READY_TO_PLAY;
          clients[nClient]->state = WAITING;
+         res = 1;
       }else{
          d = marshalling(FALSE,BOOLEAN);
+         res = 0;
       }
       sendData(clients[nClient]->com, d);
+      return res;
    }
+   return 0;
 }
 void validateUser(StreamData * d){
    char *s = malloc(d->size);
@@ -151,8 +158,10 @@ void validateUser(StreamData * d){
       StreamData *d;
       if(ExistUserDB(s)){
          d = marshalling(TRUE,BOOLEAN);
+         clients[nClient]->score = getHighscoreDB(s);
       }else{
          d = marshalling(FALSE,BOOLEAN);
+         clients[nClient]->score = 0;
       }
       sendData(clients[nClient]->com, d);
       clients[nClient]->name = s;
@@ -189,13 +198,19 @@ void*  startListening(void* info){
     c->state = LOGGING; // define
     c->expecting = USER;
     clients[nPlayers] = c;
-    notifyNewPlayer(c,nPlayers + 1);
+
     //tengo que mandar un mensaje a los demas jugadores
   }
   pthread_exit(NULL);
 }
-void notifyNewPlayer(Client c,int nPlayer){
-
+void notifyNewPlayer(int nPlayer){
+  Client *c = clients[nPlayer];
+  for(int i = 0; i< MAX_PLAYERS){
+    if(clients[i] != NULL && clients[i] != c){
+      StreamData *d = marshalling(CreatePlayerStruct(c,nPlayer),PLAYER);
+      sendData(d,clients[i]->com);
+    }
+  }
 }
 void setDB(){
   int db = fork();
@@ -252,7 +267,13 @@ int createUserDB(char* user, char* password){
   sem_post(&semDB);
   return shmPointer[RETURNPOS];
 }
-
+Player* CreatePlayerStruct(Client *c, int number){
+  Player *p = malloc(sizeof(Player));
+  p->name = c->name;
+  p->score = c->score;
+  p->num = number;
+  return p;
+}
 int split (const char *str, char c, char ***arr)
 {
     int count = 1;
