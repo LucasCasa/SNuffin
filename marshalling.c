@@ -60,7 +60,6 @@ void * unmarshalling(StreamData * d, int * type){
 		*type = BOOLEAN - '0';
 		unmarshBoolean(d->data,t);
 		return t;
-	}
 	}else{
 		type = NULL;
 		return NULL;
@@ -94,8 +93,6 @@ StreamData * marshalling(void * struc, int type){
 	return sd;
 }
 
-PLAYER String # Number # Score
-
 int unmarshPlayer(char * data, Player * p){
 	char * endptr;
 	if(data[0] != PLAYER){
@@ -114,8 +111,8 @@ int unmarshPlayer(char * data, Player * p){
 	for(i=i+1,j=0;data[i]!='\0';i++,j++){
 		num2[j]=data[i];
 	}
-	long m = strol(num, &endptr,10);
-	long n = strol(num2,&endptr,10);
+	long m = strtol(num, &endptr,10);
+	long n = strtol(num2,&endptr,10);
 	p->name = nombre;
 	p->num = (int)m;
 	p->score = (int)n;
@@ -184,10 +181,11 @@ int unmarshString(char * data, String * s){
 
 int unmarshBoolean(char * data, int * value){
 	if(data[0] != BOOLEAN){
-		b = NULL;
+		value = NULL;
 		return 0;
 	}
-	íf(data[1] == TRUE || data[1] == FALSE){
+	
+	if(data[1] == TRUE || data[1] == FALSE){
 		*value = data[1];
 		return 1;
 	}
@@ -272,7 +270,7 @@ char * marshString(String * s, int * size){
 
 char * marshPlayer(Player * p,int * size){
 	char * d;
-	int cant = 1 + 1 + 1 + numPlaces(p->dir->x) + numPlaces(p->dir->y) + 1;
+	int cant = 1 + strlen(p->name) + 1 + numPlaces(p->num) + 1 + numPlaces(p->score) + 1;
 	d = malloc(cant * sizeof(char));
 	sprintf(d,"%d%s%d%d%d%d",PLAYER - '0',p->name,SEP,p-> num,SEP,p->score);
 	*size = cant;
@@ -288,7 +286,7 @@ char * marshServerId(Integer * p, int * size){
 }
 
 char * marshBoolean(int value,int * size){
-	char * ;
+	char * d;
 	int cant = 1 + numPlaces(value) + 1;
 	d = malloc(cant * sizeof(char));
 	*size = cant;
