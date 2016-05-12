@@ -46,6 +46,7 @@ typedef struct Client{
     char* name;
     int state;
     int expecting;
+    int score;
     Connection *con;
 }Client;
 
@@ -65,8 +66,9 @@ void lobby();
 int listenToClients();
 void resolveRequest(int nClient);
 void validateUser(StreamData * d);
-void validatePassword(StreamData * d);
-void notifyNewPlayer(Client c,int nPlayer);
+int validatePassword(StreamData * d);
+void notifyNewPlayer(int nPlayer);
+Player* CreatePlayerStruct(Client *c, int number);
 
 
 #endif
