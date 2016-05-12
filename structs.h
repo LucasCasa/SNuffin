@@ -20,12 +20,13 @@ typedef struct {
 }String;
 
 typedef struct{
-	int pNumber;
-	Point * dir;
-}PlayerPos;
-
-typedef struct{
 	int info;
 }Integer;
+
+typedef struct{
+	char * name;
+	int num;
+	int score;
+}Player;
 
 #endif

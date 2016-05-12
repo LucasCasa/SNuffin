@@ -12,16 +12,18 @@ int unmarshString(char * data, String * s );
 int unmarshPoint(char * data, Point * p);
 int unmarshBoard(char * data, Board * b);
 int unmarshServerId(char * data, Integer * p);
-int unmarshPlayerPos(char * data, PlayerPos * p);
+int unmarshPlayer(char * data, Player * p);
+int unmarshBoolean(char * data, int * value);
 
 StreamData * marshalling(void * struc, int type);
 
 char * marshPoint(Point * s, int * size);
-char * marshPlayerPos(PlayerPos * p, int * size);
+char * marshPlayer(Player * p, int * size);
 char * marshBoard(Board* s, int * size);
 char * marshString(String * s, int * size);
 char * marshInt(Integer * s, int * size);
 char * marshServerId(Integer * p, int * size);
+char * marshBoolean(int value,int * size);
 
 
 void * unmarshalling(StreamData * d, int * type){
@@ -34,9 +36,9 @@ void * unmarshalling(StreamData * d, int * type){
 		unmarshString(d->data,s);
 		return s;
 	}else if(d->data[0] == PLAYER){
-		PlayerPos * p = malloc(sizeof(PlayerPos));
+		Player * p = malloc(sizeof(Player));
 		*type = PLAYER - '0';
-		unmarshPlayerPos(d->data,p);
+		unmarshPlayer(d->data,p);
 		return p;
 	}else if(d->data[0] == POINT){
 		Point * p = malloc(sizeof(Point));
@@ -53,6 +55,12 @@ void * unmarshalling(StreamData * d, int * type){
 		*type = SERVER_ID - '0';
 		unmarshServerId(d->data,t);
 		return t;
+	}else if(d->data[0] == BOOLEAN){
+		int * t = malloc(sizeof(int));
+		*type = BOOLEAN - '0';
+		unmarshBoolean(d->data,t);
+		return t;
+	}
 	}else{
 		type = NULL;
 		return NULL;
@@ -72,9 +80,11 @@ StreamData * marshalling(void * struc, int type){
 	}else if(type == POINT){
 		aux = marshPoint((Point *)struc,&size);
 	}else if (type == PLAYER){
-		aux = marshPlayerPos((PlayerPos *)struc,&size);
+		aux = marshPlayer((Player *)struc,&size);
 	}else if(type == SERVER_ID){
 		aux = marshServerId((Integer *)struc,&size);
+	}else if (type == BOOLEAN){
+		aux = marshBoolean((int)struc, &size);
 	}else{
 		aux = NULL;
 		size = 0;
@@ -84,26 +94,31 @@ StreamData * marshalling(void * struc, int type){
 	return sd;
 }
 
-int unmarshPlayerPos(char * data, PlayerPos * p){
+PLAYER String # Number # Score
+
+int unmarshPlayer(char * data, Player * p){
 	char * endptr;
-	char num[5];
 	if(data[0] != PLAYER){
 		p = NULL;
 		return 0;
 	}
-	p->pNumber = data[1] - '0';
-	p->dir = malloc(sizeof(Point));
-	int i = 2,j=0;
-	for(i =2;data[i]!=SEP;i++,j++){
+	char nombre[20] ;
+	char num[5],num2[5];
+	int i,j=0;
+	for(i=1;data[i]!=SEP;i++,j++){
+		nombre[j]=data[i];
+	}
+	for(i=i+1,j=0;data[i]!=SEP;i++,j++){
 		num[j]=data[i];
 	}
-	long m= strtol(num, &endptr,10);
-	p->dir->x = (int)m;
-	for(i = i+1,j=0;data[i]!='\0';i++,j++){
-		num[j]=data[i];
+	for(i=i+1,j=0;data[i]!='\0';i++,j++){
+		num2[j]=data[i];
 	}
-	m=strtol(num,&endptr,10);
-	p->dir->y =(int)m;
+	long m = strol(num, &endptr,10);
+	long n = strol(num2,&endptr,10);
+	p->name = nombre;
+	p->num = (int)m;
+	p->score = (int)n;
 	return 1;
 }
 
@@ -165,6 +180,18 @@ int unmarshString(char * data, String * s){
 	}
 	s->string=aux;
 	return 1;
+}
+
+int unmarshBoolean(char * data, int * value){
+	if(data[0] != BOOLEAN){
+		b = NULL;
+		return 0;
+	}
+	íf(data[1] == TRUE || data[1] == FALSE){
+		*value = data[1];
+		return 1;
+	}
+	return 0;
 }
 
 int unmarshBoard(char * data, Board * b){
@@ -243,21 +270,29 @@ char * marshString(String * s, int * size){
 	return d;
 }
 
-char * marshPlayerPos(PlayerPos * p,int * size){
+char * marshPlayer(Player * p,int * size){
 	char * d;
 	int cant = 1 + 1 + 1 + numPlaces(p->dir->x) + numPlaces(p->dir->y) + 1;
 	d = malloc(cant * sizeof(char));
-	sprintf(d,"%d%d%d%c%d",PLAYER - '0',p->pNumber,p->dir->x,SEP,p->dir->y);
+	sprintf(d,"%d%s%d%d%d%d",PLAYER - '0',p->name,SEP,p-> num,SEP,p->score);
 	*size = cant;
 	return d;
 }
-
 char * marshServerId(Integer * p, int * size){
 	char * d;
 	int cant = 1 + numPlaces(p->info) + 1;
 	d = malloc(cant * sizeof(char));
 	*size = cant;
 	sprintf(d,"%d%d",SERVER_ID -'0',p->info);
+	return d;
+}
+
+char * marshBoolean(int value,int * size){
+	char * ;
+	int cant = 1 + numPlaces(value) + 1;
+	d = malloc(cant * sizeof(char));
+	*size = cant;
+	sprintf(d,"%d%d",BOOLEAN -'0',value);
 	return d;
 }
 
