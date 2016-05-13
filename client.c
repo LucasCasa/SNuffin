@@ -20,6 +20,7 @@ int main(int argc, char const *argv[])
 	}
 	int value = atoi(slot);
 	buffer = malloc(sizeof(StreamData));
+	buffer->data = malloc(BUFFER);
 	game(value);
 	return 0;
 }
@@ -41,7 +42,9 @@ void game(int slot){
 		address = aux;
 	}
 	fscanf(f,"%d",&f2);
+	printf("Antes de connect\n");
 	c = connectToPeer(address,f2);
+	printf("C->id %d\n",c->fd);
 	rta = sendData(c,marshalling(&slot,SERVER_ID));
 	if(rta == 0){
 		printf("Error conectandose con el servidor\n");
@@ -110,6 +113,7 @@ int sendPoint(Point * p){
 void getInformation(){
 	String * password = malloc(sizeof(String));
 	String * name = malloc(sizeof(String));
+	name->string = malloc(20);
 	char * nombre = malloc (20 *sizeof(char));
    	char * pass = malloc(20 *sizeof(char));
    	int belongs=0,rta,type;
@@ -121,8 +125,10 @@ void getInformation(){
 	rta = sendData(c,marshalling(name,STRING));
 	if(rta == 0)
 		printf("Error conectandose con el servidor\n");
+	printf("Se mando el string %s\n", name->string);
 
 	receiveData(c,buffer);
+	printf("Vuelvo del receive\n");
 	rta = unmarshBoolean(buffer->data,&belongs);
 	if(belongs){
 		printf("Ingrese su contraseña para poder ingresar\n");
