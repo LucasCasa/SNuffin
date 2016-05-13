@@ -12,15 +12,15 @@ int sendPoint(Point * p);
 
 int main(int argc, char const *argv[])
 {
-	int slot;
+	const char * slot;
 	if(argc > 1){
 		slot = argv[1];
 	}else{
-		slot = 1; //el default.
+		slot = "1"; //el default.
 	}
+	int value = atoi(slot);
 	buffer = malloc(sizeof(StreamData));
 	game(slot);
-
 	return 0;
 }
 

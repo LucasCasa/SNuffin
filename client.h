@@ -27,7 +27,7 @@
 #define BACKSPACE 127
 
 #define BUFFER 256
-#define ARCHIVO "./config"
+#define ARCHIVO "./configFIFO"
 
 #define PLAYER1_COLOR   "\x1b[31;41m"
 #define PLAYER2_COLOR   "\x1b[32;42m"
