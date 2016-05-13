@@ -64,13 +64,14 @@ int main(int argc, const char* argv[]){
         int child = fork();
         if(child == 0){
             lobby();
+            StreamData *d = marshalling(servers + joinServer,SERVER_ID);
+            printf("Envio data: %s \n", d->data);
+            sendData(new,d); //MOVER
         }else{
          servers[joinServer] = child;
          pthread_t waitChild;
          pthread_create(&waitChild,NULL,waitForChild,&child);
-         StreamData *d = marshalling(servers + joinServer,SERVER_ID);
-         printf("Envio data: %s \n", d->data);
-         sendData(new,d);
+
       }
     }
       // if(buffer->data[0] == '@'){
