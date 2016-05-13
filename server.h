@@ -19,6 +19,7 @@
 #include <sys/select.h>
 
 #define MAX_PLAYERS  4
+#define MAX_LOBBY    10
 #define TRUE         1
 #define FALSE        0
 
@@ -65,10 +66,11 @@ void* startListening(void*);
 void lobby();
 int listenToClients();
 void resolveRequest(int nClient);
-void validateUser(StreamData * d);
-int validatePassword(StreamData * d);
+void validateUser(StreamData * d,int nClient);
+int validatePassword(StreamData * d,int nClient);
 void notifyNewPlayer(int nPlayer);
 Player* CreatePlayerStruct(Client *c, int number);
+void * waitForChild(void* pid);
 
 
 #endif

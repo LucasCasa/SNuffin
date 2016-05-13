@@ -62,6 +62,8 @@ int main(int argc, const char* argv[]){
             lobby();
         }else{
          servers[joinServer] = child;
+         pthread_t waitChild;
+         pthread_create(&waitChild,NULL,waitForChild,&child);
          sendData(new,marshalling(servers + joinServer ,SERVER_ID));
       }
     }
@@ -137,7 +139,7 @@ int validatePassword(StreamData * d,int nClient){
    int res;
    if(s != NULL){
       StreamData *d;
-      if(validPasswordDB(clients[nCLient]->name,s)){
+      if(validPasswordDB(clients[nClient]->name,s)){
          d = marshalling(TRUE,BOOLEAN);
          clients[nClient]->expecting = READY_TO_PLAY;
          clients[nClient]->state = WAITING;
@@ -146,29 +148,38 @@ int validatePassword(StreamData * d,int nClient){
          d = marshalling(FALSE,BOOLEAN);
          res = 0;
       }
-      sendData(clients[nClient]->com, d);
+      sendData(clients[nClient]->con, d);
       return res;
    }
    return 0;
 }
-void validateUser(StreamData * d){
+void validateUser(StreamData * d, int nClient){
    char *s = malloc(d->size);
    unmarshString(d->data,s);
    if(s != NULL){
       StreamData *d;
       if(ExistUserDB(s)){
          d = marshalling(TRUE,BOOLEAN);
-         clients[nClient]->score = getHighscoreDB(s);
+         clients[nClient]->score = getHighScoreDB(s);
       }else{
          d = marshalling(FALSE,BOOLEAN);
          clients[nClient]->score = 0;
       }
-      sendData(clients[nClient]->com, d);
+      sendData(clients[nClient]->con, d);
       clients[nClient]->name = s;
       clients[nClient]->expecting = PASSWORD;
    }else{
       //NO SE
    }
+}
+void * waitForChild(void* pid){
+  int s = *(int*) pid;
+  waitpid(pid);
+  for(int i = 0 ; i<MAX_LOBBY;i++){
+    if(servers[i] == pid){
+      servers[i] = 0;
+    }
+  }
 }
 int listenToClients(){
   fd_set* cli;
@@ -205,10 +216,10 @@ void*  startListening(void* info){
 }
 void notifyNewPlayer(int nPlayer){
   Client *c = clients[nPlayer];
-  for(int i = 0; i< MAX_PLAYERS){
+  for(int i = 0; i< MAX_PLAYERS;i++){
     if(clients[i] != NULL && clients[i] != c){
       StreamData *d = marshalling(CreatePlayerStruct(c,nPlayer),PLAYER);
-      sendData(d,clients[i]->com);
+      sendData(d,clients[i]->con);
     }
   }
 }
