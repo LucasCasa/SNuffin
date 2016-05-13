@@ -82,6 +82,8 @@ Connection * connectToPeer(char * addr,int id){
    printf("Mando inicio de conexio a: %d, %s\n",c->fd,addr);
    sendData(c,d);
    printf("Mandando\n");
+   c->fd = fdw;
+   c->fd2 = fdr;
    free(d->data);
    free(d);
    free(auxr);
