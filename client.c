@@ -19,9 +19,13 @@ int main(int argc, char const *argv[])
 		slot = "1"; //el default.
 	}
 	int value = atoi(slot);
-	buffer = malloc(sizeof(StreamData));
-	buffer->data = malloc(BUFFER);
+
+	buffer = calloc(1,sizeof(StreamData));
+	buffer->data = calloc(BUFFER,sizeof(char));
+
 	game(value);
+	free(buffer->data);
+	free(buffer);
 	return 0;
 }
 
@@ -34,17 +38,17 @@ void game(int slot){
 	if(f == NULL){
 		perror("config");
 	}
-	address = malloc(BUFFER * sizeof(char));
+	address = calloc(BUFFER,sizeof(char));
 	aux = fgets(address,BUFFER,f);
 	if(aux == NULL){
-		//error no se pudo leer
+		perror("No se pudo leer el archivo");
 	}else{
 		address = aux;
 	}
 	fscanf(f,"%d",&f2);
-	printf("Antes de connect\n");
+
 	c = connectToPeer(address,f2);
-	printf("C->id %d\n",c->fd);
+
 	rta = sendData(c,marshalling(&slot,SERVER_ID));
 	if(rta == 0){
 		printf("Error conectandose con el servidor\n");
@@ -52,8 +56,10 @@ void game(int slot){
 	receiveData(c,buffer);
 	unmarshServerId(buffer->data, &s);
 	c = connectToPeer(address,s);
+
 	getInformation();
 	//startGame();
+	
 	fclose(f);
 	free(address);
 }
@@ -62,7 +68,7 @@ void startGame(){
 	changeMode(1);
 	int game = 1;
 	int pressed;
-	Point * p = malloc(sizeof(Point));
+	Point * p = calloc(1,sizeof(Point));
 	while(game){
 		while(!kbhit() && game){
 			pressed=getchar();
@@ -111,12 +117,12 @@ int sendPoint(Point * p){
 
 
 void getInformation(){
-	String * password = malloc(sizeof(String));
-	String * name = malloc(sizeof(String));
-	name->string = malloc(20);
-	password->string = malloc(20);
-	char * nombre = malloc (20 *sizeof(char));
-   	char * pass = malloc(20 *sizeof(char));
+	String * password = calloc(1,sizeof(String));
+	String * name = calloc(1,sizeof(String));
+	name->string = calloc(MAX_WORD,sizeof(char));
+	password->string = calloc(MAX_WORD,sizeof(char));
+	char * nombre = calloc (MAX_WORD,sizeof(char));
+   	char * pass = calloc(MAX_WORD,sizeof(char));
    	int belongs=0,rta,type;
 
    	getName(nombre);
@@ -134,7 +140,7 @@ void getInformation(){
 	if(belongs){
 		printf("Ingrese su contraseña para poder ingresar\n");
 	}else{
-		printf("Su nombre no esta registrado. Ingrese una contraseña para poder registrasrse\n");
+		printf("Su nombre no esta registrado. Ingrese una contraseña para poder registrarse\n");
 	}
 
 	getPass(pass);
@@ -166,6 +172,8 @@ void getInformation(){
 		}while(w_pass);
 		printf("Se ha podido registrar correctamente\n");
 	}
+	free(name->string);
+	free(password->string);
 	free(pass);
 	free(nombre);
 	free(password);
@@ -177,15 +185,15 @@ void getInformation(){
 
 void getPass(char * pass){
 	int i=0,c;
-	while(i<20){
+	while(i<MAX_WORD){
 		changeMode(1);
-		while(!kbhit() && i<20){
+		while(!kbhit() && i<MAX_WORD){
 			c = getchar();
 			if(c == BACKSPACE && i !=0){
 				i--;
 			}else if (c == '\n' && i != 0){
 				pass[i]='\0';
-				i=20;
+				i=MAX_WORD;
 			}else{
 				pass[i]=c;
 				i++;
@@ -197,7 +205,7 @@ void getPass(char * pass){
 }
 
 void getName(char * name){
-	printf("Por favor escriba su nombre:\t");
+	printf("Por favor escriba su nombre:");
 	scanf("%20s",name);
 }
 

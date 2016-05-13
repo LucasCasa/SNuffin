@@ -27,7 +27,9 @@
 #define BACKSPACE 127
 
 #define BUFFER 256
-#define ARCHIVO "./configFIFO"
+#define ARCHIVO "./config"
+
+#define MAX_WORD 20
 
 #define PLAYER1_COLOR   "\x1b[31;41m"
 #define PLAYER2_COLOR   "\x1b[32;42m"
