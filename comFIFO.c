@@ -10,9 +10,6 @@
 
 #define BUFFER_SIZE 256
 
-
-int fdr;
-int fdw;
 char* ADDR = "/tmp/server";
 //char* srvFifo;
 //char* cliFifo;
@@ -60,17 +57,21 @@ Connection * connectToPeer(char * addr,int id){
       printf("Cree el fifo write %d\n",a );
     }
     printf("Hola\n");
-    fdw = open(auxw,0666);
-    fdr = open(auxr,0666);
+    int fdw = open(auxw,0666);
+    int fdr = open(auxr,0666);
     printf("CHAU\n");
    Connection *c = malloc(sizeof(Connection));
    /*int size = strlen(addr) + 1;
    c->addr = malloc(size);
    memcpy(c->addr,addr,size);*/
-   addr[strlen(addr) -1] = 0;
-   printf("Abriendo %s\n",addr );
+   if(addr[strlen(addr) - 1] == '\n'){
+     addr[strlen(addr) -1] = 0;
+   }
+
+   printf("Abriendo %s%d\n",addr,id );
    printf("%d\n",access(addr,F_OK) );
    c->fd = open(addr,0666);
+   printf("fd :%d \n",c->fd);
    if(c->fd == -1){
      perror("ERROR: ");
    }
@@ -134,12 +135,17 @@ int sendData(Connection* c,StreamData* d){
 }
 
 void receiveData(Connection* c, StreamData* b){
-  int a = 0;
-  if(c->fd2 == 0){
+  int a = -1;
+  /*if(c->fd2 == 0){
     a = read(fdr, b->data,BUFFER_SIZE);
-  }else{
+  }else{*/
+  printf("FD: %d\n",c->fd2);
     a = read(c->fd2, b->data,BUFFER_SIZE);
-  }
+    if(a == -1){
+      perror("ERROR REC");
+    }
+  //}
+  printf("Received\n");
   printf("STRING: %s\n",b->data);
   printf("SIZE: %d\n",a );
   b->size = strlen(b->data);

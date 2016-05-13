@@ -69,6 +69,7 @@ int main(int argc, const char* argv[]){
          pthread_t waitChild;
          pthread_create(&waitChild,NULL,waitForChild,&child);
          StreamData *d = marshalling(servers + joinServer,SERVER_ID);
+         printf("Envio data: %s \n", d->data);
          sendData(new,d);
       }
     }
@@ -202,9 +203,10 @@ int listenToClients(){
 void*  startListening(void* info){
   int nPlayers = 0;
   Connection *s = listenConnection(getpid()); //cambiar cuando este sockets
-
+  printf("Soy: %d, estoy esuchando nuevos players\n",getpid());
   while(nPlayers < MAX_PLAYERS){
     Connection *new = acceptConnection(s);
+    printf("Soy: %d, escuche un nuevo player\n",getpid());
     Client *c = malloc(sizeof(Client));
     c->con = new;
     c->state = LOGGING; // define
