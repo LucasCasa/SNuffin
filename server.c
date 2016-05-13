@@ -19,16 +19,18 @@ int main(int argc, const char* argv[]){
       shmPointer[i] = 0;
    }
    setDB();
-   /*FILE * fp;
+   FILE * fp;
    char * srvAddr = malloc(BUFFER_SIZE);
 
-   fp = fopen("./configFIFO", "r");
+   fp = fopen("./config", "r");
    if (fp == NULL)
-   exit(EXIT_FAILURE);
+      exit(EXIT_FAILURE);
 
    fgets(srvAddr,BUFFER_SIZE,fp);
+   int n = 0;
+   fscanf(fp,"%d",&n);
 
-   EN UN FUTURO HAY QUE HACER ESTO BIEN, ESTO ES SOLO PARA TEST
+  /* EN UN FUTURO HAY QUE HACER ESTO BIEN, ESTO ES SOLO PARA TEST
    */
    //Esto es para probar que se cambia el valor en ambos procesos.
    /*(ExistUserDB("kuyum") )?printf("SI existe Kuyum\n"):printf("NO kuyum\n");
@@ -41,7 +43,7 @@ int main(int argc, const char* argv[]){
    setHighscoreDB("lucas",aux);
    printf("Nuevo Score de Lucas: %d\n",getHighScoreDB("lucas"));
    */
-   Connection * selfc = listenConnection(0); // PROXIMAMENTE LEO CONFIG PASO NUMERO
+   Connection * selfc = listenConnection(n); // PROXIMAMENTE LEO CONFIG PASO NUMERO
    printf("Estoy esuchando\n");
    while(1){
       StreamData * buffer = malloc(sizeof(StreamData));
@@ -52,8 +54,10 @@ int main(int argc, const char* argv[]){
       printf("Nueva conexion\n");
       receiveData(new,buffer);
       printf("Recibi: %s\n",buffer->data);
+      int joinServer;
+      unmarshServerId(buffer,&joinServer);
       /* ACA tendria que haber un marshalling*/
-      int joinServer = atoi(buffer->data);
+      //int joinServer = atoi(buffer->data);
       if(servers[joinServer] != 0){
         sendData(new,marshalling(servers + joinServer, SERVER_ID));
       }else{
@@ -64,17 +68,14 @@ int main(int argc, const char* argv[]){
          servers[joinServer] = child;
          pthread_t waitChild;
          pthread_create(&waitChild,NULL,waitForChild,&child);
-         sendData(new,marshalling(servers + joinServer ,SERVER_ID));
+         StreamData *d = marshalling(servers + joinServer,SERVER_ID);
+         sendData(new,d);
       }
     }
       // if(buffer->data[0] == '@'){
       //   printf("Lei un accept\n");
       //   int child = fork();
-      //   if(child == 0){
-      //     printf("Me forkee soy hijo\n");
-      //     char * aux = malloc(sizeof(srvAddr) + 6);
-      //     sprintf(aux,"%s%d",srvAddr,getpid());
-      //     selfc = start_ipc(aux);
+      //   if(child == 0){){
       //
       //   }else{
       //     Connection *c = malloc(sizeof(Connection));
@@ -101,7 +102,7 @@ void lobby(){
   if(cliNum != -1){
      resolveRequest(cliNum);
    }else{
-      printf("ERROR ON SELECT\n");
+      printf("ERROR ON SELECT\n");){
    }
   //select LALALALA
   //Habria que crear una struct para saber cada cliente en que estado esta??? SIII
@@ -226,7 +227,7 @@ void notifyNewPlayer(int nPlayer){
 void setDB(){
   int db = fork();
   if(db == 0){
-     printf("Hola soy el hijo\n");
+     printf("Hola soy el hijoDB\n");
     manageDataBase();
   }
   printf("Soy el padre\n");
