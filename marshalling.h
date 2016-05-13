@@ -24,7 +24,7 @@ void * unmarshalling(StreamData * data, int * type);
 int unmarshString(char * data, String * s );
 int unmarshPoint(char * data, Point * p);
 int unmarshBoard(char * data, Board * b);
-int unmarshServerId(char * data, Integer * p);
+int unmarshServerId(char * data, int * p);
 int unmarshPlayer(char * data, Player * p);
 int unmarshBoolean(char * data, int * value);
 
@@ -35,7 +35,7 @@ char * marshPlayer(Player * p, int * size);
 char * marshBoard(Board* s, int * size);
 char * marshString(String * s, int * size);
 char * marshInt(Integer * s, int * size);
-char * marshServerId(Integer * p, int * size);
+char * marshServerId(int * p, int * size);
 char * marshBoolean(int value,int * size);
 
 #endif

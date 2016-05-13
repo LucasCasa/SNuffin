@@ -26,7 +26,7 @@ int main(int argc, char const *argv[])
 
 void game(int slot){
 	char * aux;
-	Integer * s = malloc(sizeof(Integer));
+	int s;
 	FILE * f;
 	int rta;
 	f = fopen(ARCHIVO, "r");
@@ -42,19 +42,17 @@ void game(int slot){
 	}
 	fscanf(f,"%d",&f2);
 	c = connectToPeer(address,f2);
-	s->info = slot;
-	rta = sendData(c,marshalling(s,SERVER_ID -'0'));
+	rta = sendData(c,marshalling(&slot,SERVER_ID));
 	if(rta == 0){
 		printf("Error conectandose con el servidor\n");
 	}
 	receiveData(c,buffer);
-	unmarshServerId(buffer->data, s);
-	c = connectToPeer(address,s->info);
+	unmarshServerId(buffer->data, &s);
+	c = connectToPeer(address,s);
 	getInformation();
 	//startGame();
 	fclose(f);
 	free(address);
-	free(s);
 }
 
 void startGame(){

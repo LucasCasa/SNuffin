@@ -11,7 +11,7 @@ void * unmarshalling(StreamData * data, int * type);
 int unmarshString(char * data, String * s );
 int unmarshPoint(char * data, Point * p);
 int unmarshBoard(char * data, Board * b);
-int unmarshServerId(char * data, Integer * p);
+int unmarshServerId(char * data, int * p);
 int unmarshPlayer(char * data, Player * p);
 int unmarshBoolean(char * data, int * value);
 
@@ -22,7 +22,7 @@ char * marshPlayer(Player * p, int * size);
 char * marshBoard(Board* s, int * size);
 char * marshString(String * s, int * size);
 char * marshInt(Integer * s, int * size);
-char * marshServerId(Integer * p, int * size);
+char * marshServerId(int * p, int * size);
 char * marshBoolean(int value,int * size);
 
 
@@ -51,7 +51,7 @@ void * unmarshalling(StreamData * d, int * type){
 		unmarshBoard(d->data,t);
 		return t;
 	}else if(d->data[0] == SERVER_ID){
-		Integer * t = malloc(sizeof(Integer));
+		int * t = malloc(sizeof(int));
 		*type = SERVER_ID - '0';
 		unmarshServerId(d->data,t);
 		return t;
@@ -71,7 +71,6 @@ StreamData * marshalling(void * struc, int type){
 	StreamData * sd = malloc(sizeof(StreamData));
 	char * aux;
 	int size;
-	type = type + '0';
 	if(type == STRING){
 		aux = marshString((String * )struc,&size);
 	}else if(type == BOARD){
@@ -81,7 +80,7 @@ StreamData * marshalling(void * struc, int type){
 	}else if (type == PLAYER){
 		aux = marshPlayer((Player *)struc,&size);
 	}else if(type == SERVER_ID){
-		aux = marshServerId((Integer *)struc,&size);
+		aux = marshServerId((int *)struc,&size);
 	}else if (type == BOOLEAN){
 		aux = marshBoolean((int)struc, &size);
 	}else{
@@ -119,7 +118,7 @@ int unmarshPlayer(char * data, Player * p){
 	return 1;
 }
 
-int unmarshServerId(char * data, Integer * p){
+int unmarshServerId(char * data, int * p){
 	char num[5];
 	int i,j=0;
 	char * endptr;
@@ -131,7 +130,7 @@ int unmarshServerId(char * data, Integer * p){
 		num[j]=data[i];
 	}
 	long m = strtol(num, &endptr,10);
-	p->info = (int)m;
+	*p = (int)m;
 	return 1;
 }
 
@@ -276,12 +275,12 @@ char * marshPlayer(Player * p,int * size){
 	*size = cant;
 	return d;
 }
-char * marshServerId(Integer * p, int * size){
+char * marshServerId(int * p, int * size){
 	char * d;
-	int cant = 1 + numPlaces(p->info) + 1;
+	int cant = 1 + numPlaces(*p) + 1;
 	d = malloc(cant * sizeof(char));
 	*size = cant;
-	sprintf(d,"%d%d",SERVER_ID -'0',p->info);
+	sprintf(d,"%d%d",SERVER_ID -'0',*p);
 	return d;
 }
 
