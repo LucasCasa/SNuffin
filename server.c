@@ -102,7 +102,7 @@ void lobby(){
   if(cliNum != -1){
      resolveRequest(cliNum);
    }else{
-      printf("ERROR ON SELECT\n");){
+      printf("ERROR ON SELECT\n");
    }
   //select LALALALA
   //Habria que crear una struct para saber cada cliente en que estado esta??? SIII
