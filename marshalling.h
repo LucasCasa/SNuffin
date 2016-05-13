@@ -10,11 +10,6 @@
 #define SERVER_ID '8'
 #define BOOLEAN '4'
 
-#define STRING_N STRING - '0'
-#define POINT_N POINT - '0'
-#define BOARD_N BOARD - '0'
-#define PLAYER_N PLAYER - '0'
-
 #define SEP '#' //el separador
 
 int numPlaces (int n) ;

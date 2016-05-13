@@ -114,6 +114,7 @@ void getInformation(){
 	String * password = malloc(sizeof(String));
 	String * name = malloc(sizeof(String));
 	name->string = malloc(20);
+	password->string = malloc(20);
 	char * nombre = malloc (20 *sizeof(char));
    	char * pass = malloc(20 *sizeof(char));
    	int belongs=0,rta,type;
