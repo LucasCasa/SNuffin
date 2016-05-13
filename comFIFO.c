@@ -67,10 +67,15 @@ Connection * connectToPeer(char * addr,int id){
    if(addr[strlen(addr) - 1] == '\n'){
      addr[strlen(addr) -1] = 0;
    }
-
+   char* auxSRV = malloc(BUFFER_SIZE);
+   if(id == 0){
+     fprintf(auxSRV, "%s",addr);
+   }else{
+     fprintf(auxSRV, "%s%d",addr,id);
+   }
    printf("Abriendo %s%d\n",addr,id );
-   printf("%d\n",access(addr,F_OK) );
-   c->fd = open(addr,0666);
+   printf("%d\n",access(auxSRV,F_OK) );
+   c->fd = open(auxSRV,0666);
    printf("fd :%d \n",c->fd);
    if(c->fd == -1){
      perror("ERROR: ");
@@ -100,6 +105,7 @@ Connection * acceptConnection(Connection * c){
   devuelva una nueva conexion. Esta funcion solo se llamaria desde el cliente y
   esta pensada para que envie un mensaje predeterminado que el servidor va a enteder
   que es para pasarle el nuevo server.*/
+  printf("Nueva conexion: %d\n", getpid());
   StreamData *d = malloc(sizeof(StreamData));
   d->data = malloc(BUFFER_SIZE);
   receiveData(c,d);
