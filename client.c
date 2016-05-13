@@ -20,7 +20,7 @@ int main(int argc, char const *argv[])
 	}
 	int value = atoi(slot);
 	buffer = malloc(sizeof(StreamData));
-	game(slot);
+	game(value);
 	return 0;
 }
 
