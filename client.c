@@ -26,7 +26,6 @@ int main(int argc, char const *argv[])
 
 void game(int slot){
 	char * aux;
-	StreamData buffer;
 	Integer * s = malloc(sizeof(Integer));
 	FILE * f;
 	int rta;
@@ -48,11 +47,11 @@ void game(int slot){
 	if(rta == 0){
 		printf("Error conectandose con el servidor\n");
 	}
-	receiveData(c,&buffer);
-	//me quedo esperanod hasta que el servidor me conteste que se pudo conectar. 
-	//un server id. llamo otra vez a connect con ese id
+	receiveData(c,buffer);
+	unmarshServerId(buffer->data, s);
+	c = connectToPeer(address,s->info);
 	getInformation();
-	startGame();
+	//startGame();
 	fclose(f);
 	free(address);
 	free(s);
