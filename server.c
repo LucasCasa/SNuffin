@@ -7,6 +7,11 @@ Client **clients;
 
 int main(int argc, const char* argv[]){
     /*set de db semaphore*/
+    servers[0] = 0;
+    servers[1] = 0;
+    servers[2] = 0;
+    servers[3] = 0; //MAS
+    int joinServer = 0;
     clients = malloc(sizeof(Client*) * 4);
     clients[0] = NULL;
     clients[1] = NULL;
@@ -54,24 +59,26 @@ int main(int argc, const char* argv[]){
       printf("Nueva conexion\n");
       receiveData(new,buffer);
       printf("Recibi: %s\n",buffer->data);
-      int joinServer;
+
       unmarshServerId(buffer,&joinServer);
-      /* ACA tendria que haber un marshalling*/
-      //int joinServer = atoi(buffer->data);
+
+      printf("Client wants to join server %d\n", joinServer);
       if(servers[joinServer] != 0){
         sendData(new,marshalling(servers + joinServer, SERVER_ID));
       }else{
         int child = fork();
+        printf("\t\tMe Forkee\n");
         if(child == 0){
+           printf("\t\tLlamo a lobby\n");
             lobby();
-            StreamData *d = marshalling(servers + joinServer,SERVER_ID);
-            printf("Envio data: %s \n", d->data);
-            sendData(new,d); //MOVER
+          printf("\t\tSalgo del lobby\n");
         }else{
          servers[joinServer] = child;
          pthread_t waitChild;
          pthread_create(&waitChild,NULL,waitForChild,&child);
-
+         StreamData *d = marshalling(servers + joinServer,SERVER_ID);
+         printf("Envio data: %s \n", d->data);
+         sendData(new,d); //MOVER
       }
     }
       // if(buffer->data[0] == '@'){
@@ -98,14 +105,19 @@ int main(int argc, const char* argv[]){
 
 void lobby(){
   //threads LALALALA
-  pthread_t* listenThread = malloc(sizeof(pthread_t));
-  pthread_create(listenThread, NULL,startListening, NULL);
+  pthread_t listenThread;
+  printf("Creo el thread\n");
+  int i = pthread_create(&listenThread, NULL,startListening, NULL);
+  printf("Thread: %d\n",i );
+  while(1){
+     printf("Arranco a esuchar a los nuevos clientes\n");
   int cliNum = listenToClients();
   if(cliNum != -1){
      resolveRequest(cliNum);
    }else{
       printf("ERROR ON SELECT\n");
    }
+}
   //select LALALALA
   //Habria que crear una struct para saber cada cliente en que estado esta??? SIII
   //NO se cuando empezar el juego LALALALA
@@ -159,9 +171,13 @@ int validatePassword(StreamData * d,int nClient){
 void validateUser(StreamData * d, int nClient){
    char *s = malloc(d->size);
    unmarshString(d->data,s);
+   printf("Check if user exists %s\n",d->data );
    if(s != NULL){
       StreamData *d;
-      if(ExistUserDB(s)){
+      int e = ExistUserDB(s);
+      printf("Exists Equals %d\n",e );
+      if(e){
+         printf("User exists\n");
          d = marshalling(TRUE,BOOLEAN);
          clients[nClient]->score = getHighScoreDB(s);
       }else{
@@ -185,19 +201,29 @@ void * waitForChild(void* pid){
   }
 }
 int listenToClients(){
+  int res = 0;
   fd_set* cli;
   int nfds = 0;
+  while(res != -1){
   for(int i = 0; i<MAX_PLAYERS;i++){
     if(clients[i] != NULL){
       nfds++;
-      FD_SET(clients[i]->con->fd,cli);
-    }
+      printf("I am Listening to client: %d\n",i );
+      FD_SET(clients[i]->con->fd2,cli);
+   }else{
+      printf("Client %d is NULL\n",i );
+   }
   }
-  select(nfds,cli,NULL,NULL,NULL);
+
+  struct timeval timeout;
+  timeout.tv_sec = 1;
+  res = select(FD_SETSIZE,cli,NULL,NULL,&timeout);
+  printf("I received a request %d\n",res );
   for(int i = 0; i<MAX_PLAYERS;i++){
     if(clients[i] != NULL && FD_ISSET(clients[i]->con->fd,cli)){
       return i; // o leo los datos??
     }
+  }
   }
   return -1;
 }

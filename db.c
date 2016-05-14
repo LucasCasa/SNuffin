@@ -71,11 +71,11 @@ int isUser(char* user){
   sqlite3_stmt* stmt;
   int c = 0;
   sprintf(sql,"SELECT Count(*) FROM player WHERE name = '%s'",user);
-  //printf("SQL: %s\n",sql );
+  printf("SQL: %s\n",sql );
   printError(sqlite3_prepare_v2(db,sql,-1,&stmt,NULL));
   printError(sqlite3_step(stmt));
   c = sqlite3_column_int(stmt, 0);
-  //(c == 1)?printf("Exists\n"):printf("Don't Exist\n");
+  (c == 1)?printf("Exists\n"):printf("Don't Exist\n");
   printError(sqlite3_finalize(stmt));
   return c;
 }

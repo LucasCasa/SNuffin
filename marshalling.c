@@ -122,16 +122,24 @@ int unmarshServerId(char * data, int * p){
 	char num[5];
 	int i,j=0;
 	char * endptr;
+	/*int lucas = 0;
+	int unit = 1;*/
 	if(data[0] != SERVER_ID){
 		p = NULL;
 		return 0;
 	}
+
 	for(i=1;data[i]!='\0';i++,j++){
 		num[j]=data[i];
 	}
 	long m = strtol(num, &endptr,10);
 	*p = (int)m;
 	return 1;
+	/*for(int i = (strlen(data)-1);i>0;i++){
+		lucas+= (data[i]-'0')*unit;
+		unit = unit * 10;
+	}
+	*p = lucas;*/
 }
 
 int unmarshPoint(char * data, Point * p){
@@ -183,7 +191,7 @@ int unmarshBoolean(char * data, int * value){
 		value = NULL;
 		return 0;
 	}
-	
+
 	if(data[1] == TRUE || data[1] == FALSE){
 		*value = data[1];
 		return 1;

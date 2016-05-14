@@ -56,10 +56,8 @@ Connection * connectToPeer(char * addr,int id){
       int a = mkfifo(auxw,0666); // VER PORQUE NO DEJA O_RDONLY
       printf("Cree el fifo write %d\n",a );
     }
-    printf("Hola\n");
     int fdw = open(auxw,0666);
     int fdr = open(auxr,0666);
-    printf("CHAU\n");
    Connection *c = malloc(sizeof(Connection));
    /*int size = strlen(addr) + 1;
    c->addr = malloc(size);
@@ -67,11 +65,12 @@ Connection * connectToPeer(char * addr,int id){
    if(addr[strlen(addr) - 1] == '\n'){
      addr[strlen(addr) -1] = 0;
    }
-   char* auxSRV = malloc(BUFFER_SIZE);
+   printf("Server Address %s\n",addr);
+   char* auxSRV = calloc(BUFFER_SIZE,sizeof(char));
    if(id == 0){
-     fprintf(auxSRV, "%s",addr);
+     sprintf(auxSRV, "%s",addr);
    }else{
-     fprintf(auxSRV, "%s%d",addr,id);
+     sprintf(auxSRV, "%s%d",addr,id);
    }
    printf("Abriendo %s%d\n",addr,id );
    printf("%d\n",access(auxSRV,F_OK) );
@@ -85,7 +84,7 @@ Connection * connectToPeer(char * addr,int id){
    d->data = malloc(BUFFER_SIZE);
    sprintf(d->data,"@%d",getpid());
    d->size = strlen(d->data);
-   printf("Mando inicio de conexio a: %d, %s\n",c->fd,addr);
+   printf("Mando inicio de conexio a: %d, %s\n",c->fd,auxSRV);
    sendData(c,d);
    printf("Mandando\n");
    c->fd = fdw;
@@ -145,7 +144,6 @@ void receiveData(Connection* c, StreamData* b){
   /*if(c->fd2 == 0){
     a = read(fdr, b->data,BUFFER_SIZE);
   }else{*/
-  printf("FD: %d\n",c->fd2);
     a = read(c->fd2, b->data,BUFFER_SIZE);
     if(a == -1){
       perror("ERROR REC");
