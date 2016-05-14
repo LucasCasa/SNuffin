@@ -10,6 +10,9 @@
 #define SERVER_ID '8'
 #define BOOLEAN '4'
 
+#define TRUE 1
+#define FALSE 0
+
 #define SEP '#' //el separador
 
 int numPlaces (int n) ;
