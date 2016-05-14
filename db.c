@@ -82,13 +82,14 @@ int isUser(char* user){
 int isPassword(char* user, char * pass){
   char* sql = malloc(400);
   sqlite3_stmt* stmt;
-  char* result;
+  const char* result;
   int c = 0;
   sprintf(sql,"SELECT * FROM player WHERE name = '%s'",user);
-  //printf("SQL: %s\n",sql );
+  printf("SQL: %s\n",sql );
   printError(sqlite3_prepare_v2(db,sql,-1,&stmt,NULL) );
   printError(sqlite3_step(stmt) );
   result = sqlite3_column_text(stmt, 1);
+  printf("Result=%s , Pass= %s\n",result,pass );
   printError(sqlite3_finalize(stmt));
   if(result != NULL && strcmp(result,pass) == 0){
     return 1;

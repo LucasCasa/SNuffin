@@ -20,8 +20,7 @@
 
 #define MAX_PLAYERS  4
 #define MAX_LOBBY    10
-#define TRUE         1
-#define FALSE        0
+
 
 /*Defino lo que puedo llegar a esperar del cliente*/
 
@@ -51,6 +50,8 @@ typedef struct Client{
     Connection *con;
 }Client;
 
+const int TRUE = 1;
+const int FALSE = 0;
 extern char* shmPointer;
 
 int split (const char *str, char c, char ***arr);

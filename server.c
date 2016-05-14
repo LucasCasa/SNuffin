@@ -60,7 +60,7 @@ int main(int argc, const char* argv[]){
       receiveData(new,buffer);
       printf("Recibi: %s\n",buffer->data);
 
-      unmarshServerId(buffer,&joinServer);
+      unmarshServerId(buffer->data,&joinServer);
 
       printf("Client wants to join server %d\n", joinServer);
       if(servers[joinServer] != 0){
@@ -249,7 +249,7 @@ void notifyNewPlayer(int nPlayer){
   for(int i = 0; i< MAX_PLAYERS;i++){
     if(clients[i] != NULL && clients[i] != c){
       StreamData *d = marshalling(CreatePlayerStruct(c,nPlayer),PLAYER);
-      sendData(d,clients[i]->con);
+      sendData(clients[i]->con,d);
     }
   }
 }
@@ -315,6 +315,8 @@ Player* CreatePlayerStruct(Client *c, int number){
   p->num = number;
   return p;
 }
+
+/*
 int split (const char *str, char c, char ***arr)
 {
     int count = 1;
@@ -375,3 +377,4 @@ int split (const char *str, char c, char ***arr)
 
     return count;
 }
+*/

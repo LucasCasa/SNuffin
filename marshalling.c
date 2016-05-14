@@ -8,12 +8,12 @@ int numPlaces (int n) ;
 
 void * unmarshalling(StreamData * data, int * type);
 
-int unmarshString(char * data, char * s );
+/*int unmarshString(char * data, char * s );
 int unmarshPoint(char * data, Point * p);
 int unmarshBoard(char * data, Board * b);
 int unmarshServerId(char * data, int * p);
 int unmarshPlayer(char * data, Player * p);
-int unmarshBoolean(char * data, int * value);
+int unmarshBoolean(char * data, int * value);*/
 
 StreamData * marshalling(void * struc, int type);
 
@@ -159,10 +159,11 @@ int unmarshString(char * data, char * s){
 	int i,j=0;
 	char num[5];
 	char * endptr;
-	if(data[0] == STRING){
+	if(data[0] != STRING){
 		s = NULL;
 		return 0;
 	}
+	printf("I have to unmarshall %s\n",data );
 	for(i=1;data[i]!=SEP;i++){
 		num[i-1]=data[i];
 	}
@@ -171,7 +172,8 @@ int unmarshString(char * data, char * s){
 	for(i= i+1;data[i]!='\0';i++,j++){
 		aux[j]=data[i];
 	}
-	s=aux;
+	memcpy(s,aux,strlen(aux));
+	printf("I have unmarshalled it into: %s and %s\n",aux,s );
 	return 1;
 }
 
