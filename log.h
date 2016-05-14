@@ -14,5 +14,8 @@
 #define ERROR 3
 
 int connectLogServer();
-void logMsg(char * msg, int level);
+void logMsg(char * msg);
+void logWarning(char * msg);
+void logError(char * msg);
+void sendLog(char * msg, int level);
 void closeLogServer(); 

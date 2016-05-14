@@ -50,8 +50,7 @@ typedef struct Client{
     Connection *con;
 }Client;
 
-const int TRUE = 1;
-const int FALSE = 0;
+
 extern char* shmPointer;
 
 int split (const char *str, char c, char ***arr);

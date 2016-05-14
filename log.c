@@ -15,11 +15,28 @@ int connectLogServer(){
 	return 1;
 }
 
-void logMsg(char * msg, int level){
+void sendLog(char * msg, int level){
 
-	if (mq_send (qDescriptor, msg, strlen(msg), level) == -1) {
+	// add pid identifier as prefix
+	char * aux = calloc(strlen(msg) + 10,1);
+	sprintf(aux,"%d>%s\n",getpid(),msg);
+
+
+	if (mq_send (qDescriptor, aux, strlen(aux), level) == -1) {
         perror ("Unable to send message to log server");
     }
+}
+
+void logMsg(char * msg){
+	sendLog(msg,INFO);
+}
+
+void logWarning(char * msg){
+	sendLog(msg,WARNING);
+}
+
+void logError(char * msg){
+	sendLog(msg,ERROR);
 }
 
 void closeLogServer(){

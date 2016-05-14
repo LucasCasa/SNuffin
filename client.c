@@ -55,7 +55,10 @@ void game(int slot){
 	}
 	receiveData(c,buffer);
 	unmarshServerId(buffer->data, &s);
-	c = connectToPeer(address,s);
+	c->fd = -1;
+	do{c = connectToPeer(address,s);}while(c->fd==-1);
+
+	printf("Sali del while, fd=%d\n",c->fd);
 
 	getInformation();
 	//startGame();

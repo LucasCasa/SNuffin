@@ -3,6 +3,7 @@
 char* shmPointer;
 sem_t semDB;
 int servers[MAX_LOBBY];
+int listenLocation;
 Client **clients;
 
 int main(int argc, const char* argv[]){
@@ -34,6 +35,7 @@ int main(int argc, const char* argv[]){
    fgets(srvAddr,BUFFER_SIZE,fp);
    int n = 0;
    fscanf(fp,"%d",&n);
+   listenLocation = n;
 
   /* EN UN FUTURO HAY QUE HACER ESTO BIEN, ESTO ES SOLO PARA TEST
    */
@@ -49,7 +51,6 @@ int main(int argc, const char* argv[]){
    printf("Nuevo Score de Lucas: %d\n",getHighScoreDB("lucas"));
    */
    Connection * selfc = listenConnection(n); // PROXIMAMENTE LEO CONFIG PASO NUMERO
-   printf("Estoy esuchando\n");
    while(1){
       StreamData * buffer = malloc(sizeof(StreamData));
       buffer->data = malloc(2048);
@@ -69,9 +70,9 @@ int main(int argc, const char* argv[]){
         int child = fork();
         printf("\t\tMe Forkee\n");
         if(child == 0){
-           printf("\t\tLlamo a lobby\n");
-            lobby();
-          printf("\t\tSalgo del lobby\n");
+            initServer();
+            logMsg("vuelvo de init");
+            return;
         }else{
          servers[joinServer] = child;
          pthread_t waitChild;
@@ -103,20 +104,27 @@ int main(int argc, const char* argv[]){
    printf("Me fui\n");
 }
 
+void initServer(){
+  connectLogServer();
+  pthread_t listenThread;
+  logMsg("Se crea thread startListening");
+  int i = pthread_create(&listenThread, NULL,startListening, NULL);
+  lobby();
+  //startGame();
+  closeLogServer();
+}
+
 void lobby(){
   //threads LALALALA
-  pthread_t listenThread;
-  printf("Creo el thread\n");
-  int i = pthread_create(&listenThread, NULL,startListening, NULL);
-  printf("Thread: %d\n",i );
+
   while(1){
-     printf("Arranco a esuchar a los nuevos clientes\n");
-  int cliNum = listenToClients();
-  if(cliNum != -1){
-     resolveRequest(cliNum);
-   }else{
+    logMsg("Arranco el select");
+    int cliNum = listenToClients();
+    if(cliNum != -1){
+      resolveRequest(cliNum);
+    }else{
       printf("ERROR ON SELECT\n");
-   }
+    }
 }
   //select LALALALA
   //Habria que crear una struct para saber cada cliente en que estado esta??? SIII
@@ -201,26 +209,29 @@ void * waitForChild(void* pid){
   }
 }
 int listenToClients(){
+  char * aux = calloc(128,1);
   int res = 0;
-  fd_set* cli;
-  int nfds = 0;
+  fd_set cli;
+  int maxFD = 0;
   while(res != -1){
   for(int i = 0; i<MAX_PLAYERS;i++){
     if(clients[i] != NULL){
-      nfds++;
-      printf("I am Listening to client: %d\n",i );
-      FD_SET(clients[i]->con->fd2,cli);
+      int clifd = clients[i]->con->fd;
+      if(clifd>maxFD)
+        maxFD = clifd;
+      sprintf(aux,"I am Listening to client: %d\n",i);
+      logMsg(aux);
+      FD_SET(clients[i]->con->fd,&cli);
    }else{
       printf("Client %d is NULL\n",i );
    }
   }
 
-  struct timeval timeout;
-  timeout.tv_sec = 1;
-  res = select(FD_SETSIZE,cli,NULL,NULL,&timeout);
+  struct timeval tv = {10, 0}; //the timeout (s,ms)
+  res = select(maxFD+1,cli,NULL,NULL,&tv);
   printf("I received a request %d\n",res );
   for(int i = 0; i<MAX_PLAYERS;i++){
-    if(clients[i] != NULL && FD_ISSET(clients[i]->con->fd,cli)){
+    if(clients[i] != NULL && FD_ISSET(clients[i]->con->fd,&cli)){
       return i; // o leo los datos??
     }
   }
@@ -229,11 +240,11 @@ int listenToClients(){
 }
 void*  startListening(void* info){
   int nPlayers = 0;
-  Connection *s = listenConnection(getpid()); //cambiar cuando este sockets
-  printf("Soy: %d, estoy esuchando nuevos players\n",getpid());
+  Connection *s = listenConnection(++listenLocation); //cambiar cuando este sockets
+  logMsg("Escuchando nuevos players");
   while(nPlayers < MAX_PLAYERS){
     Connection *new = acceptConnection(s);
-    printf("Soy: %d, escuche un nuevo player\n",getpid());
+    logMsg("NUEVO PLAYER WOOOO");
     Client *c = malloc(sizeof(Client));
     c->con = new;
     c->state = LOGGING; // define

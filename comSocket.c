@@ -22,7 +22,7 @@ socklen_t addr_size;
 void closePeer(int);
 
 Connection * connectToPeer(char* addr, int port){
-	int n;
+	
 	struct hostent *server;
 
 	Connection * c = malloc(sizeof(Connection));
@@ -57,7 +57,7 @@ Connection * connectToPeer(char* addr, int port){
 
 
 Connection * listenConnection(int port){
-	int i;
+	
 	printf("Starting server...\n");
 
     Connection * c = malloc(sizeof(Connection));
@@ -211,7 +211,7 @@ void receiveData(Connection * connection, StreamData * buffer){
 }*/
 
 // Main for client
-
+/*
 int main(){
 	Connection * self = connectToPeer("localhost",8080);
 
@@ -230,7 +230,7 @@ int main(){
 	printf("after receive\n");
 
 	printf("Received: %s\n", sd2->data);
-}
+}*/
 
 
 // Main for server

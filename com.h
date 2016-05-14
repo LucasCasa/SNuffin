@@ -2,8 +2,6 @@
 #define COM_H
 
 #define BUFFER_SIZE 256
-//const int TRUE  = 1;
-//const int FALSE = 0;
 
 typedef struct {
 	int fd;
