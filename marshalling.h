@@ -10,7 +10,6 @@
 #define SERVER_ID '8'
 #define BOOLEAN '4'
 
-
 #define SEP '#' //el separador
 
 #define TRUE 1

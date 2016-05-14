@@ -4,26 +4,6 @@
 #include <stdlib.h>
 #include <limits.h>
 
-int numPlaces (int n) ;
-
-void * unmarshalling(StreamData * data, int * type);
-
-/*int unmarshString(char * data, char * s );
-int unmarshPoint(char * data, Point * p);
-int unmarshBoard(char * data, Board * b);
-int unmarshServerId(char * data, int * p);
-int unmarshPlayer(char * data, Player * p);
-int unmarshBoolean(char * data, int * value);*/
-
-StreamData * marshalling(void * struc, int type);
-
-char * marshPoint(Point * s, int * size);
-char * marshPlayer(Player * p, int * size);
-char * marshBoard(Board* s, int * size);
-char * marshString(char * s, int * size);
-char * marshServerId(int * p, int * size);
-char * marshBoolean(int value,int * size);
-
 void * unmarshalling(StreamData * d, int * type){
 	if(d == NULL || d->data == NULL){
 		return NULL;

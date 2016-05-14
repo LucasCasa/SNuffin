@@ -228,7 +228,7 @@ int listenToClients(){
   }
 
   struct timeval tv = {10, 0}; //the timeout (s,ms)
-  res = select(maxFD+1,cli,NULL,NULL,&tv);
+  res = select(maxFD+1,&cli,NULL,NULL,&tv);
   printf("I received a request %d\n",res );
   for(int i = 0; i<MAX_PLAYERS;i++){
     if(clients[i] != NULL && FD_ISSET(clients[i]->con->fd,&cli)){

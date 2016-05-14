@@ -39,21 +39,20 @@
 
 
 
-void startGame();
-void game();
-
 void changeMode(int dir);
 int kbhit (void);
 
-void printPlayerColor(int pNum);
+void freeBoard(Board * b);
+void initializeBoard(Board * b);
+
 void printBoard(Board *b);
+void printPlayerColor(int pNum);
+
+void game(int slot);
+void startGame();
 
 void getInformation();
-
 void getPass(char * pass);
 void getName(char * name);
-
-int checkStringGame(char * s);
-int checkStringInfo(char * s);
 
 #endif

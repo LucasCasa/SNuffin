@@ -1,17 +1,18 @@
 #include "client.h"
+#include <stdio.h>
+
+
+#define BOARD_WIDTH   20
+#define BOARD_HEIGHT  20 //esto no va aca, supongo que estara despues en structs.h o algun otro lado para
+							//que lo pueda usar el server tambien
 
 Connection * c;
 char * address;
 int f2;
 
 StreamData * buffer;
-StreamData sd2;
 
-int sendPoint(Point * p);
-
-
-int main(int argc, char const *argv[])
-{
+int main(int argc, char const *argv[]){
 	const char * slot;
 	if(argc > 1){
 		slot = argv[1];
@@ -70,54 +71,46 @@ void game(int slot){
 void startGame(){
 	changeMode(1);
 	int game = 1;
-	int pressed;
+	int pressed,rta;
+	Board * b = calloc(1,sizeof(Board));
+	initializeBoard(b);
 	Point * p = calloc(1,sizeof(Point));
+	Point * aux = calloc(1,sizeof(Point));
 	while(game){
 		while(!kbhit() && game){
 			pressed=getchar();
 			if(pressed == DOWN_ARROW ){
 				p->x = 0;
 				p->y = 1;
-				sendPoint(p);
 			}else if(pressed == UP_ARROW){
 				p->x = 0;
 				p->y = -1;
-				sendPoint(p);
 			}else if(pressed == LEFT_ARROW){
 				p->x = -1;
 				p->y = 0;
-				sendPoint(p);
 			}else if(pressed == RIGHT_ARROW){
 				p->x = 1;
 				p->y = 0;
-				sendPoint(p);
 			}
 			int type;
-			//receiveData(c,&sd2);
-			//void * info = unmarshalling(sd2.data,&type);
-			//if(type == BOARD_N){
-			//	printBoard((Board * )info);
-			//}else if(type == STRING_N){
-			//	String * s = (String *)info;
-			//	game = checkStringGame(s);
-			//}
+			if((aux->x == 0 && aux->y == 0) || (aux->x != p->x) && (aux->y != p->y)){
+				aux = p;
+				//solo se manda el punto nuevo si se cambia de direccion
+				sendData(c,marshalling(p,POINT));
+			}
+			receiveData(c,buffer);
+			rta = unmarshBoard(buffer->data,b);
+			if(rta == 1){
+				printBoard(b);
+			}
+			//dejo abierto a que me pueda mandar otra cosa
 		}
 	}
 	free(p);
+	free(aux);
+	freeBoard(b);
 	changeMode(0);
 }
-
-int checkStringGame(char * s){
-	if(strcmp(s,"Terminado")){
-		return 0;
-	}
-	return 1;
-}
-
-int sendPoint(Point * p){
-	return sendData(c,marshalling(p,POINT));
-}
-
 
 void getInformation(){
 	char * name = calloc (MAX_WORD,sizeof(char));
@@ -182,9 +175,11 @@ void getPass(char * pass){
 			c = getchar();
 			if(c == BACKSPACE && i !=0){
 				i--;
-			}else if (c == '\n' && i != 0){
-				pass[i]='\0';
-				i=MAX_WORD;
+			}else if (c == '\n'){
+				if(i !=0){
+					pass[i]='\0';
+					i=MAX_WORD;
+				}
 			}else{
 				pass[i]=c;
 				i++;
@@ -257,4 +252,22 @@ void printPlayerColor(int pNum){
      		printf("  ");
      		break;
     }
+}
+
+void initializeBoard(Board * b){
+	int i;
+	b ->board = calloc(BOARD_HEIGHT,sizeof(char *));
+	for(i =0;i<BOARD_HEIGHT;i++){
+		b->board[i]= calloc(BOARD_WIDTH,sizeof(char));
+	}
+	return;
+}
+
+void freeBoard(Board * b){
+	int i;
+	for(i =0;i<BOARD_HEIGHT;i++){
+		free(b->board[i]);
+	}
+	free(b->board);
+	return;
 }
