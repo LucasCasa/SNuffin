@@ -16,7 +16,7 @@ int numPlaces (int n) ;
 
 void * unmarshalling(StreamData * data, int * type);
 
-int unmarshString(char * data, String * s );
+int unmarshString(char * data, char * s );
 int unmarshPoint(char * data, Point * p);
 int unmarshBoard(char * data, Board * b);
 int unmarshServerId(char * data, int * p);
@@ -28,7 +28,7 @@ StreamData * marshalling(void * struc, int type);
 char * marshPoint(Point * s, int * size);
 char * marshPlayer(Player * p, int * size);
 char * marshBoard(Board* s, int * size);
-char * marshString(String * s, int * size);
+char * marshString(char * s, int * size);
 char * marshInt(Integer * s, int * size);
 char * marshServerId(int * p, int * size);
 char * marshBoolean(int value,int * size);

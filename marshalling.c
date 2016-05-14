@@ -8,7 +8,7 @@ int numPlaces (int n) ;
 
 void * unmarshalling(StreamData * data, int * type);
 
-int unmarshString(char * data, String * s );
+int unmarshString(char * data, char * s );
 int unmarshPoint(char * data, Point * p);
 int unmarshBoard(char * data, Board * b);
 int unmarshServerId(char * data, int * p);
@@ -20,7 +20,7 @@ StreamData * marshalling(void * struc, int type);
 char * marshPoint(Point * s, int * size);
 char * marshPlayer(Player * p, int * size);
 char * marshBoard(Board* s, int * size);
-char * marshString(String * s, int * size);
+char * marshString(char * s, int * size);
 char * marshInt(Integer * s, int * size);
 char * marshServerId(int * p, int * size);
 char * marshBoolean(int value,int * size);
@@ -30,7 +30,7 @@ void * unmarshalling(StreamData * d, int * type){
 		return NULL;
 	}
 	if(d->data[0] == STRING){
-		String * s = calloc(1,sizeof(String));
+		char * s = calloc(1,sizeof(char *));
 		*type = STRING - '0';
 		unmarshString(d->data,s);
 		return s;
@@ -71,7 +71,7 @@ StreamData * marshalling(void * struc, int type){
 	char * aux;
 	int size;
 	if(type == STRING){
-		aux = marshString((String * )struc,&size);
+		aux = marshString((char *)struc,&size);
 	}else if(type == BOARD){
 		aux = marshBoard((Board *)struc,&size);
 	}else if(type == POINT){
@@ -163,8 +163,8 @@ int unmarshPoint(char * data, Point * p){
 
 }
 
-int unmarshString(char * data, String * s){
-	int i,j=0,k;
+int unmarshString(char * data, char * s){
+	int i,j=0;
 	char num[5];
 	char * endptr;
 	if(data[0] == STRING){
@@ -175,13 +175,11 @@ int unmarshString(char * data, String * s){
 		num[i-1]=data[i];
 	}
 	long m = strtol(num, &endptr,10);
-	s->size = (int)m;
 	char * aux = calloc(m,sizeof(char));
-	k=i+1;
-	for(i= i+1;i<'\0';i++,j++){
+	for(i= i+1;data[i]!='\0';i++,j++){
 		aux[j]=data[i];
 	}
-	s->string=aux;
+	s=aux;
 	return 1;
 }
 
@@ -264,11 +262,12 @@ char * marshBoard(Board* s,int * size){
 	return d1;
 }
 
-char * marshString(String * s, int * size){
+char * marshString(char * s, int * size){
 	char * d;
-	int cant = 1 + 1 + 1 + s->size + numPlaces(s->size);
+	int length = strlen(s);
+	int cant = 1 + 1 + 1 + length + numPlaces(length);
 	d = calloc (cant,sizeof(char));
-	sprintf(d,"%d%d%c%s",STRING - '0', s->size,SEP, s->string);
+	sprintf(d,"%d%d%c%s",STRING - '0', length,SEP, s);
 	d[cant -1] ='\0';
 	*size = cant;
 	return d;

@@ -104,8 +104,8 @@ void startGame(){
 	changeMode(0);
 }
 
-int checkStringGame(String * s){
-	if(strcmp(s-> string,"Terminado")){
+int checkStringGame(char * s){
+	if(strcmp(s,"Terminado")){
 		return 0;
 	}
 	return 1;
@@ -117,22 +117,16 @@ int sendPoint(Point * p){
 
 
 void getInformation(){
-	String * password = calloc(1,sizeof(String));
-	String * name = calloc(1,sizeof(String));
-	name->string = calloc(MAX_WORD,sizeof(char));
-	password->string = calloc(MAX_WORD,sizeof(char));
-	char * nombre = calloc (MAX_WORD,sizeof(char));
-   	char * pass = calloc(MAX_WORD,sizeof(char));
+	char * name = calloc (MAX_WORD,sizeof(char));
+   	char * password = calloc(MAX_WORD,sizeof(char));
    	int belongs=0,rta,type;
 
-   	getName(nombre);
-	name->size= strlen(nombre);
-	name->string = nombre;
+   	getName(name);
 
 	rta = sendData(c,marshalling(name,STRING));
 	if(rta == 0)
 		printf("Error conectandose con el servidor\n");
-	printf("Se mando el string %s\n", name->string);
+	printf("Se mando el string %s\n", name);
 
 	receiveData(c,buffer);
 	printf("Vuelvo del receive\n");
@@ -143,9 +137,7 @@ void getInformation(){
 		printf("Su nombre no esta registrado. Ingrese una contraseña para poder registrarse\n");
 	}
 
-	getPass(pass);
-	password->size = strlen(pass);
-	password->string = pass;
+	getPass(password);
 
 	rta = sendData(c,marshalling(password,STRING));
 	if(rta == 0)
@@ -160,9 +152,7 @@ void getInformation(){
 		int w_pass=1;
 		do{
 			printf("Contraseña incorrecta, ingresela de nuevo.\n");
-			getPass(pass);
-			password->size = strlen(pass);
-			password->string = pass;
+			getPass(password);
 
 			rta = sendData(c,marshalling(password,STRING));
 			if(rta == 0)
@@ -172,10 +162,8 @@ void getInformation(){
 		}while(w_pass);
 		printf("Se ha podido registrar correctamente\n");
 	}
-	free(name->string);
-	free(password->string);
-	free(pass);
-	free(nombre);
+	free(name);
+	free(password);
 	free(password);
 	free(name);
 	return;

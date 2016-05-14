@@ -53,7 +53,7 @@ void getInformation();
 void getPass(char * pass);
 void getName(char * name);
 
-int checkStringGame(String * s);
-int checkStringInfo(String * s);
+int checkStringGame(char * s);
+int checkStringInfo(char * s);
 
 #endif

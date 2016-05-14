@@ -14,10 +14,6 @@ typedef struct {
 	int columns;
 }Board;
 
-typedef struct {
-	char * string;
-	int size;
-}String;
 
 typedef struct{
 	int info;
