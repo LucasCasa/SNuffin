@@ -15,8 +15,10 @@
 #include "com.h"
 #include "db.h"
 #include "dbconst.h"
+#include "log.h"
 #include "marshalling.h"
 #include <sys/select.h>
+#include <sys/wait.h>
 
 #define MAX_PLAYERS  4
 #define MAX_LOBBY    10
@@ -30,7 +32,8 @@
 #define READY_TO_PLAY   4
 
 /*End Define*/
-
+extern const int TRUE;
+extern const int FALSE;
 /*Defino los estados del cliente*/
 
 #define LOGGING         0
@@ -50,6 +53,10 @@ typedef struct Client{
     Connection *con;
 }Client;
 
+typedef struct Server{
+   int pid;
+   int number;
+}Server;
 
 extern char* shmPointer;
 
@@ -62,7 +69,8 @@ int validPasswordDB(char* user, char* password);
 int getHighScoreDB(char * user);
 int setHighscoreDB(char* user, int value);
 int createUserDB(char* user, char* password);
-void* startListening(void*);
+void* listenNewClients(void*);
+void initServer(int serverNumber);
 void lobby();
 int listenToClients();
 void resolveRequest(int nClient);

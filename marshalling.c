@@ -4,6 +4,9 @@
 #include <stdlib.h>
 #include <limits.h>
 
+const int TRUE = 1;
+const int FALSE = 0;
+
 void * unmarshalling(StreamData * d, int * type){
 	if(d == NULL || d->data == NULL){
 		return NULL;
@@ -60,7 +63,7 @@ StreamData * marshalling(void * struc, int type){
 	}else if(type == SERVER_ID){
 		aux = marshServerId((int *)struc,&size);
 	}else if (type == BOOLEAN){
-		aux = marshBoolean((int)struc, &size);
+		aux = marshBoolean(*(int*)struc, &size);
 	}else{
 		aux = NULL;
 		size = 0;
@@ -143,17 +146,15 @@ int unmarshString(char * data, char * s){
 		s = NULL;
 		return 0;
 	}
-	printf("I have to unmarshall %s\n",data );
 	for(i=1;data[i]!=SEP;i++){
 		num[i-1]=data[i];
 	}
 	long m = strtol(num, &endptr,10);
-	char * aux = calloc(m,sizeof(char));
+	char * aux = calloc(m+ 1,sizeof(char));
 	for(i= i+1;data[i]!='\0';i++,j++){
 		aux[j]=data[i];
 	}
-	memcpy(s,aux,strlen(aux));
-	printf("I have unmarshalled it into: %s and %s\n",aux,s );
+	memcpy(s,aux,strlen(aux)+1);
 	return 1;
 }
 
@@ -163,8 +164,8 @@ int unmarshBoolean(char * data, int * value){
 		return 0;
 	}
 
-	if(data[1] == TRUE || data[1] == FALSE){
-		*value = data[1];
+	if(data[1] == TRUE + '0' || data[1] == FALSE + '0'){
+		*value = data[1] - '0';
 		return 1;
 	}
 	return 0;

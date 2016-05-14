@@ -12,10 +12,9 @@
 
 #define SEP '#' //el separador
 
-#define TRUE 1
-#define FALSE 0
-//const int TRUE = 1;
-//const int FALSE = 0;
+
+extern const int TRUE;
+extern const int FALSE;
 
 int numPlaces (int n) ;
 
