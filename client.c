@@ -93,7 +93,7 @@ void startGame(){
 				p->y = 0;
 			}
 			int type;
-			if((aux->x == 0 && aux->y == 0) || (aux->x != p->x) && (aux->y != p->y)){
+			if((aux->x == 0 && aux->y == 0) || ((aux->x != p->x) && (aux->y != p->y))){
 				aux = p;
 				//solo se manda el punto nuevo si se cambia de direccion
 				sendData(c,marshalling(p,POINT));
@@ -160,8 +160,6 @@ void getInformation(){
 	}
 	free(name);
 	free(password);
-	free(password);
-	free(name);
 	return;
 }
 
