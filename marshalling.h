@@ -29,7 +29,6 @@ char * marshPoint(Point * s, int * size);
 char * marshPlayer(Player * p, int * size);
 char * marshBoard(Board* s, int * size);
 char * marshString(char * s, int * size);
-char * marshInt(Integer * s, int * size);
 char * marshServerId(int * p, int * size);
 char * marshBoolean(int value,int * size);
 

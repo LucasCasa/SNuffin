@@ -21,7 +21,6 @@ char * marshPoint(Point * s, int * size);
 char * marshPlayer(Player * p, int * size);
 char * marshBoard(Board* s, int * size);
 char * marshString(char * s, int * size);
-char * marshInt(Integer * s, int * size);
 char * marshServerId(int * p, int * size);
 char * marshBoolean(int value,int * size);
 
@@ -121,8 +120,6 @@ int unmarshServerId(char * data, int * p){
 	char num[5];
 	int i,j=0;
 	char * endptr;
-	/*int lucas = 0;
-	int unit = 1;*/
 	if(data[0] != SERVER_ID){
 		p = NULL;
 		return 0;
@@ -134,11 +131,6 @@ int unmarshServerId(char * data, int * p){
 	long m = strtol(num, &endptr,10);
 	*p = (int)m;
 	return 1;
-	/*for(int i = (strlen(data)-1);i>0;i++){
-		lucas+= (data[i]-'0')*unit;
-		unit = unit * 10;
-	}
-	*p = lucas;*/
 }
 
 int unmarshPoint(char * data, Point * p){
