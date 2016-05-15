@@ -11,7 +11,7 @@
 int main (int argc, char **argv)
 {
     mqd_t qd_server;   // queue descriptors
-    unsigned int priority;
+    unsigned int priority, i;
 
     printf ("Initializing logging server...\n");
 
@@ -33,6 +33,10 @@ int main (int argc, char **argv)
     while (1) {
         char * prioMsg;
 
+        for(i=0; i<MSG_BUFFER_SIZE; i++){
+            in_buffer[i] = 0;
+        }
+
         // retrieve message
         if (mq_receive (qd_server, in_buffer, MSG_BUFFER_SIZE, &priority) == -1) {
             perror ("Server: mq_receive");
@@ -45,9 +49,11 @@ int main (int argc, char **argv)
             case WARNING:   prioMsg = "WARNING";
                             break;
             case ERROR: prioMsg = "ERROR";
-                        break;            
+                        break; 
+            default: prioMsg = NULL;         
         }
 
-        printf ("%s: %s\n",prioMsg, in_buffer);
+        if(prioMsg!=NULL)
+            printf ("%s: %s\n",prioMsg, in_buffer);
     }
 }
