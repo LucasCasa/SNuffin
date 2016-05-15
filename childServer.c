@@ -8,7 +8,7 @@ void initServer(int serverNumber){
    clients[1] = NULL;
    clients[2] = NULL;
    clients[3] = NULL; //MAL
-   
+
   connectLogServer();
   Connection *s = listenConnection(serverNumber); //cambiar cuando este sockets
   pthread_t listenThread;
@@ -18,20 +18,20 @@ void initServer(int serverNumber){
 }
 
 void lobby(){
-  //threads LALALALA
+   //threads LALALALA
 
-  while(1){
-    logMsg("Arranco el select");
-    int cliNum = listenToClients();
-    if(cliNum != -1){
-      resolveRequest(cliNum);
-    }else{
-      printf("ERROR ON SELECT\n");
-    }
-}
-  //select LALALALA
-  //Habria que crear una struct para saber cada cliente en que estado esta??? SIII
-  //NO se cuando empezar el juego LALALALA
+   while(1){
+      logMsg("Arranco el select");
+      int cliNum = listenToClients();
+      if(cliNum != -1){
+         resolveRequest(cliNum);
+      }else{
+         printf("ERROR ON SELECT\n");
+      }
+   }
+   //select LALALALA
+   //Habria que crear una struct para saber cada cliente en que estado esta??? SIII
+   //NO se cuando empezar el juego LALALALA
 
 }
 void resolveRequest(int nClient){
@@ -45,8 +45,21 @@ void resolveRequest(int nClient){
       validateUser(d,nClient);
    }else if(expecting == PASSWORD){
       if(validatePassword(d,nClient)){
-        notifyNewPlayer(nClient);
+         notifyNewPlayer(nClient);
       }
+   }else if(expecting == NEWPASSWORD){
+      char* s = malloc(sizeof(d->size));
+      unmarshString(d->data,s);
+      int res = createUserDB(clients[nClient]->name,s );
+      StreamData *d;
+      if(!res){
+         d = marshalling(&TRUE,BOOLEAN);
+         clients[nClient]->expecting = READY_TO_PLAY;
+         clients[nClient]->state = WAITING;
+      }else{
+         d = marshalling(&FALSE,BOOLEAN);
+      }
+      sendData(clients[nClient]->con, d);
    }else if(expecting == READY_TO_PLAY){
 
    }else if(expecting == MOVEMENT){
@@ -56,8 +69,6 @@ void resolveRequest(int nClient){
    }else{
       fprintf(stderr, "ERROR: expecting not valid\n"); // aca tamnbien iria un messague queue de error
    }
-
-
 }
 int validatePassword(StreamData * d,int nClient){
    char *s = malloc(d->size);
@@ -90,14 +101,15 @@ void validateUser(StreamData * d, int nClient){
       if(e){
          printf("User exists\n");
          d = marshalling(&TRUE,BOOLEAN);
+         clients[nClient]->expecting = PASSWORD;
          clients[nClient]->score = getHighScoreDB(s);
       }else{
          d = marshalling(&FALSE,BOOLEAN);
+         clients[nClient]->expecting = NEWPASSWORD;
          clients[nClient]->score = 0;
       }
       sendData(clients[nClient]->con, d);
       clients[nClient]->name = s;
-      clients[nClient]->expecting = PASSWORD;
    }else{
       //NO SE
    }
@@ -120,7 +132,7 @@ int listenToClients(){
            logMsg(aux);
            FD_SET(clients[i]->con->fd2,&cli);
         }else{
-           printf("Client %d is NULL\n",i );
+          // printf("Client %d is NULL\n",i );
         }
      }
 

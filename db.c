@@ -11,9 +11,10 @@ int init(){
 
      if( rc ){
         fprintf(stderr, "Can't open database: %s\n", sqlite3_errmsg(db));
-        //exit(0);
+        return 1;//exit(0);
      }else{
         fprintf(stderr, "Opened database successfully\n");
+        return 0;
      }
 }
 
@@ -22,6 +23,7 @@ int manageDataBase(){
   init();
   printf("Entro al While\n");
   pthread_cond_t* cond =(pthread_cond_t*)(shmPointer + COND_OFFSET);
+  pthread_cond_t* ready =(pthread_cond_t*)(shmPointer + COND2_OFFSET);
   pthread_mutex_t* mutex = (pthread_mutex_t*)(shmPointer + MUTEX_OFFSET);
   while(1){
      pthread_mutex_lock(mutex);
@@ -55,6 +57,7 @@ int manageDataBase(){
           printf("Comando enviado a la DB invalido\n");
         break;
       }
+      pthread_cond_signal(ready);
       pthread_mutex_unlock(mutex);
     //printf("Base de Datos sigue funcionado\n");
   }
@@ -100,7 +103,7 @@ int createUser(char * user, char * pass){
 char * sql = malloc(500);
 char *zErrMsg = 0;
 sprintf(sql,"INSERT INTO player VALUES ('%s','%s',%d)",user,pass,0);
-//printf("SQL: %s\n",sql);
+printf("SQL: %s\n",sql);
 int rc = sqlite3_exec(db, sql, callback, 0, &zErrMsg);
 if( rc != SQLITE_OK ){
       fprintf(stderr, "SQL error: %s\n", zErrMsg);
@@ -159,8 +162,10 @@ int rs = sqlite3_close_v2(db);
   if( rs ){
     fprintf(stderr, "Can't close database: %s\n", sqlite3_errmsg(db));
       //exit(0);
+      return 1;
   }else{
     fprintf(stderr, "Closed database successfully\n");
+    return 0;
   }
 }
 

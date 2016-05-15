@@ -24,6 +24,7 @@
 /*Defino lo que puedo llegar a esperar del cliente*/
 
 #define USER            1
+#define NEWPASSWORD     5
 #define PASSWORD        2
 #define MOVEMENT        3
 #define READY_TO_PLAY   4

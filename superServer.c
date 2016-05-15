@@ -28,6 +28,7 @@ int main(int argc, const char* argv[]){
    pthread_condattr_setpshared(&attrc,PTHREAD_PROCESS_SHARED);
    pthread_mutex_init((pthread_mutex_t*)(shmPointer + MUTEX_OFFSET), &attr);
    pthread_cond_init((pthread_cond_t*)(shmPointer + COND_OFFSET), &attrc);
+   pthread_cond_init((pthread_cond_t*)(shmPointer + COND2_OFFSET), &attrc);
    setDB();
    FILE * fp;
    char * srvAddr = malloc(BUFFER_SIZE);

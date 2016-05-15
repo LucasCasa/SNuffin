@@ -3,7 +3,8 @@
 
 #define MUTEX_OFFSET 1024
 #define COND_OFFSET  1024 + sizeof(pthread_mutex_t)
-#define SH_SIZE      COND_OFFSET + sizeof(pthread_cond_t)
+#define COND2_OFFSET COND_OFFSET + sizeof(pthread_cond_t)
+#define SH_SIZE      COND2_OFFSET + sizeof(pthread_cond_t)
 
 #define ISUSER          '1'
 #define ISPASSWORD      '2'
