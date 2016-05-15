@@ -46,6 +46,7 @@ void resolveRequest(int nClient){
    }else if(expecting == PASSWORD){
       if(validatePassword(d,nClient)){
          notifyNewPlayer(nClient);
+         notifyExistingPlayers(nClient);
       }
    }else if(expecting == NEWPASSWORD){
       char* s = malloc(sizeof(d->size));
@@ -173,6 +174,15 @@ void notifyNewPlayer(int nPlayer){
   }
 }
 
+void notifyExistingPlayers(int nPlayer){
+  Client *c = clients[nPlayer];
+  for(int i = 0; i< MAX_PLAYERS;i++){
+    if(clients[i] != NULL && clients[i] != c){
+      StreamData *d = marshalling(CreatePlayerStruct(clients[i],i),PLAYER);
+      sendData(c->con,d);
+    }
+  }
+}
 
 Player* CreatePlayerStruct(Client *c, int number){
   Player *p = malloc(sizeof(Player));

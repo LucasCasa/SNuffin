@@ -66,7 +66,7 @@ void game(int slot){
 	getInformation();
 	prepareLobby();
 	//startGame();
-	
+
 	fclose(f);
 	free(address);
 }
@@ -148,7 +148,7 @@ void getInformation(){
 	if(belongs){
 		printf("Su nombre ha sido registrado correctamente\n");
 	}else{
-		int w_pass=1;
+		int w_pass=0;
 		do{
 			printf("Contraseña incorrecta, ingresela de nuevo.\n");
 			getPass(password);
@@ -158,7 +158,7 @@ void getInformation(){
 				printf("Error conectandose con el servidor\n");
 			receiveData(c,buffer);
 			rta = unmarshBoolean(buffer->data,&w_pass);
-		}while(w_pass);
+		}while(w_pass == 0);
 		printf("Se ha podido registrar correctamente\n");
 	}
 	free(name);
@@ -206,7 +206,7 @@ void prepareLobby(){
 		i++;
 	}
 	//seteo los colores
-	sendData(c,marshalling(&TRUE,BOOLEAN)); 
+	sendData(c,marshalling(&TRUE,BOOLEAN));
 }
 
 void changeMode(int dir){
