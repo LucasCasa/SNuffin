@@ -80,6 +80,7 @@ void resolveRequest(int nClient){
       fprintf(stderr, "ERROR: expecting not valid\n"); // aca tamnbien iria un messague queue de error
    }
    if(res == -1){
+      if(d->data[0] == 0){
       printf("START FREE NAME\n");
       //free(clients[nClient]->name);
       printf("FREE NAME\n");
@@ -88,6 +89,7 @@ void resolveRequest(int nClient){
       free(clients[nClient]);
       printf("FREE CLIENT\n");
       clients[nClient] = NULL;
+      }
    }
    free(d->data);
    free(d);
