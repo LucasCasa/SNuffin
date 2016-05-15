@@ -29,7 +29,7 @@ Connection * listenConnection(int id){
    mkfifo(aux,0666);
    printf("Hice FIFO, %s\n",aux);
    Connection *c = malloc(sizeof(Connection));
-   c->fd2 = open(aux,0666);
+   c->fd = open(aux,0666);
    printf("Setee fd %d\n",c->fd2);
    addr1 = aux;
    return c;
@@ -70,7 +70,7 @@ Connection * connectToPeer(char * addr,int id){
    }
    printf("Abriendo %s%d\n",addr,id );
    printf("%d\n",access(auxSRV,F_OK) );
-   c->fd = open(auxSRV,0666);
+   c->fd2 = open(auxSRV,0666);
    printf("fd :%d \n",c->fd);
    if(c->fd == -1){
      perror("ERROR: ");
@@ -83,8 +83,8 @@ Connection * connectToPeer(char * addr,int id){
    printf("Mando inicio de conexio a: %d, %s\n",c->fd,auxSRV);
    sendData(c,d);
    printf("Mandando\n");
-   c->fd = fdw;
-   c->fd2 = fdr;
+   c->fd2 = fdw;
+   c->fd = fdr;
    free(d->data);
    free(d);
    addr1 = auxr;
@@ -118,8 +118,8 @@ Connection * acceptConnection(Connection * c){
   sprintf(auxw,"%sw",aux);
   int fdw = open(auxw,0666);
   int fdr = open(auxr,0666);
-  newc->fd = fdr; // el fdr es donde el peer va a hablarle al otro peer
-  newc->fd2 = fdw; // el fdw es donde el peer va a escuchar al peer
+  newc->fd2 = fdr; // el fdr es donde el peer va a hablarle al otro peer
+  newc->fd = fdw; // el fdw es donde el peer va a escuchar al peer
   /* tendria que tener 2 fd
   o 2 connections*/
   free(d->data);
@@ -168,9 +168,9 @@ void closeConn(Connection *c){
 }
 
 int sendData(Connection* c,StreamData* d){
-  printf("Sending data to: %d\n",c->fd);
+  printf("Sending data to: %d\n",c->fd2);
   printf("Data: %s\n",d->data);
-  return write(c->fd, d->data,d->size);
+  return write(c->fd2, d->data,d->size);
 }
 
 void receiveData(Connection* c, StreamData* b){
@@ -178,7 +178,7 @@ void receiveData(Connection* c, StreamData* b){
   /*if(c->fd2 == 0){
     a = read(fdr, b->data,BUFFER_SIZE);
   }else{*/
-    a = read(c->fd2, b->data,BUFFER_SIZE);
+    a = read(c->fd, b->data,BUFFER_SIZE);
     if(a == 256){
       perror("ERROR REC");
     }
@@ -188,3 +188,10 @@ void receiveData(Connection* c, StreamData* b){
   printf("SIZE: %d\n",a );
   b->size = strlen(b->data);
 }
+/*
+ void setFDs(fdset * set, Connection ** conns, int size){
+      for(int i = 0; i<size; i++){
+         FD_SET(set, conns[i]->fd);
+      }
+ }
+*/
