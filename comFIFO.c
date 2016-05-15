@@ -129,7 +129,7 @@ Connection * acceptConnection(Connection * c){
   free(auxw);
   return newc; // por testeo
 }
-void closeComm(Connection *c){
+void closeConn(Connection *c){
    if(addr1 != NULL){
       unlink(addr1);
       free(addr1);
