@@ -189,7 +189,7 @@ int unmarshBoard(char * data, Board * b){
 	}
 	f = (int)strtol(num,&endptr,10);
 	c = (int)strtol(num2,&endptr,10);
-	board = calloc(f, sizeof(char));
+	board = calloc(f, sizeof(char *));
 	for(j=0;j<f;j++){
 		board[j]= calloc(c,sizeof(char));
 	}
@@ -227,7 +227,6 @@ char * marshBoard(Board* s,int * size){
 	d2 = calloc (size2 ,sizeof(char));
 	sprintf(d1,"%d%d%c%d%c",BOARD - '0',s->rows, SEP, s->columns,SEP);
 	for(i=0;i<s->rows;i++){
-		printf("%d\n", i);
 		for(j=0;j<s->columns;j++){
 			d2[j + i*(s->rows)]= (s->board)[i][j];
 		}
