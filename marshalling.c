@@ -11,7 +11,7 @@ void * unmarshalling(StreamData * d, int * type){
 	if(d == NULL || d->data == NULL){
 		return NULL;
 	}
-	if(d->data[0] == STRING){
+	if(d->data[0] == STRING || d->data[0] == TERMINO || d->data[0] == PERDIO){
 		char * s = calloc(1,sizeof(char *));
 		*type = STRING - '0';
 		unmarshString(d->data,s);
@@ -277,4 +277,8 @@ char * marshBoolean(int value,int * size){
     if (n < 0) return numPlaces ((n == INT_MIN) ? INT_MAX : -n);
     if (n < 10) return 1;
     return 1 + numPlaces (n / 10);
+}
+
+int getType(StreamData * sd){
+	return (sd->data)[0] - '0';
 }

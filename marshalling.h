@@ -7,6 +7,8 @@
 #define STRING '3'
 #define POINT '1'
 #define BOARD '5'
+#define PERDIO '6'
+#define TERMINO '7'
 #define SERVER_ID '8'
 #define BOOLEAN '4'
 
@@ -17,6 +19,8 @@ extern const int TRUE;
 extern const int FALSE;
 
 int numPlaces (int n) ;
+
+int getType(StreamData * data);
 
 void * unmarshalling(StreamData * data, int * type);
 
