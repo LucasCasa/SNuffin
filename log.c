@@ -3,19 +3,22 @@
 #include "log.h"
 
 mqd_t qDescriptor;
-
+int connected = 0;
 
 // Returns 1 if it can connect 0 if not (Server is not active)
 int connectLogServer(){
 
-	if((qDescriptor = mq_open(Q_SRV_NAME,O_CREAT | O_RDWR))==-1){
+	if((qDescriptor = mq_open(Q_SRV_NAME,O_WRONLY | O_NONBLOCK))==-1){
 		return 0;
 	}
-
+	connected = 1;
 	return 1;
 }
 
 void sendLog(char * msg, int level){
+
+	if(!connected)
+		return;
 
 	// add pid identifier as prefix
 	char * aux = calloc(strlen(msg) + 10,1);
