@@ -93,7 +93,7 @@ int unmarshPlayer(char * data, Player * p){
 	}
 	long m = strtol(num, &endptr,10);
 	long n = strtol(num2,&endptr,10);
-	memcpy(p->name,nombre,strel(nombre)+1);
+	memcpy(p->name,nombre,strlen(nombre)+1);
 	p->num = (int)m;
 	p->score = (int)n;
 	return 1;
@@ -252,7 +252,7 @@ char * marshPlayer(Player * p,int * size){
 	char * d;
 	int cant = 1 + strlen(p->name) + 1 + numPlaces(p->num) + 1 + numPlaces(p->score) + 1;
 	d = calloc(cant ,sizeof(char));
-	sprintf(d,"%d%s%d%d%d%d",PLAYER - '0',p->name,SEP,p-> num,SEP,p->score);
+	sprintf(d,"%d%s%c%d%c%d",PLAYER - '0',p->name,SEP,p-> num,SEP,p->score);
 	*size = cant;
 	return d;
 }
