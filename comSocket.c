@@ -10,6 +10,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
+
 #define MAX_CONNECTIONS 4
 #define MAX_CONNECTION_QUEUE 4
 
@@ -199,6 +200,21 @@ void receiveData(Connection * connection, StreamData * buffer){
   	}*/
    	buffer->size = ans;
 }
+
+void setFDs(fd_set * set, Connection ** conns, int size){
+	for(int i=0; i<size; i++){
+		if(conns[i]!=NULL)
+			FD_SET(set,conns[i]->fd);
+	}
+}
+
+Connection * getConnByFD(int fd, Connection ** conns, int size){
+	for(int i=0; i<size; i++){
+		if(conns[i]!=NULL && conns[i]->fd == fd)
+			return conns[i];
+	}
+	return NULL;
+} 
 
 /*void closePeer(int fd){
 	int i;
