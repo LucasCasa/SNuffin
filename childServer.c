@@ -74,7 +74,7 @@ void resolveRequest(int nClient){
       fprintf(stderr, "ERROR: expecting not valid\n"); // aca tamnbien iria un messague queue de error
    }
    free(d->data);
-   free(d),
+   free(d);
 }
 int validatePassword(StreamData * d,int nClient){
    char *s = malloc(d->size);
@@ -92,7 +92,7 @@ int validatePassword(StreamData * d,int nClient){
          res = 0;
       }
       sendData(clients[nClient]->con, d2);
-      free(s):
+      free(s);
       free(d2->data);
       free(d2);
       return res;
@@ -122,7 +122,6 @@ void validateUser(StreamData * d, int nClient){
       clients[nClient]->name = s;
    }else{
       free(s);
-      return 0;
    }
 }
 
