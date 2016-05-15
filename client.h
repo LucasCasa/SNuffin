@@ -51,6 +51,8 @@ void printPlayerColor(int pNum);
 void game(int slot);
 void startGame();
 
+void prepareLobby();
+
 void getInformation();
 void getPass(char * pass);
 void getName(char * name);

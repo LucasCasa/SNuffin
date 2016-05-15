@@ -10,6 +10,8 @@ Connection * c;
 char * address;
 int f2;
 
+Player * players[4];
+
 StreamData * buffer;
 
 int main(int argc, char const *argv[]){
@@ -62,6 +64,7 @@ void game(int slot){
 	printf("Sali del while, fd=%d\n",c->fd);
 
 	getInformation();
+	prepareLobby();
 	//startGame();
 	
 	fclose(f);
@@ -191,6 +194,19 @@ void getPass(char * pass){
 void getName(char * name){
 	printf("Por favor escriba su nombre:");
 	scanf("%20s",name);
+}
+
+void prepareLobby(){
+	int i=0,rta = 1;
+	while(i<4 && rta){
+		receiveData(c,buffer);
+		players[i] = calloc(1,sizeof(Player));
+		(players[i])->name = calloc(MAX_WORD,sizeof(char));
+		rta = unmarshPlayer(buffer->data,players[i]);
+		i++;
+	}
+	//seteo los colores
+	sendData(c,marshalling(&TRUE,BOOLEAN)); 
 }
 
 void changeMode(int dir){

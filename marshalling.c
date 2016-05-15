@@ -79,7 +79,7 @@ int unmarshPlayer(char * data, Player * p){
 		p = NULL;
 		return 0;
 	}
-	char nombre[20] ;
+	char nombre[20];
 	char num[5],num2[5];
 	int i,j=0;
 	for(i=1;data[i]!=SEP;i++,j++){
@@ -93,7 +93,7 @@ int unmarshPlayer(char * data, Player * p){
 	}
 	long m = strtol(num, &endptr,10);
 	long n = strtol(num2,&endptr,10);
-	p->name = nombre;
+	memcpy(p->name,nombre,strel(nombre)+1);
 	p->num = (int)m;
 	p->score = (int)n;
 	return 1;
