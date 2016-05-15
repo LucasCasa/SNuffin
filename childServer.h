@@ -50,6 +50,7 @@ void resolveRequest(int nClient);
 void validateUser(StreamData * d,int nClient);
 int validatePassword(StreamData * d,int nClient);
 void notifyNewPlayer(int nPlayer);
+void notifyExistingPlayers(int nPlayer);
 Player* CreatePlayerStruct(Client *c, int number);
 
 #endif

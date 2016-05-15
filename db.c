@@ -1,6 +1,6 @@
 #include "db.h"
 
-
+//SIN PROBLEMAS DE MEMORIA?
 sqlite3 *db;
 
 int init(){
@@ -78,12 +78,13 @@ int isUser(char* user){
   c = sqlite3_column_int(stmt, 0);
   (c == 1)?printf("Exists\n"):printf("Don't Exist\n");
   printError(sqlite3_finalize(stmt));
+  free(sql);
   return c;
 }
 int isPassword(char* user, char * pass){
   char* sql = malloc(400);
   sqlite3_stmt* stmt;
-  const char* result;
+  const unsigned char* result;
   //int c = 0;
   sprintf(sql,"SELECT * FROM player WHERE name = '%s'",user);
   printf("SQL: %s\n",sql );
@@ -92,7 +93,8 @@ int isPassword(char* user, char * pass){
   result = sqlite3_column_text(stmt, 1);
   printf("Result=%s , Pass= %s\n",result,pass );
   printError(sqlite3_finalize(stmt));
-  if(result != NULL && strcmp(result,pass) == 0){
+  free(sql);
+  if(result != NULL && strcmp((char*)result,pass) == 0){
     return 1;
   }else{
     return 0;
@@ -104,7 +106,8 @@ char * sql = malloc(500);
 char *zErrMsg = 0;
 sprintf(sql,"INSERT INTO player VALUES ('%s','%s',%d)",user,pass,0);
 printf("SQL: %s\n",sql);
-int rc = sqlite3_exec(db, sql, callback, 0, &zErrMsg);
+int rc = sqlite3_exec(db, sql, NULL, 0, &zErrMsg);
+free(sql);
 if( rc != SQLITE_OK ){
       fprintf(stderr, "SQL error: %s\n", zErrMsg);
       sqlite3_free(zErrMsg);
@@ -115,6 +118,7 @@ if( rc != SQLITE_OK ){
    }
 
 }
+/*
 static int callback(void *NotUsed, int argc, char **argv, char **azColName){
    int i;
    for(i=0; i<argc; i++){
@@ -122,7 +126,7 @@ static int callback(void *NotUsed, int argc, char **argv, char **azColName){
    }
    printf("\n");
    return 0;
-}
+}*/
 int getHighscore(char * player){
   char* sql = malloc(400);
   sqlite3_stmt* stmt;
@@ -133,6 +137,7 @@ int getHighscore(char * player){
   printError(sqlite3_step(stmt));
   int result = sqlite3_column_int(stmt, 2);
   printf("Score: %d\n",result );
+  free(sql);
   printError(sqlite3_finalize(stmt));
   return result;
 }
@@ -145,7 +150,8 @@ int setHighscore(char * player,int highscore){
   int rc = 0;
   sprintf(sql,"UPDATE player set score = %d where name = '%s' ",highscore,player);
   //printf("SQL: %s\n",sql );
-  rc = sqlite3_exec(db, sql, callback, 0, &zErrMsg);
+  rc = sqlite3_exec(db, sql, NULL, 0, &zErrMsg);
+  free(sql);
    if( rc != SQLITE_OK ){
       fprintf(stderr, "SQL error: %s\n", zErrMsg);
       sqlite3_free(zErrMsg);

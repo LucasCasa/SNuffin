@@ -1,5 +1,5 @@
 #include "dbManager.h"
-
+// SIN PROBLEMAS DE MEMORIA?
 pthread_cond_t* cond;
 pthread_cond_t* ready;
 pthread_mutex_t* mutex;
@@ -69,20 +69,15 @@ int setHighscoreDB(char* user, int value){
 }
 int createUserDB(char* user, char* password){
   //sem_wait(&semDB);
-  printf("Creo user\n");
   pthread_mutex_lock(mutex);
-  printf("estoy en el mutex\n");
   shmPointer[TYPEPOS] = CREATEUSER;
   memcpy(shmPointer + FIRSTARGUMENT,user, strlen(user) + 1);
   memcpy(shmPointer + SECONDARGUMENT,password, strlen(password) + 1);
-  printf("llegue a la condicion\n");
   pthread_cond_signal(cond);
   while(shmPointer[TYPEPOS] != READY){
      pthread_cond_wait(ready,mutex);
   }
-  printf("pase la condicion\n");
   int ret = shmPointer[RETURNPOS];
   pthread_mutex_unlock(mutex);
-  printf("Suelto el mutex\n");
   return ret;
 }

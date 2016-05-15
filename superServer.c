@@ -1,5 +1,7 @@
 #include "superServer.h"
 
+//SIN PROBLEMAS DE MEMORIA?
+
 char* shmPointer;
 //sem_t semDB;
 int servers[MAX_LOBBY];
@@ -56,14 +58,13 @@ int main(int argc, const char* argv[]){
    printf("Nuevo Score de Lucas: %d\n",getHighScoreDB("lucas"));
    */
    Connection * selfc = listenConnection(n); // PROXIMAMENTE LEO CONFIG PASO NUMERO
+   StreamData * buffer = malloc(sizeof(StreamData));
+   buffer->data = malloc(BUFFER_SIZE);
    while(1){
       for(int i = 0; i<MAX_LOBBY;i++){
          printf("Soy %d,  Server %d es %d\n",getpid(),i,servers[i]);
       }
-      StreamData * buffer = malloc(sizeof(StreamData));
-      buffer->data = malloc(2048);
-      // receiveData(selfc,buffer);
-      printf("Accept en %d\n",selfc->fd2);
+
       Connection *new = acceptConnection(selfc);
       printf("Nueva conexion\n");
       receiveData(new,buffer);
@@ -78,7 +79,10 @@ int main(int argc, const char* argv[]){
       if(servers[joinServer] != 0){
          printf("Server ya existe\n");
          int newDirection = n + joinServer;
-        sendData(new,marshalling(&newDirection, SERVER_ID));
+         StreamData * d = marshalling(&newDirection, SERVER_ID);
+        sendData(new,d);
+        free(d->data);
+        free(d);
       }else{
         int child = fork();
         int pipes[2];
@@ -90,6 +94,8 @@ int main(int argc, const char* argv[]){
             StreamData *d = marshalling(&newDirection,SERVER_ID);
             printf("Envio data: %s \n", d->data);
             sendData(new,d); //HORRIBLE
+            free(d->data);
+            free(d);
             lobby();
             //startGame();
             closeLogServer();
@@ -102,6 +108,9 @@ int main(int argc, const char* argv[]){
          pthread_create(&waitChild,NULL,waitForChild,&child);
       }
     }
+    free(buffer->data);
+    free(buffer);
+    free(selfc);
       // if(buffer->data[0] == '@'){
       //   printf("Lei un accept\n");
       //   int child = fork();
@@ -122,6 +131,7 @@ int main(int argc, const char* argv[]){
       //}
    }
    printf("Me fui\n");
+   return 0;
 }
 
 void * waitForChild(void* pid){
@@ -136,6 +146,7 @@ void * waitForChild(void* pid){
       servers[i] = 0;
     }
   }
+  return NULL;
 }
 
 void setDB(){

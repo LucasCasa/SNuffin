@@ -8,17 +8,14 @@
 #include <fcntl.h>
 #include <errno.h>
 
+//SIN PROBLEMAS DE MEMORIA?
+
 #define BUFFER_SIZE 256
 
 char* ADDR = "/tmp/server";
-//char* srvFifo;
-//char* cliFifo;
-//int* ids;
-/** Aca va la comunicacion, hay que usar de estructura el com.h
-    hay que hacer el listen para el server escuche las nuevas conexiones (me parece)
-    CREO QUE EL SERVER Y EL CLIENT TIENEN DIFERENTES .C PERO EL .H ES EL MISMO
-**/
-/* Puede ser que cuando envie datos, antes de enviar el dato en si mande quien es*/
+char* addr1 = NULL;
+char* addr2 = NULL;
+
 
 Connection * listenConnection(int id){
   char* aux = malloc(strlen(ADDR) + 7);
@@ -34,8 +31,7 @@ Connection * listenConnection(int id){
    Connection *c = malloc(sizeof(Connection));
    c->fd2 = open(aux,0666);
    printf("Setee fd %d\n",c->fd2);
-   free(aux);
-   printf("libero aux\n");
+   addr1 = aux;
    return c;
 }
 Connection * connectToPeer(char * addr,int id){
@@ -91,9 +87,10 @@ Connection * connectToPeer(char * addr,int id){
    c->fd2 = fdr;
    free(d->data);
    free(d);
-   free(auxr);
-   free(auxw);
+   addr1 = auxr;
+   addr2 = auxw;
    free(aux);
+   free(auxSRV);
    return c;
 
 }
@@ -125,11 +122,29 @@ Connection * acceptConnection(Connection * c){
   newc->fd2 = fdw; // el fdw es donde el peer va a escuchar al peer
   /* tendria que tener 2 fd
   o 2 connections*/
-
+  free(d->data);
+  free(d);
+  free(aux);
+  free(auxr);
+  free(auxw);
   return newc; // por testeo
 }
 void closeComm(Connection *c){
-  close(c->fd);
+   if(addr1 != NULL){
+      unlink(addr1);
+      free(addr1);
+   }
+
+   if(addr2 != NULL){
+      unlink(addr2);
+      free(addr2);
+   }
+   if(c->fd != 0){
+      close(c->fd);
+   }
+   if(c->fd2 != 0){
+      close(c->fd2);
+   }
 
 }
 

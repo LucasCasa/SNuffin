@@ -1,6 +1,7 @@
 #include "childServer.h"
 
 Client **clients;
+//SIN PROBLEMAS DE MEMORIA?
 
 void initServer(int serverNumber){
    clients = malloc(sizeof(Client*) * 4);
@@ -13,7 +14,7 @@ void initServer(int serverNumber){
   Connection *s = listenConnection(serverNumber); //cambiar cuando este sockets
   pthread_t listenThread;
   logMsg("Se crea thread startListening");
-  int i = pthread_create(&listenThread, NULL,listenNewClients, s);
+  pthread_create(&listenThread, NULL,listenNewClients, s);
 
 }
 
@@ -39,7 +40,6 @@ void resolveRequest(int nClient){
    StreamData *d = malloc(sizeof(StreamData));
    d->data = malloc(BUFFER_SIZE);
    receiveData(c,d);
-   int* type = malloc(sizeof(int));
    int expecting = clients[nClient]->expecting;
    if(expecting == USER){
       validateUser(d,nClient);
@@ -52,15 +52,18 @@ void resolveRequest(int nClient){
       char* s = malloc(sizeof(d->size));
       unmarshString(d->data,s);
       int res = createUserDB(clients[nClient]->name,s );
-      StreamData *d;
+      StreamData *d2;
       if(!res){
-         d = marshalling(&TRUE,BOOLEAN);
+         d2 = marshalling((void*)&TRUE,BOOLEAN);
          clients[nClient]->expecting = READY_TO_PLAY;
          clients[nClient]->state = WAITING;
       }else{
-         d = marshalling(&FALSE,BOOLEAN);
+         d2 = marshalling((void*)&FALSE,BOOLEAN);
       }
-      sendData(clients[nClient]->con, d);
+      sendData(clients[nClient]->con, d2);
+      free(d2->data);
+      free(d2);
+      free(s);
    }else if(expecting == READY_TO_PLAY){
 
    }else if(expecting == MOVEMENT){
@@ -70,25 +73,31 @@ void resolveRequest(int nClient){
    }else{
       fprintf(stderr, "ERROR: expecting not valid\n"); // aca tamnbien iria un messague queue de error
    }
+   free(d->data);
+   free(d),
 }
 int validatePassword(StreamData * d,int nClient){
    char *s = malloc(d->size);
    unmarshString(d->data,s);
    int res;
    if(s != NULL){
-      StreamData *d;
+      StreamData *d2;
       if(validPasswordDB(clients[nClient]->name,s)){
-         d = marshalling(&TRUE,BOOLEAN);
+         d2 = marshalling((void*)&TRUE,BOOLEAN);
          clients[nClient]->expecting = READY_TO_PLAY;
          clients[nClient]->state = WAITING;
          res = 1;
       }else{
-         d = marshalling(&FALSE,BOOLEAN);
+         d2 = marshalling((void*)&FALSE,BOOLEAN);
          res = 0;
       }
-      sendData(clients[nClient]->con, d);
+      sendData(clients[nClient]->con, d2);
+      free(s):
+      free(d2->data);
+      free(d2);
       return res;
    }
+   free(s);
    return 0;
 }
 void validateUser(StreamData * d, int nClient){
@@ -96,23 +105,24 @@ void validateUser(StreamData * d, int nClient){
    unmarshString(d->data,s);
    printf("Check if user exists %s\n",d->data );
    if(s != NULL){
-      StreamData *d;
+      StreamData *d2;
       int e = ExistUserDB(s);
       printf("Exists Equals %d\n",e );
       if(e){
          printf("User exists\n");
-         d = marshalling(&TRUE,BOOLEAN);
+         d2 = marshalling((void*) &TRUE,BOOLEAN);
          clients[nClient]->expecting = PASSWORD;
          clients[nClient]->score = getHighScoreDB(s);
       }else{
-         d = marshalling(&FALSE,BOOLEAN);
+         d2 = marshalling((void*)&FALSE,BOOLEAN);
          clients[nClient]->expecting = NEWPASSWORD;
          clients[nClient]->score = 0;
       }
-      sendData(clients[nClient]->con, d);
+      sendData(clients[nClient]->con, d2);
       clients[nClient]->name = s;
    }else{
-      //NO SE
+      free(s);
+      return 0;
    }
 }
 
@@ -142,10 +152,12 @@ int listenToClients(){
      printf("I received a request %d\n",res );
      for(int i = 0; i<MAX_PLAYERS;i++){
         if(clients[i] != NULL && FD_ISSET(clients[i]->con->fd2,&cli)){
+           free(aux);
            return i; // o leo los datos??
         }
      }
   }
+  free(aux);
   return -1;
 }
 void*  listenNewClients(void* connection){
@@ -153,14 +165,14 @@ void*  listenNewClients(void* connection){
   logMsg("Escuchando nuevos players");
   while(nPlayers < MAX_PLAYERS){
     Connection *new = acceptConnection(connection);
-    logMsg("NUEVO PLAYER WOOOO");
+    logMsg("NUEVO PLAYER WOOOO"); //alto spanglish
     Client *c = malloc(sizeof(Client));
     c->con = new;
-    c->state = LOGGING; // define
+    c->state = LOGGING;
     c->expecting = USER;
     clients[nPlayers] = c;
     nPlayers++;
-    //tengo que mandar un mensaje a los demas jugadores
+    //no hago free porque lo sigo usando
   }
   pthread_exit(NULL);
 }
@@ -168,8 +180,12 @@ void notifyNewPlayer(int nPlayer){
   Client *c = clients[nPlayer];
   for(int i = 0; i< MAX_PLAYERS;i++){
     if(clients[i] != NULL && clients[i] != c){
-      StreamData *d = marshalling(CreatePlayerStruct(c,nPlayer),PLAYER);
+      Player* p = CreatePlayerStruct(c,nPlayer);
+      StreamData *d = marshalling(p,PLAYER);
       sendData(clients[i]->con,d);
+      free(p);
+      free(d->data);
+      free(d);
     }
   }
 }
@@ -178,8 +194,12 @@ void notifyExistingPlayers(int nPlayer){
   Client *c = clients[nPlayer];
   for(int i = 0; i< MAX_PLAYERS;i++){
     if(clients[i] != NULL && clients[i] != c){
-      StreamData *d = marshalling(CreatePlayerStruct(clients[i],i),PLAYER);
+      Player* p = CreatePlayerStruct(clients[i],i);
+      StreamData *d = marshalling(p,PLAYER);
       sendData(c->con,d);
+      free(p);
+      free(d->data);
+      free(d);
     }
   }
 }
