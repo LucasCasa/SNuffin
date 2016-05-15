@@ -80,7 +80,14 @@ void resolveRequest(int nClient){
       fprintf(stderr, "ERROR: expecting not valid\n"); // aca tamnbien iria un messague queue de error
    }
    if(res == -1){
-      
+      printf("START FREE NAME\n");
+      //free(clients[nClient]->name);
+      printf("FREE NAME\n");
+      free(clients[nClient]->con);
+      printf("FREE CON\n");
+      free(clients[nClient]);
+      printf("FREE CLIENT\n");
+      clients[nClient] = NULL;
    }
    free(d->data);
    free(d);
@@ -111,7 +118,11 @@ int validatePassword(StreamData * d,int nClient){
 }
 int validateUser(StreamData * d, int nClient){
    char *s = malloc(d->size);
-   unmarshString(d->data,s);
+   int r = unmarshString(d->data,s);
+   if(r == 0){
+
+      return -1;
+   }
    printf("Check if user exists %s\n",d->data );
    if(s != NULL){
       StreamData *d2;
@@ -128,7 +139,9 @@ int validateUser(StreamData * d, int nClient){
          clients[nClient]->score = 0;
       }
       sendData(clients[nClient]->con, d2);
-      clients[nClient]->name = s;
+      clients[nClient]->name = malloc(strlen(s) + 1);
+      memcpy(clients[nClient]->name, s, strlen(s) +1);
+      free(s);
    }else{
       return -1;
       free(s);
@@ -170,20 +183,35 @@ int listenToClients(){
   return -1;
 }
 void*  listenNewClients(void* connection){
-  int nPlayers = 0;
-  logMsg("Escuchando nuevos players");
-  while(nPlayers < MAX_PLAYERS){
-    Connection *new = acceptConnection(connection);
-    logMsg("NUEVO PLAYER WOOOO"); //alto spanglish
-    Client *c = malloc(sizeof(Client));
-    c->con = new;
-    c->state = LOGGING;
-    c->expecting = USER;
-    clients[nPlayers] = c;
-    nPlayers++;
-    //no hago free porque lo sigo usando
-  }
-  pthread_exit(NULL);
+   int nPlayers = 0;
+   int nextEmpty = 0;
+   logMsg("Escuchando nuevos players");
+   while(1){ // game don*t start
+
+      if(nPlayers < MAX_PLAYERS){
+         Connection *new = acceptConnection(connection);
+         logMsg("NUEVO PLAYER WOOOO"); //alto spanglish
+         Client *c = malloc(sizeof(Client));
+         c->con = new;
+         c->state = LOGGING;
+         c->expecting = USER;
+         clients[nextEmpty] = c;
+      }
+      nPlayers = 0;
+      for(int i = 0; i<MAX_PLAYERS;i++){
+         if(clients[i] != NULL){
+            nPlayers++;
+            if(nextEmpty == i){
+               nextEmpty++;
+            }
+         }else if(nextEmpty > i){
+            nextEmpty = i;
+         }
+
+      }
+      //no hago free porque lo sigo usando
+   }
+   pthread_exit(NULL);
 }
 void notifyNewPlayer(int nPlayer){
   Client *c = clients[nPlayer];

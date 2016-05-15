@@ -130,21 +130,40 @@ Connection * acceptConnection(Connection * c){
   return newc; // por testeo
 }
 void closeConn(Connection *c){
-   if(addr1 != NULL){
-      unlink(addr1);
-      free(addr1);
-   }
-
-   if(addr2 != NULL){
-      unlink(addr2);
-      free(addr2);
-   }
+   StreamData *d = malloc(sizeof(StreamData));
+   d->data = calloc(1,1);
+   d->size = 1;
+   printf("Cierro la conexion con fd=%d y fd2=%d\n",c->fd,c->fd2);
+   sendData(c,d);
    if(c->fd != 0){
       close(c->fd);
    }
    if(c->fd2 != 0){
       close(c->fd2);
    }
+   if(addr1 != NULL){
+      if(unlink(addr1) == -1){
+         printf("ERROR UNLINKING\n");
+      }else{
+         printf("NO ERROR UNLINKING\n");
+      }
+      free(addr1);
+   }else{
+      printf("ADDR1 is NULL\n");
+   }
+
+   if(addr2 != NULL){
+      if(unlink(addr2) == -1){
+         printf("ERROR UNLINKING\n");
+      }else{
+         printf("NO ERROR UNLINKING\n");
+      }
+      free(addr2);
+   }else{
+      printf("ADDR2 is NULL\n");
+   }
+   free(d->data);
+   free(d);
 
 }
 
@@ -160,7 +179,7 @@ void receiveData(Connection* c, StreamData* b){
     a = read(fdr, b->data,BUFFER_SIZE);
   }else{*/
     a = read(c->fd2, b->data,BUFFER_SIZE);
-    if(a == -1){
+    if(a == 256){
       perror("ERROR REC");
     }
   //}
