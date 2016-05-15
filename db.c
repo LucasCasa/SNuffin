@@ -1,11 +1,10 @@
-
 #include "db.h"
 
 
 sqlite3 *db;
 
 int init(){
-     char *zErrMsg = 0;
+     //char *zErrMsg = 0;
      int rc;
 
      rc = sqlite3_open("players.db", &db);
@@ -21,16 +20,16 @@ int init(){
 int manageDataBase(){
    printf("Inicio DB\n");
   init();
-
-  // createUser("maggie","maggie");
-  // isUser("lucas");
-  // setHighscore("kuyum",420);
-  // getHighscore("lucas");
-  // getHighscore("maggie");
-  // getHighscore("kuyum");
   printf("Entro al While\n");
+  pthread_cond_t* cond =(pthread_cond_t*)(shmPointer + COND_OFFSET);
+  pthread_mutex_t* mutex = (pthread_mutex_t*)(shmPointer + MUTEX_OFFSET);
   while(1){
-    if(shmPointer[TYPEPOS] != READY){
+     pthread_mutex_lock(mutex);
+     while(shmPointer[TYPEPOS] == READY){
+        printf("Dabatase Lockeada\n");
+        pthread_cond_wait(cond, mutex);
+     }
+     printf("Database deslockeada\n");
       switch(shmPointer[TYPEPOS]){
         case ISUSER:
           shmPointer[RETURNPOS] = (char) isUser(shmPointer + FIRSTARGUMENT);
@@ -56,8 +55,7 @@ int manageDataBase(){
           printf("Comando enviado a la DB invalido\n");
         break;
       }
-
-   }
+      pthread_mutex_unlock(mutex);
     //printf("Base de Datos sigue funcionado\n");
   }
   /* Abro el pipe y me pongo a esuchar...
@@ -83,7 +81,7 @@ int isPassword(char* user, char * pass){
   char* sql = malloc(400);
   sqlite3_stmt* stmt;
   const char* result;
-  int c = 0;
+  //int c = 0;
   sprintf(sql,"SELECT * FROM player WHERE name = '%s'",user);
   printf("SQL: %s\n",sql );
   printError(sqlite3_prepare_v2(db,sql,-1,&stmt,NULL) );
@@ -125,7 +123,7 @@ static int callback(void *NotUsed, int argc, char **argv, char **azColName){
 int getHighscore(char * player){
   char* sql = malloc(400);
   sqlite3_stmt* stmt;
-  int c = 0;
+  //int c = 0;
   sprintf(sql,"SELECT * FROM player WHERE name = '%s'",player);
   printf("SQL: %s\n",sql );
   printError(sqlite3_prepare_v2(db,sql,-1,&stmt,NULL));
@@ -139,8 +137,8 @@ int getHighscore(char * player){
 int setHighscore(char * player,int highscore){
   char* sql = malloc(400);
   char* zErrMsg = 0;
-  sqlite3_stmt* stmt;
-  int c = 0;
+  //sqlite3_stmt* stmt;
+  //int c = 0;
   int rc = 0;
   sprintf(sql,"UPDATE player set score = %d where name = '%s' ",highscore,player);
   //printf("SQL: %s\n",sql );

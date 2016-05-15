@@ -5,8 +5,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <pthread.h>
+#include "dbconst.h"
 
-#include "server.h"
+extern char* shmPointer;
 
 int isUser(char* user);
 int isPassword(char* user, char * pass);
