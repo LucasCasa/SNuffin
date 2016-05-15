@@ -1,7 +1,7 @@
 TARGET = superServer.c childServer.c db.c log.c marshalling.c dbManager.c
 CLIENT = client.c marshalling.c
 FIFO = comFIFO.c
-SOCKETS = comSocjets.c
+SOCKETS = comSockets.c
 
 
 all: fifo clientfifo log
