@@ -76,7 +76,7 @@ void startGame(){
 	int game = 1;
 	int pressed,rta;
 	Board * b = calloc(1,sizeof(Board));
-	initializeBoard(b);
+	//initializeBoard(b);
 	Point * p = calloc(1,sizeof(Point));
 	Point * aux = calloc(1,sizeof(Point));
 	while(game){
@@ -95,9 +95,9 @@ void startGame(){
 				p->x = 1;
 				p->y = 0;
 			}
-			int type;
 			if((aux->x == 0 && aux->y == 0) || ((aux->x != p->x) && (aux->y != p->y))){
-				aux = p;
+				aux -> x = p -> x;
+				aux -> y = p->y;
 				//solo se manda el punto nuevo si se cambia de direccion
 				sendData(c,marshalling(p,POINT));
 			}
@@ -118,7 +118,7 @@ void startGame(){
 void getInformation(){
 	char * name = calloc (MAX_WORD,sizeof(char));
    	char * password = calloc(MAX_WORD,sizeof(char));
-   	int belongs=0,rta,type;
+   	int belongs=0,rta;
 
    	getName(name);
 
@@ -208,6 +208,12 @@ void prepareLobby(){
 	//seteo los colores
 	sendData(c,marshalling(&TRUE,BOOLEAN));
 }
+
+void connHandler(int sig){
+	//printf("Recibe señal\n");
+	//closeConn(c);
+}
+
 
 void changeMode(int dir){
   static struct termios oldt, newt;

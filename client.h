@@ -8,6 +8,7 @@
 #include <fcntl.h>
 #include <sys/types.h>
 #include <sys/time.h>
+#include <signal.h>
 
 #include <string.h>
 
@@ -50,6 +51,8 @@ void printPlayerColor(int pNum);
 
 void game(int slot);
 void startGame();
+
+void connHandler(int sig);
 
 void prepareLobby();
 
