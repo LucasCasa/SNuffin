@@ -32,13 +32,17 @@
 
 #define MAX_WORD 20
 
+#define BLOCK 5
+
 #define PLAYER1_COLOR   "\x1b[31;41m"
 #define PLAYER2_COLOR   "\x1b[32;42m"
 #define PLAYER3_COLOR   "\x1b[34;44m"
 #define PLAYER4_COLOR   "\x1b[35;45m"
 #define COLOR_RESET     "\x1b[0m"
 
-
+void rData(Connection * conn, StreamData * sd);
+void clearArr(char*,int);
+char ** split(char*,int*,int);
 
 void changeMode(int dir);
 int kbhit (void);
