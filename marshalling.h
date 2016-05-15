@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include "structs.h"
 
+#define EXIT 0
 #define PLAYER '2'
 #define STRING '3'
 #define POINT '1'
