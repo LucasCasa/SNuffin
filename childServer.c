@@ -39,30 +39,36 @@ void resolveRequest(int nClient){
    Connection *c = clients[nClient]->con;
    StreamData *d = malloc(sizeof(StreamData));
    d->data = malloc(BUFFER_SIZE);
+   int res;
    receiveData(c,d);
    int expecting = clients[nClient]->expecting;
    if(expecting == USER){
-      validateUser(d,nClient);
+      res = validateUser(d,nClient);
    }else if(expecting == PASSWORD){
-      if(validatePassword(d,nClient)){
+      res = validatePassword(d,nClient);
+      if(res == 1){
          notifyNewPlayer(nClient);
          notifyExistingPlayers(nClient);
       }
    }else if(expecting == NEWPASSWORD){
       char* s = malloc(sizeof(d->size));
-      unmarshString(d->data,s);
-      int res = createUserDB(clients[nClient]->name,s );
-      StreamData *d2;
-      if(!res){
-         d2 = marshalling((void*)&TRUE,BOOLEAN);
-         clients[nClient]->expecting = READY_TO_PLAY;
-         clients[nClient]->state = WAITING;
+      res = unmarshString(d->data,s);
+      if(res){
+         createUserDB(clients[nClient]->name,s );
+         StreamData *d2;
+         if(!res){
+            d2 = marshalling((void*)&TRUE,BOOLEAN);
+            clients[nClient]->expecting = READY_TO_PLAY;
+            clients[nClient]->state = WAITING;
+         }else{
+            d2 = marshalling((void*)&FALSE,BOOLEAN);
+         }
+         sendData(clients[nClient]->con, d2);
+         free(d2->data);
+         free(d2);
       }else{
-         d2 = marshalling((void*)&FALSE,BOOLEAN);
+         res = -1;
       }
-      sendData(clients[nClient]->con, d2);
-      free(d2->data);
-      free(d2);
       free(s);
    }else if(expecting == READY_TO_PLAY){
 
@@ -72,6 +78,9 @@ void resolveRequest(int nClient){
 
    }else{
       fprintf(stderr, "ERROR: expecting not valid\n"); // aca tamnbien iria un messague queue de error
+   }
+   if(res == -1){
+      
    }
    free(d->data);
    free(d);
@@ -98,9 +107,9 @@ int validatePassword(StreamData * d,int nClient){
       return res;
    }
    free(s);
-   return 0;
+   return -1;
 }
-void validateUser(StreamData * d, int nClient){
+int validateUser(StreamData * d, int nClient){
    char *s = malloc(d->size);
    unmarshString(d->data,s);
    printf("Check if user exists %s\n",d->data );
@@ -121,6 +130,7 @@ void validateUser(StreamData * d, int nClient){
       sendData(clients[nClient]->con, d2);
       clients[nClient]->name = s;
    }else{
+      return -1;
       free(s);
    }
 }
