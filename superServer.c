@@ -108,28 +108,10 @@ int main(int argc, const char* argv[]){
          pthread_create(&waitChild,NULL,waitForChild,&child);
       }
     }
-    free(buffer->data);
-    free(buffer);
-    free(selfc);
-      // if(buffer->data[0] == '@'){
-      //   printf("Lei un accept\n");
-      //   int child = fork();
-      //   if(child == 0){){
-      //
-      //   }else{
-      //     Connection *c = malloc(sizeof(Connection));
-      //     c->addr = buffer->data + 1;
-      //     StreamData *daux = malloc(sizeof(StreamData));
-      //     daux->data = malloc(BUFFER_SIZE);
-      //     sprintf(daux->data,"%s%d",srvAddr,getpid());
-      //     daux->size = strlen(daux->data);
-      //     sendData(c,daux);
-      //   }
-      //}else{
-      //  printf("%s\n",buffer->data);
-      //}
-      //}
    }
+   free(buffer->data);
+   free(buffer);
+   free(selfc);
    printf("Me fui\n");
    return 0;
 }

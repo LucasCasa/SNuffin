@@ -47,7 +47,7 @@ void initServer(int serverNumber);
 void lobby();
 int listenToClients();
 void resolveRequest(int nClient);
-void validateUser(StreamData * d,int nClient);
+int validateUser(StreamData * d,int nClient);
 int validatePassword(StreamData * d,int nClient);
 void notifyNewPlayer(int nPlayer);
 void notifyExistingPlayers(int nPlayer);

@@ -25,6 +25,7 @@ int main(int argc, char const *argv[]){
 
 	buffer = calloc(1,sizeof(StreamData));
 	buffer->data = calloc(BUFFER,sizeof(char));
+	signal(SIGINT, connHandler);
 
 	game(value);
 	free(buffer->data);
@@ -81,7 +82,6 @@ void startGame(){
 	Point * aux = calloc(1,sizeof(Point));
 	while(game){
 		while(!kbhit() && game){
-			signal(SIGINT, connHandler);
 			pressed=getchar();
 			if(pressed == DOWN_ARROW ){
 				p->x = 0;
@@ -214,7 +214,9 @@ void prepareLobby(){
 }
 
 void connHandler(int sig){
+	printf("Me fui\n");
 	closeConn(c);
+	exit(0);
 }
 
 
