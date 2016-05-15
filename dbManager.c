@@ -6,15 +6,11 @@ char ExistUserDB(char * user){
   //sem_wait(&semDB);
   cond =(pthread_cond_t*) (shmPointer + COND_OFFSET) ;
   mutex = (pthread_mutex_t*)(shmPointer + MUTEX_OFFSET);
-  printf("Intento lockear\n");
   pthread_mutex_lock(mutex);
-  printf("lockeo %d\n",s);
   shmPointer[TYPEPOS] = ISUSER;
   memcpy(shmPointer + FIRSTARGUMENT,user,strlen(user));
   shmPointer[strlen(user) + 1 ] = 0;
-  printf("SETEADO llamo a db\n");
   pthread_cond_signal(cond);
-  printf("ME desbloquee\n");
   char c = shmPointer[RETURNPOS];
   //sem_post(&semDB);
   pthread_mutex_unlock(mutex);
