@@ -59,12 +59,11 @@ Connection * connectToPeer(char * addr,int id){
    }else{
      sprintf(auxSRV, "%s%d",addr,id);
    }
-
-   printf("%d\n",access(auxSRV,F_OK) );
    c->fd2 = open(auxSRV,0666);
 
    if(c->fd2 == -1){
      perror("ERROR: ");
+     return NULL;
    }
 
    StreamData *d = malloc(sizeof(StreamData));
@@ -115,7 +114,7 @@ Connection * acceptConnection(Connection * c){
   free(aux);
   free(auxr);
   free(auxw);
-  return newc; 
+  return newc;
 }
 void closeConn(Connection *c){
    StreamData *d = malloc(sizeof(StreamData));
