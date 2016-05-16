@@ -54,7 +54,7 @@ void resolveRequest(int nClient){
       char* s = malloc(sizeof(d->size));
       res = unmarshString(d->data,s);
       if(res){
-         createUserDB(clients[nClient]->name,s );
+         res = createUserDB(clients[nClient]->name,s );
          StreamData *d2;
          if(!res){
             d2 = marshalling((void*)&TRUE,BOOLEAN);
@@ -160,9 +160,9 @@ int listenToClients(){
   while(res != -1){
      for(int i = 0; i<MAX_PLAYERS;i++){
         if(clients[i] != NULL){
-           int clifd = clients[i]->con->fd2;
+           int clifd = clients[i]->con->fd;
            if(clifd>maxFD)
-           maxFD = clifd;
+            maxFD = clifd;
            sprintf(aux,"I am Listening to client: %d on FD: %d\n",i,clients[i]->con->fd2);
            //logMsg(aux);
            FD_SET(clients[i]->con->fd2,&cli);
@@ -175,7 +175,7 @@ int listenToClients(){
      res = select(maxFD+1,&cli,NULL,NULL,&tv);
      printf("I received a request %d\n",res );
      for(int i = 0; i<MAX_PLAYERS;i++){
-        if(clients[i] != NULL && FD_ISSET(clients[i]->con->fd2,&cli)){
+        if(clients[i] != NULL && FD_ISSET(clients[i]->con->fd,&cli)){
            free(aux);
            return i; // o leo los datos??
         }

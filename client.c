@@ -10,7 +10,10 @@ Connection * c;
 char * address;
 int f2;
 
+
 Player * players[OTHER_PLAYERS];
+int nPlayers=0;
+int value;
 
 StreamData * buffer;
 
@@ -21,19 +24,19 @@ int main(int argc, char const *argv[]){
 	}else{
 		slot = "1"; //el default.
 	}
-	int value = atoi(slot);
+	value = atoi(slot);
 
 	buffer = calloc(1,sizeof(StreamData));
 	buffer->data = calloc(BUFFER,sizeof(char));
 	signal(SIGINT, connHandler);
 
-	game(value);
+	game();
 	free(buffer->data);
 	free(buffer);
 	return 0;
 }
 
-void game(int slot){
+void game(){
 	char * aux;
 	int s;
 	FILE * f;
@@ -53,7 +56,7 @@ void game(int slot){
 
 	c = connectToPeer(address,f2);
 
-	rta = sendData(c,marshalling(&slot,SERVER_ID));
+	rta = sendData(c,marshalling(&value,SERVER_ID));
 	if(rta == 0){
 		printf("Error conectandose con el servidor\n");
 	}
@@ -207,11 +210,8 @@ void prepareLobby(){
 		rta = unmarshPlayer(buffer->data,players[i]);
 		printf("El jugador %s se unió a la sala.  Faltan %d jugadores para comenzar.\n",players[i]->name,OTHER_PLAYERS-i-1);
 		i++;
-	}
-	//seteo los colores
-	printf("Pulsa cualquier tecla para empezar a jugar\n");
-	if(getchar()){
-		sendData(c,marshalling(&TRUE,BOOLEAN));
+		nPlayers++;
+		printLobby();
 	}
 }
 
@@ -253,32 +253,69 @@ int kbhit (void){
 void printBoard(Board *b){
   int i;
   int j;
+  printf("SNUFFIN\n");
   for(i = 0;i<b->rows;i++){
+    if(i==0){
+      for(j=0;j<=b->columns;j++){
+        printf("__");
+      }
+      printf("\n");
+    }
     for(j = 0; j<b->columns;j++){
+      if(j ==0){
+        printf("|");
+      }
       printPlayerColor(b->board[i][j]);
     }
+    printf("|");
     printf("\n");
   }
+  for(j=0;j<=b->rows;j++){
+    printf("__");
+  }
+  printf("\n");
 }
 
 void printPlayerColor(int pNum){
    	switch (pNum) {
-	    case 1:
+	    case '1':
        		printf(PLAYER1_COLOR "aa" COLOR_RESET);
     		break;
-     	case 2:
+     	case '2':
        		printf(PLAYER2_COLOR "vv" COLOR_RESET);
      		break;
-     	case 3:
+     	case '3':
        		printf(PLAYER3_COLOR "cc" COLOR_RESET);
      		break;
-     	case 4:
+     	case '4':
        		printf(PLAYER4_COLOR "dd" COLOR_RESET);
      		break;
      	default:
      		printf("  ");
      		break;
     }
+}
+
+void printLobby(){
+  int i,j;
+  system("clear");
+  printf("LOBBY NUMERO %d\n\n",value);
+  printf("\tJUGADOR \t PUNTAJE \t READY \t\n\n");
+  for(i=0;i<nPlayers;i++){
+    printf("\t");
+    printPlayerColor(i+1 + '0');
+    printf(" %s \t    %d", players[i]->name,players[i]->score);
+    printf("\t\t   X");
+    printf("\n\n");
+  }
+  for(j=nPlayers;j<4;j++){
+    printf("\t   ");
+    printf("FREE\n\n");
+  }
+
+  printf(" -PRESS <ENTER> WHEN READY\n\n");
+  printf(" -PRESS <X> TO CANCEL\n\n");
+
 }
 
 void initializeBoard(Board * b){

@@ -49,12 +49,13 @@ void initializeBoard(Board * b);
 void printBoard(Board *b);
 void printPlayerColor(int pNum);
 
-void game(int slot);
+void game();
 void startGame();
 
 void connHandler(int sig);
 
 void prepareLobby();
+void printLobby();
 
 void getInformation();
 void getPass(char * pass);
