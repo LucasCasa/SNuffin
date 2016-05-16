@@ -113,6 +113,7 @@ void loadSnake(Point start, Point *end, int pNum,GameBoard *b){
 void updateBoard(GameBoard* b){
   for(int i = 0; i<MAX_PLAYERS;i++){
     if(b->pDef[i] != -1 && b->pDef[i] == 0){
+      printf("Player %d is in %d,%d and moves %d,%d\n",i,b->pPos[i]->x,b->pPos[i]->y,b->pDir[i]->x,b->pDir[i]->y );
       if(b->bB[b->pPos[i]->y + b->pDir[i]->y][b->pPos[i]->x + b->pDir[i]->x] == TAIL_CHAR
       || outOfBoard(b->pPos[i])){
         playerLost(i);
@@ -127,8 +128,8 @@ void updateBoard(GameBoard* b){
   }
 }
 void updateMovementDirection(int nPlayer, Point p){
-   gameBoard->pPos[nPlayer]->x = p.x;
-   gameBoard->pPos[nPlayer]->y = p.y;
+   gameBoard->pDir[nPlayer]->x = p.x;
+   gameBoard->pDir[nPlayer]->y = p.y;
    printf("Movimiento Updateado se mueve en %d %d\n",p.x,p.y);
 }
 void printBoard(char** b){

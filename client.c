@@ -99,7 +99,6 @@ void startGame(){
 	}
 	freeBoard(b);
 }
-
 void getInformation(){
 	char * name = calloc (MAX_WORD,sizeof(char));
    	char * password = calloc(MAX_WORD,sizeof(char));
@@ -237,9 +236,10 @@ void * listenToPress(void * value){
 	Point * p = calloc(1,sizeof(Point));
 	Point * aux = calloc(1,sizeof(Point));
 	while(1) /*el juego no arranca */{
-		//changeMode(1);
+		changeMode(1);
 		while(!kbhit()){
 			pressed = getchar();
+			printf("Se presiono una teclaaa\n");
 			if(!gameStart){
 				if(pressed == ENTER && !ready){
 					sendData(c,marshalling((void *)&TRUE,BOOLEAN));
@@ -253,6 +253,7 @@ void * listenToPress(void * value){
 					printLobby();
 				}
 			}else{
+				printf("Se presiono y estoy en el juego\n");
 				if(pressed == DOWN_ARROW ){
 					p->x = 0;
 					p->y = 1;
@@ -266,11 +267,12 @@ void * listenToPress(void * value){
 					p->x = 1;
 					p->y = 0;
 				}
-				if(!(aux->x == 0 && aux->y == 0) && ((aux->x != p->x) || (aux->y != p->y))){
-					aux -> x = p -> x;
-					aux -> y = p-> y;
+				if(((aux->x != p->x) || (aux->y != p->y))){
+					aux-> x = p-> x;
+					aux-> y = p-> y;
 					//solo se manda el punto nuevo si se cambia de direccion
 					if(aux->x != 0 || aux->y != 0){
+						printf("MANDO POINT\n");
 						sendData(c,marshalling(p,POINT));
 					}
 				}
@@ -280,7 +282,7 @@ void * listenToPress(void * value){
 	printf("Returning listenToPress\n");
 	free(aux);
 	free(p);
-	//changeMode(0);
+	changeMode(0);
 	return NULL;
 }
 
@@ -348,7 +350,7 @@ int kbhit (void){
 void printBoard(Board *b){
 	int i;
 	int j;
-	printf("SNUFFIN\n");
+	printf("SNUFFIN %d %d\n",b->rows, b->columns);
 	for(i = 0;i<b->rows;i++){
 		if(i==0){
 			for(j=0;j<=b->columns;j++){
