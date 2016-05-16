@@ -209,43 +209,48 @@ void prepareLobby(){
 	Player * player = calloc(1,sizeof(Player));
 	player-> name = calloc(MAX_WORD,sizeof(char));
 	printf("El partido comenzará cuando se llene el lobby.\n");
-	changeMode(1);
 	while(1){
-		int pressed;
-		readData(c,buffer);
-		printf("Lei data\n");
-		printf("unmarshaleo '%s'\n",buffer->data );
-		void* struc = unmarshalling(buffer,&type);
-		printf("Unmarshalee data\n");
-		if(type == PLAYER -'0'){
-			printf("Encontre un player\n");
-			player = (Player*) struc;
-			printf("Player name '%s'\n",player->name );
-			int aux = belongs(player);
-			if(aux == -1){
-				printf("El player es distinto\n");
-				int pos = player->num;
-				players[pos] = calloc(1,sizeof(Player));
-				(players[pos])->name = calloc(MAX_WORD,sizeof(char));
-				memcpy(players[pos]->name,player->name,strlen(player->name)+1);
-				players[pos]->score= player->score;
-				players[pos]->num = player->num;
-				players[pos]->ready = player->ready;
-			}else{
-				printf("El player es igual\n");
-				players[aux]->ready = player->ready;
+		changeMode(1);
+		while(!kbhit()){
+			int pressed;
+			pressed = getchar();
+			if(pressed == ENTER){
+				sendData(c,marshalling((void *)&TRUE,BOOLEAN));
+				ready = TRUE;
+			}else if(pressed == 'X'){
+				sendData(c,marshalling((void *)&FALSE,BOOLEAN));
+				ready = FALSE;
 			}
-		}else if(type == STRING-'0'){
-			int leaving;
-			sscanf((char*)struc,"%d",&leaving);
-			playerLeft(leaving);
+			readData(c,buffer);
+			printf("Lei data\n");
+			printf("unmarshaleo '%s'\n",buffer->data );
+			void* struc = unmarshalling(buffer,&type);
+			printf("Unmarshalee data\n");
+			if(type == PLAYER -'0'){
+				printf("Encontre un player\n");
+				player = (Player*) struc;
+				printf("Player name '%s'\n",player->name );
+				int aux = belongs(player);
+				if(aux == -1){
+					printf("El player es distinto\n");
+					int pos = player->num;
+					players[pos] = calloc(1,sizeof(Player));
+					(players[pos])->name = calloc(MAX_WORD,sizeof(char));
+					memcpy(players[pos]->name,player->name,strlen(player->name)+1);
+					players[pos]->score= player->score;
+					players[pos]->num = player->num;
+					players[pos]->ready = player->ready;
+				}else{
+					players[aux]->ready = player->ready;
+				}
+			}else if(type == STRING-'0'){
+				int leaving;
+				sscanf((char*)struc,"%d",&leaving);
+				playerLeft(leaving);
+			}
+			printLobby();
+
 		}
-		printLobby();
-		/*pressed = getchar();
-		if(pressed== 10){ //esto no tiene que ser asi tiene que ser como lo de las flechitas
-			sendData(c,marshalling((void*)&TRUE,BOOLEAN));
-			ready = TRUE;
-		}*/
 	}
 	printf("JUEGO EMPEZADO\n");
 	changeMode(0);
