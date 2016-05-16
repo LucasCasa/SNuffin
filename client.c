@@ -210,11 +210,6 @@ void prepareLobby(){
 		nPlayers++;
 		printLobby();
 	}
-	//seteo los colores
-	printf("Pulsa cualquier tecla para empezar a jugar\n");
-	if(getchar()){
-		sendData(c,marshalling(&TRUE,BOOLEAN));
-	}
 }
 
 void connHandler(int sig){
@@ -335,16 +330,16 @@ void printBoard(Board *b){
 
 void printPlayerColor(int pNum){
    	switch (pNum) {
-	    case 1:
+	    case '1':
        		printf(PLAYER1_COLOR "aa" COLOR_RESET);
     		break;
-     	case 2:
+     	case '2':
        		printf(PLAYER2_COLOR "vv" COLOR_RESET);
      		break;
-     	case 3:
+     	case '3':
        		printf(PLAYER3_COLOR "cc" COLOR_RESET);
      		break;
-     	case 4:
+     	case '4':
        		printf(PLAYER4_COLOR "dd" COLOR_RESET);
      		break;
      	default:
