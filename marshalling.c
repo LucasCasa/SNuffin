@@ -134,7 +134,11 @@ int unmarshPoint(char * data, Point * p){
 		num[j]=data[i];
 	}
 	long m= strtol(num, &endptr,10);
-	p->x = (int)m;
+	if(p->x == 0){
+		p->x = (int)m + '0';
+	}else{
+		p->x = (int)m;
+	}
 	for(i = i+1,j=0;data[i]!='\0';i++,j++){
 		num[j]=data[i];
 	}
@@ -206,7 +210,7 @@ int unmarshBoard(char * data, Board * b){
 			k++;
 			j=0;
 		}
-		board[k][j]=data[i];
+		board[k][j]=data[i] -'0';
 		j++;
 	}
 	b->board = board;
@@ -217,7 +221,7 @@ char * marshPoint(Point * s,int * size){
 	char * d;
 	int cant = 1 + 1 + 1 + numPlaces(s->x) + numPlaces(s->y);
 	d = calloc (cant,sizeof(char));
-	sprintf(d,"%d%d%c%d",POINT - '0',s->x,SEP,s->y);
+	sprintf(d,"%d%d%c%d",POINT - '0',s->x -'0',SEP,s->y - '0');
 	d[cant -1]='\0';
 	*size = cant;
 	return d;
@@ -234,7 +238,7 @@ char * marshBoard(Board* s,int * size){
 	sprintf(d1,"%d%d%c%d%c",BOARD - '0',s->rows, SEP, s->columns,SEP);
 	for(i=0;i<s->rows;i++){
 		for(j=0;j<s->columns;j++){
-			d2[j + i*(s->rows)]= (s->board)[i][j];
+			d2[j + i*(s->rows)]= (s->board)[i][j] + '0';
 		}
 	}
 	strcat(d1,d2);
