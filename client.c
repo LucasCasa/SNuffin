@@ -10,7 +10,7 @@ Connection * c;
 char * address;
 int f2;
 
-Player * players[4];
+Player * players[OTHER_PLAYERS];
 
 StreamData * buffer;
 
@@ -57,7 +57,7 @@ void game(int slot){
 	if(rta == 0){
 		printf("Error conectandose con el servidor\n");
 	}
-	rData(c,buffer);
+	readData(c,buffer);
 	unmarshServerId(buffer->data, &s);
 	c->fd = -1;
 	do{c = connectToPeer(address,s);}while(c->fd==-1);
@@ -102,7 +102,7 @@ void startGame(){
 				//solo se manda el punto nuevo si se cambia de direccion
 				sendData(c,marshalling(p,POINT));
 			}
-			rData(c,buffer);
+			readData(c,buffer);
 			rta = unmarshBoard(buffer->data,b);
 			if(rta == 1){
 				printBoard(b);
@@ -127,7 +127,7 @@ void getInformation(){
 	if(rta == 0)
 		printf("Error conectandose con el servidor\n");
 
-	rData(c,buffer);
+	readData(c,buffer);
 	rta = unmarshBoolean(buffer->data,&belongs);
 	if(belongs){
 		printf("Ingrese su contraseña para poder ingresar\n");
@@ -141,7 +141,7 @@ void getInformation(){
 	if(rta == 0)
 		printf("Error conectandose con el servidor\n");
 
-	rData(c,buffer);
+	readData(c,buffer);
 	rta = unmarshBoolean(buffer->data,&belongs2);
 
 	if(belongs2 && !belongs){
@@ -157,7 +157,7 @@ void getInformation(){
 			rta = sendData(c,marshalling(password,STRING));
 			if(rta == 0)
 				printf("Error conectandose con el servidor\n");
-			rData(c,buffer);
+			readData(c,buffer);
 			unmarshBoolean(buffer->data,&w_pass);
 		}while(w_pass == 0);
 		printf("Ha podido ingrear correctamente\n");
@@ -199,11 +199,13 @@ void getName(char * name){
 
 void prepareLobby(){
 	int i=0,rta = 1;
-	while(i<4 && rta){
-		rData(c,buffer);
+	printf("El partido comenzará cuando se llene el lobby.\n");
+	while(i<OTHER_PLAYERS && rta){
+		readData(c,buffer);
 		players[i] = calloc(1,sizeof(Player));
 		(players[i])->name = calloc(MAX_WORD,sizeof(char));
 		rta = unmarshPlayer(buffer->data,players[i]);
+		printf("El jugador %s se unió a la sala.  Faltan %d jugadores para comenzar.\n",players[i]->name,OTHER_PLAYERS-i-1);
 		i++;
 	}
 	//seteo los colores
@@ -246,61 +248,6 @@ int kbhit (void){
   select(STDIN_FILENO+1, &rdfs, NULL, NULL, &tv);
   return FD_ISSET(STDIN_FILENO, &rdfs);
 
-}
-
-void rData(Connection * conn, StreamData * sd){
-    static char ** readBuffer;
-    static int rBuffSize=0;
-    static int currentPos=0;
-    if(readBuffer==NULL || currentPos==rBuffSize){
-        for(int i=0; i<rBuffSize; i++){
-            free(readBuffer[i]);
-        }
-        free(readBuffer);
-        receiveData(conn,sd);
-        printf("\n");
-        readBuffer = split(sd->data,&rBuffSize, sd->size+1); // el char* data lo divide por los '\0' y los almacena en el readBuffer
-        currentPos = 0;
-    }
-    sd->size = strlen(readBuffer[currentPos]);
-    memcpy(sd->data,readBuffer[currentPos],sd->size);
-    currentPos++;
-}
-
-/** Divides the source by '\0' and returns a pointer to the array
-    of char* where they are stored, setting the amount*/
-char ** split(char * source, int*amount, int size){
-    int auxCounter=0, resSize=BLOCK;
-    int totalStrings=0;
-    char * aux = calloc(size,1);
-    char ** res = malloc(BLOCK*sizeof(char*));
-    for(int i=0; i<size; i++){
-        if(source[i]!='\0'){
-            aux[auxCounter++] = source[i];
-        }else{
-            if(totalStrings==resSize){
-                res = realloc(res,(sizeof(char*))*(totalStrings+BLOCK));
-                resSize = totalStrings+BLOCK;
-            }
-            res[totalStrings] = calloc(auxCounter+1,1);
-            strcpy(res[totalStrings],aux);
-            clearArr(aux,size);
-            totalStrings++;
-            auxCounter = 0;
-        }
-    }
-    res = realloc(res,sizeof(char*)*totalStrings);
-    *amount = totalStrings;
-    return res;
-}
-
-void clearArr(char * arr,int size){
-    int i=0;
-    if(arr == NULL)
-        return;
-    while(i<size){
-        arr[i++] = 0;
-    }
 }
 
 void printBoard(Board *b){

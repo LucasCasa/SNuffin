@@ -22,6 +22,7 @@
 #include "dbconst.h"
 #include <sys/select.h>
 #include <sys/wait.h>
+#include "comWrapper.h"
 
 #define MAX_LOBBY    10
 

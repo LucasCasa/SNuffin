@@ -23,8 +23,8 @@ void closeConn(Connection * c);
 int  sendData(Connection * connection, StreamData * req);
 Connection * acceptConnection(Connection *c);
 void receiveData(Connection * connection, StreamData * buffer);
-void setFDs(fd_set * set, Connection ** connections);
-Connection * getConnByFD(int fd, Connection ** conns, int size);
+/*void setFDs(fd_set * set, Connection ** connections);
+Connection * getConnByFD(int fd, Connection ** conns, int size);*/
 
 #endif
 

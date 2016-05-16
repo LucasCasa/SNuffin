@@ -67,7 +67,7 @@ int main(int argc, const char* argv[]){
 
       Connection *new = acceptConnection(selfc);
       printf("Nueva conexion\n");
-      receiveData(new,buffer);
+      readData(new,buffer);
       printf("Recibi: %s\n",buffer->data);
 
       unmarshServerId(buffer->data,&joinServer);

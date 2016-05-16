@@ -40,7 +40,7 @@ void resolveRequest(int nClient){
    StreamData *d = malloc(sizeof(StreamData));
    d->data = malloc(BUFFER_SIZE);
    int res;
-   receiveData(c,d);
+   readData(c,d);
    int expecting = clients[nClient]->expecting;
    if(expecting == USER){
       res = validateUser(d,nClient);
@@ -164,7 +164,7 @@ int listenToClients(){
            if(clifd>maxFD)
            maxFD = clifd;
            sprintf(aux,"I am Listening to client: %d on FD: %d\n",i,clients[i]->con->fd2);
-           logMsg(aux);
+           //logMsg(aux);
            FD_SET(clients[i]->con->fd2,&cli);
         }else{
           // printf("Client %d is NULL\n",i );
@@ -230,9 +230,13 @@ void notifyNewPlayer(int nPlayer){
 }
 
 void notifyExistingPlayers(int nPlayer){
+  char * aux = calloc(128,1);
+  logMsg("Notyfifying about existing players\n");
   Client *c = clients[nPlayer];
   for(int i = 0; i< MAX_PLAYERS;i++){
     if(clients[i] != NULL && clients[i] != c){
+      sprintf(aux,"Notifying %s about %s", clients[nPlayer]->name,clients[i]->name);
+      logMsg(aux);
       Player* p = CreatePlayerStruct(clients[i],i);
       StreamData *d = marshalling(p,PLAYER);
       sendData(c->con,d);

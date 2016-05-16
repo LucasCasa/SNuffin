@@ -183,8 +183,8 @@ void receiveData(Connection* c, StreamData* b){
       perror("ERROR REC");
     }
   //}
-  printf("Received\n");
-  printf("STRING: %s\n",b->data);
-  printf("SIZE: %d\n",a );
+  //printf("Received\n");
+  //printf("STRING: %s\n",b->data);
+  //printf("SIZE: %d\n",a );
   b->size = strlen(b->data);
 }

@@ -13,10 +13,10 @@
 #include "com.h"
 #include "log.h"
 #include "marshalling.h"
-#include <sys/select.h>
 #include <sys/wait.h>
 #include "dbManager.h"
 #include "serverStructs.h"
+#include "comWrapper.h"
 
 #define MAX_PLAYERS  4
 
