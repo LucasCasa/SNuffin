@@ -98,8 +98,6 @@ void startGame(){
 		//dejo abierto a que me pueda mandar otra cosa
 	}
 	pthread_join(pressedPlayer,NULL);
-	free(p);
-	free(aux);
 	freeBoard(b);
 	changeMode(0);
 }
@@ -133,6 +131,8 @@ void * listenToKeys(void * value){
 			}
 		}
 	}
+	free(p);
+	free(aux);
 	changeMode(0);
 	return NULL;
 }
