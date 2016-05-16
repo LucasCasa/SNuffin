@@ -8,7 +8,7 @@ char ** readBuffer = NULL;
 int rBuffSize=0;
 int currentPos=0;
 
-void readData(Connection * conn, StreamData * sd){
+int readData(Connection * conn, StreamData * sd){
     if(readBuffer==NULL){
         printf("WAITING DATA\n");
         receiveData(conn,sd);
@@ -20,14 +20,11 @@ void readData(Connection * conn, StreamData * sd){
         		printf("%c",sd->data[i]);
         }
         printf("\n");
-        printf("Size %d\n",sd->size );
         readBuffer = split(sd->data,&rBuffSize, sd->size); // el char* data lo divide por los '\0' y los almacena en el readBuffer
         currentPos = 0;
     }
-    printf("rBuffSize=%d currentPos=%d\n",rBuffSize,currentPos );
     sd->size = strlen(readBuffer[currentPos]);
-
-    memcpy(sd->data,readBuffer[currentPos],sd->size);
+    memcpy(sd->data,readBuffer[currentPos],sd->size+1);
 
     currentPos++;
 
@@ -35,12 +32,16 @@ void readData(Connection * conn, StreamData * sd){
         for(int i=0; i<rBuffSize; i++){
             free(readBuffer[i]);
         }
-
+        printf("Me quede sin datos para dar\n");
         free(readBuffer);
 
         readBuffer = NULL;
         currentPos = 0;
     }
+
+    if(sd->size<=1)
+        return 0;
+    return 1;
 }
 
 /** Divides the source by '\0' and returns a pointer to the array

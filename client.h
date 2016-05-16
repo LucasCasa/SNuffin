@@ -33,7 +33,7 @@
 #define ARCHIVO "./config"
 
 #define MAX_WORD 20
-#define OTHER_PLAYERS 3
+#define MAX_PLAYERS 4
 
 #define PLAYER1_COLOR   "\x1b[31;41m"
 #define PLAYER2_COLOR   "\x1b[32;42m"
@@ -57,10 +57,13 @@ void connHandler(int sig);
 
 void prepareLobby();
 void printLobby();
-int belongs(Player * player,int nPlayers);
+int belongs(Player * player);
 
 void getInformation();
 void getPass(char * pass);
 void getName(char * name);
+
+
+void playerLeft(int leaving);
 
 #endif

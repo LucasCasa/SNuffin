@@ -52,5 +52,6 @@ int validatePassword(StreamData * d,int nClient);
 void notifyNewPlayer(int nPlayer);
 void notifyExistingPlayers(int nPlayer);
 Player* CreatePlayerStruct(Client *c, int number);
+void disconnect(int nClient);
 
 #endif

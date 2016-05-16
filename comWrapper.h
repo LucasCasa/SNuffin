@@ -11,6 +11,6 @@
 
 #define BLOCK 5
 
-void readData(Connection * conn, StreamData * sd);
+int readData(Connection * conn, StreamData * sd);
 
 #endif

@@ -18,6 +18,7 @@ void * unmarshalling(StreamData * d, int * type){
 		return s;
 	}else if(d->data[0] == PLAYER){
 		Player * p = calloc(1,sizeof(Player));
+		p->name = calloc(20,1);
 		*type = PLAYER - '0';
 		unmarshPlayer(d->data,p);
 		return p;

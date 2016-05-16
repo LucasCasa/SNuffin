@@ -35,13 +35,20 @@ void lobby(){
    //NO se cuando empezar el juego LALALALA
 
 }
+
 void resolveRequest(int nClient){
    Connection *c = clients[nClient]->con;
    StreamData *d = malloc(sizeof(StreamData));
    d->data = malloc(BUFFER_SIZE);
    int res;
-   readData(c,d);
+   res = readData(c,d);
    int expecting = clients[nClient]->expecting;
+   if(!res){
+    printf("Calling disconnect\n");
+    disconnect(nClient);
+    printf("Return from disconnect\n");
+    return;
+  }
    if(expecting == USER){
       res = validateUser(d,nClient);
    }else if(expecting == PASSWORD){
@@ -79,18 +86,6 @@ void resolveRequest(int nClient){
    }else{
       fprintf(stderr, "ERROR: expecting not valid\n"); // aca tamnbien iria un messague queue de error
    }
-   if(res == -1){
-      if(d->data[0] == 0){
-      printf("START FREE NAME\n");
-      //free(clients[nClient]->name);
-      printf("FREE NAME\n");
-      free(clients[nClient]->con);
-      printf("FREE CON\n");
-      free(clients[nClient]);
-      printf("FREE CLIENT\n");
-      clients[nClient] = NULL;
-      }
-   }
    free(d->data);
    free(d);
 }
@@ -115,7 +110,7 @@ int validatePassword(StreamData * d,int nClient){
       free(d2);
       return res;
    }
-   free(s);
+   //free(s);
    return -1;
 }
 int validateUser(StreamData * d, int nClient){
@@ -192,6 +187,7 @@ void*  listenNewClients(void* connection){
    while(1){ // game don*t start
 
       if(nPlayers < MAX_PLAYERS){
+         logMsg("Tengo espacio libre");
          Connection *new = acceptConnection(connection);
          logMsg("NUEVO PLAYER WOOOO"); //alto spanglish
          Client *c = malloc(sizeof(Client));
@@ -199,6 +195,8 @@ void*  listenNewClients(void* connection){
          c->state = LOGGING;
          c->expecting = USER;
          clients[nextEmpty] = c;
+      }else{
+         logMsg("No tengo espacio libre");
       }
       nPlayers = 0;
       for(int i = 0; i<MAX_PLAYERS;i++){
@@ -210,7 +208,6 @@ void*  listenNewClients(void* connection){
          }else if(nextEmpty > i){
             nextEmpty = i;
          }
-
       }
       //no hago free porque lo sigo usando
    }
@@ -254,4 +251,22 @@ Player* CreatePlayerStruct(Client *c, int number){
   p->score = c->score;
   p->num = number;
   return p;
+}
+
+void disconnect(int nClient){
+  for(int i=0; i<MAX_PLAYERS; i++){
+    printf("Iterating player %d\n",i);
+    if(i!=nClient && clients[i]!=NULL){
+      printf("Its not nClient\n");
+      char * aux = calloc(10,1);
+      sprintf(aux,"%d",nClient);
+      sendData(clients[i]->con,marshalling(aux,STRING));
+    }
+  }
+  printf("After for\n");
+  free(clients[nClient]->name);
+  free(clients[nClient]->con);
+  free(clients[nClient]);
+  printf("After frees\n");
+  clients[nClient] = NULL;
 }
