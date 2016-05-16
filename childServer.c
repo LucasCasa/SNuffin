@@ -163,9 +163,9 @@ int listenToClients(){
            int clifd = clients[i]->con->fd;
            if(clifd>maxFD)
             maxFD = clifd;
-           sprintf(aux,"I am Listening to client: %d on FD: %d\n",i,clients[i]->con->fd2);
+           sprintf(aux,"I am Listening to client: %d on FD: %d\n",i,clients[i]->con->fd);
            //logMsg(aux);
-           FD_SET(clients[i]->con->fd2,&cli);
+           FD_SET(clients[i]->con->fd,&cli);
         }else{
           // printf("Client %d is NULL\n",i );
         }
