@@ -13,10 +13,10 @@ sockets: log
 	gcc $(TARGET) $(SOCKETS) -o server.out -lrt -lpthread -l sqlite3 -std=gnu99
 
 clientfifo: log
-	gcc $(CLIENT) $(FIFO) -o client.out -Wall -std=gnu99
+	gcc $(CLIENT) $(FIFO) -o client.out -Wall -lpthread -std=gnu99
 
 clientsocket: log
-	gcc $(CLIENT) $(SOCKETS) -o client.out -Wall -std=gnu99
+	gcc $(CLIENT) $(SOCKETS) -o client.out -lpthread -Wall -std=gnu99
 
 log:
 	gcc mqserver.c -o log.out -lrt -Wall -std=gnu99

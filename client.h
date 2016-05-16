@@ -11,6 +11,7 @@
 #include <signal.h>
 
 #include <string.h>
+#include <pthread.h>
 
 #include <netdb.h>
 #include <netinet/in.h>
@@ -62,6 +63,8 @@ int belongs(Player * player);
 void getInformation();
 void getPass(char * pass);
 void getName(char * name);
+
+void * listenToPress(void * value);
 
 
 void playerLeft(int leaving);

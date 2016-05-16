@@ -204,23 +204,16 @@ void getName(char * name){
 }
 
 void prepareLobby(){
+	pthread_t pressedPlayer;
+	gameStart = FALSE;
+	int * finished;
+	pthread_create(&pressedPlayer,NULL,listenToPress,&finished);
 	ready = FALSE;
 	int type;
 	Player * player = calloc(1,sizeof(Player));
 	player-> name = calloc(MAX_WORD,sizeof(char));
 	printf("El partido comenzará cuando se llene el lobby.\n");
-	while(1){
-		changeMode(1);
-		while(!kbhit()){
-			int pressed;
-			pressed = getchar();
-			if(pressed == ENTER){
-				sendData(c,marshalling((void *)&TRUE,BOOLEAN));
-				ready = TRUE;
-			}else if(pressed == 'X'){
-				sendData(c,marshalling((void *)&FALSE,BOOLEAN));
-				ready = FALSE;
-			}
+	while(!gameStart){
 			readData(c,buffer);
 			printf("Lei data\n");
 			printf("unmarshaleo '%s'\n",buffer->data );
@@ -247,15 +240,37 @@ void prepareLobby(){
 				int leaving;
 				sscanf((char*)struc,"%d",&leaving);
 				playerLeft(leaving);
+			}else if(type == BOOLEAN - '0'){
+				gameStart = TRUE;
 			}
 			printLobby();
-
+			if(!kbhit()){
+			int pressed;
 		}
 	}
-	printf("JUEGO EMPEZADO\n");
-	changeMode(0);
+	pthread_join(pressedPlayer,NULL);
+	printf("El juego comenzará en breve\n");
 	free(player->name);
 	free(player);
+}
+
+void * listenToPress(void * value){
+	int pressed;
+	while(!gameStart) /*el juego no arranca */{
+		changeMode(1);
+		while(!kbhit() && !gameStart){
+			pressed = getchar();
+			if(pressed == ENTER && !ready){
+				sendData(c,marshalling((void *)&TRUE,BOOLEAN));
+				ready = TRUE;
+			}else if((pressed == 'X' || pressed == 'x') && ready){
+				sendData(c,marshalling((void *)&FALSE,BOOLEAN));
+				ready = FALSE;
+			}
+		}
+	}
+	changeMode(0);
+	return NULL;
 }
 
 void connHandler(int sig){
