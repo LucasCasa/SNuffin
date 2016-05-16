@@ -2,6 +2,7 @@
 
 Client **clients;
 //SIN PROBLEMAS DE MEMORIA?
+int startGame = 0;
 
 void initServer(int serverNumber){
    clients = malloc(sizeof(Client*) * 4);
@@ -11,29 +12,111 @@ void initServer(int serverNumber){
    clients[3] = NULL; //MAL
 
   connectLogServer();
-  Connection *s = listenConnection(serverNumber); //cambiar cuando este sockets
+  selfc = listenConnection(serverNumber); //cambiar cuando este sockets
   pthread_t listenThread;
   logMsg("Se crea thread startListening");
-  pthread_create(&listenThread, NULL,listenNewClients, s);
+  pthread_create(&listenThread, NULL,listenNewClients, selfc);
 
 }
 
 void lobby(){
    //threads LALALALA
 
-   while(1){
+   while(!startGame){
       logMsg("Arranco el select");
-      int cliNum = listenToClients();
-      if(cliNum != -1){
-         resolveRequest(cliNum);
-      }else{
-         printf("ERROR ON SELECT\n");
-      }
+      listenAndResolve(NULL);
    }
+   initGame();
+
    //select LALALALA
    //Habria que crear una struct para saber cada cliente en que estado esta??? SIII
    //NO se cuando empezar el juego LALALALA
 
+}
+void listenAndResolve(){
+   int cliNum = listenToClients();
+   if(cliNum != -1){
+      resolveRequest(cliNum);
+   }else{
+      printf("ERROR ON SELECT\n");
+   }
+}
+void initGame(){
+   int finished = 0;
+   pthread_t playerMovement;
+   pthread_create(&playerMovement,NULL,listenToMovement,&finished);
+   int nPlayers = 0;
+   struct timespec timer;
+   timer.tv_sec = 0;
+   timer.tv_nsec = 1000000 * UPDATE_MILLISECONDS;
+
+   //start board
+   GameBoard b;
+   GameBoard* board = &b;
+   initBoard(board);
+   for(int i = 0; i<MAX_PLAYERS; i++){
+      if(clients[i] != NULL){
+         nPlayers++;
+         loadSnakeNumber(i+1,board);
+      }
+   }
+   board->numPl = nPlayers;
+
+   while(!finished){
+     nanosleep(&timer,NULL);
+     updateBoard(board);
+     sendBoard(board);
+     finished = gameOver();
+   }
+   for(int i = 0; i< MAX_PLAYERS;i++){
+      if(clients[i] != NULL){
+         if(clients[i]->state != LOOSE){
+            setHighscoreDB(clients[i]->name, clients[i]->score + 10);
+         }else{
+            setHighscoreDB(clients[i]->name, clients[i]->score - 10);
+         }
+      }
+   }
+}
+int gameOver(){
+   int total = 0;
+   int lost = 0;
+   for(int i = 0; i<MAX_PLAYERS;i++){
+      if(clients[i] != NULL){
+         total++;
+         if(clients[i]->state == LOOSE){
+            lost++;
+         }
+      }
+   }
+   return (lost >= total-1);
+}
+void playerLost(int nPlayer){
+   clients[nPlayer]->state = LOOSE;
+}
+void sendBoard(GameBoard * gb){
+   Board* bd = malloc(sizeof(Board));
+   bd->board = malloc(sizeof(char*)*20);
+   for (int i = 0; i<20 ; i++){
+      bd->board[i] = gb->gB[i];
+   }
+   bd->rows = 20;
+   bd->columns = 20;
+   StreamData* s = marshalling(bd,BOARD);
+   for(int i = 0; i<MAX_PLAYERS;i++){
+      if(clients[i] != NULL){
+         sendData(clients[i]->con, s);
+      }
+   }
+   free(bd->board);
+   free(bd);
+}
+void *listenToMovement(void * condition){
+   int cond = *(int*)condition;
+   while(!cond){
+      listenAndResolve();
+   }
+   return NULL;
 }
 
 void resolveRequest(int nClient){
@@ -78,16 +161,49 @@ void resolveRequest(int nClient){
       }
       free(s);
    }else if(expecting == READY_TO_PLAY){
-
+      int value = 0;
+      res = unmarshBoolean(d->data,&value);
+      if(res){
+         if(value){
+            clients[nClient]->state = READY_PLAY;
+            checkGameStart();
+         }else{
+            clients[nClient]->state = WAITING;
+         }
+      }
    }else if(expecting == MOVEMENT){
-      //llamo al que setea los movements de los jugadores
-
-
+      Point p;
+      res = unmarshPoint(d->data,&p);
+      if(res){
+         updateMovementDirection(nClient,p);
+      }
    }else{
       fprintf(stderr, "ERROR: expecting not valid\n"); // aca tamnbien iria un messague queue de error
    }
    free(d->data);
    free(d);
+}
+void checkGameStart(){
+   int nPlayers = 0;
+   int start = 1;
+   for(int i = 0; i<MAX_PLAYERS;i++){
+      if(clients[i] != NULL){
+         nPlayers++;
+         start = start && (clients[i]->state = READY_PLAY);
+      }
+   }
+   if(start && nPlayers > 1){
+      startGame = 1;
+      sendGameStart();
+   }
+}
+void sendGameStart(){
+   for(int i = 0; i<MAX_PLAYERS;i++){
+      if(clients[i] != NULL){
+         StreamData *d = marshalling((void*)&TRUE,BOOLEAN);
+         sendData(clients[i]->con,d);
+      }
+   }
 }
 int validatePassword(StreamData * d,int nClient){
    char *s = malloc(d->size);

@@ -1,6 +1,7 @@
 #ifndef GAME_H
 #define GAME_H
 
+#include "structs.h"
 #define BOARD_WIDTH   20
 #define BOARD_HEIGHT  20
 #define TAIL_CHAR     '-'
@@ -14,30 +15,24 @@
 /* I should mark the head somehow*/
 
 
-typedef struct Point{
-  int x;
-  int y;
-}Point;
-
-typedef struct Board{
+typedef struct GameBoard{
 char bB[BOARD_HEIGHT][BOARD_WIDTH];
 char gB[BOARD_HEIGHT][BOARD_WIDTH];
 char numPl;
 char pDef[4];
 Point *pDir[4];
 Point *pPos[4];
-}Board;
+}GameBoard;
 
-
-int game(Board *b);
-void initBoard(Board* b);
-int gameOver();
-char* getPlayerColor(int pNum);
-void printBoard(Board *b);
-void updateBoard(Board* b);
-void loadSnake(Point start, Point* end, int pNum,Board *b);
-int loadGame(int numPl,Board *b);
-void chageDirection(int pNum, Point p);
-void printPlayerColor(int pNum);
+extern void playerLost(int);
+void initBoard(GameBoard* b);
+void loadSnakeNumber(int nSnake,GameBoard* b);
+/*char* getPlayerColor(int pNum);
+void printBoard(GameBoard *b);*/
+void updateBoard(GameBoard* b);
+void loadSnake(Point start, Point* end, int pNum,GameBoard *b);
+void updateMovementDirection(int pNum, Point p);
+int outOfBoard(Point* pPos);
+//void printPlayerColor(int pNum);
 
 #endif

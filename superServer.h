@@ -34,12 +34,12 @@ extern const int TRUE;
 extern const int FALSE;
 
 
-
+extern Connection* selfc;
 extern char* shmPointer;
 
 
 void setDB();
 void * waitForChild(void* pid);
-
+void connHandler(int sig);
 
 #endif

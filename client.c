@@ -15,6 +15,7 @@ Player * players[MAX_PLAYERS];
 int value;
 int nPlayers=0;
 int ready;
+int gameStart;
 
 StreamData * buffer;
 

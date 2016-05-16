@@ -17,10 +17,11 @@
 #include "dbManager.h"
 #include "serverStructs.h"
 #include "comWrapper.h"
+#include "game.h"
 
 #define MAX_PLAYERS  4
 
-
+extern Connection* selfc;
 /*Defino lo que puedo llegar a esperar del cliente*/
 
 #define USER            1
@@ -45,6 +46,15 @@
 void* listenNewClients(void*);
 void initServer(int serverNumber);
 void lobby();
+void listenAndResolve();
+void initGame();
+int gameOver();
+void playerLost(int nPlayer);
+void sendBoard(GameBoard * gb);
+void *listenToMovement(void * condition);
+void checkGameStart();
+void sendGameStart();
+
 int listenToClients();
 void resolveRequest(int nClient);
 int validateUser(StreamData * d,int nClient);
@@ -54,4 +64,6 @@ void notifyExistingPlayers(int nPlayer);
 Player* CreatePlayerStruct(Client *c, int number);
 void disconnect(int nClient);
 
+
+extern Board* b;
 #endif

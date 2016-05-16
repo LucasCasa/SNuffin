@@ -1,4 +1,4 @@
-TARGET = superServer.c childServer.c db.c log.c marshalling.c dbManager.c comWrapper.c
+TARGET = superServer.c childServer.c db.c log.c marshalling.c dbManager.c comWrapper.c game.c
 CLIENT = client.c marshalling.c comWrapper.c
 FIFO = comFIFO.c
 SOCKETS = comSocket.c
