@@ -215,9 +215,9 @@ int unmarshBoard(char * data, Board * b){
 
 char * marshPoint(Point * s,int * size){
 	char * d;
-	int cant = 1 + 1 + 1 + numPlaces(s->x) + numPlaces(s->y);
+	int cant = 1 + 1 + 1 + numPlaces(s->x + '0') + numPlaces(s->y + '0');
 	d = calloc (cant,sizeof(char));
-	sprintf(d,"%d%d%c%d",POINT - '0',s->x -'0',SEP,s->y - '0');
+	sprintf(d,"%d%d%c%d",POINT - '0',s->x + '0',SEP,s->y + '0');
 	d[cant -1]='\0';
 	*size = cant;
 	return d;
@@ -280,7 +280,7 @@ char * marshBoolean(int value,int * size){
 }
 
  int numPlaces (int n) {
-    if (n < 0) return numPlaces ((n == INT_MIN) ? INT_MAX : -n);
+    if (n < 0) return numPlaces ((n == INT_MIN) ? INT_MAX : -n) + 1;
     if (n < 10) return 1;
     return 1 + numPlaces (n / 10);
 }
