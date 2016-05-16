@@ -3,7 +3,7 @@
 
 #include <sys/select.h>
 
-#define BUFFER_SIZE 256
+#define BUFFER_SIZE 1024
 
 typedef struct {
 	int fd;

@@ -362,21 +362,21 @@ void printBoard(Board *b){
 	for(i = 0;i<b->rows;i++){
 		if(i==0){
 			for(j=0;j<=b->columns;j++){
-				printf("__");
+				printf( BORDER_COLOR "__" COLOR_RESET);
 			}
 			printf("\n");
 		}
 		for(j = 0; j<b->columns;j++){
 			if(j ==0){
-				printf("|");
+				printf( BORDER_COLOR"|" COLOR_RESET);
 			}
 			printPlayerColor(b->board[i][j]);
 		}
-		printf("|");
+		printf(BORDER_COLOR"|" COLOR_RESET);
 		printf("\n");
 	}
 	for(j=0;j<=b->rows;j++){
-		printf("__");
+		printf(BORDER_COLOR "__" COLOR_RESET);
 	}
 	printf("\n");
 }

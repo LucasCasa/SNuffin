@@ -40,6 +40,7 @@
 #define PLAYER2_COLOR   "\x1b[32;42m"
 #define PLAYER3_COLOR   "\x1b[34;44m"
 #define PLAYER4_COLOR   "\x1b[35;45m"
+#define BORDER_COLOR   "\x1b[37;47m"
 #define COLOR_RESET     "\x1b[0m"
 
 void changeMode(int dir);

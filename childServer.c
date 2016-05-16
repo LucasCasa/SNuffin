@@ -332,12 +332,15 @@ void*  listenNewClients(void* connection){
    }
    pthread_exit(NULL);
 }
+/** Notifica a los jugadores que estan en el lobby que ingreso un nuevo jugador
+Adicionalmente se utiliza para avisar que se actualizo el valor de ready de
+un jugador*/
 void notifyNewPlayer(int nPlayer){
   Client *c = clients[nPlayer];
   Player* p = CreatePlayerStruct(c,nPlayer);
   StreamData *d = marshalling(p,PLAYER);
   for(int i = 0; i< MAX_PLAYERS;i++){
-    if(clients[i] != NULL && clients[i] != c){
+    if(clients[i] != NULL && clients[i]->state != LOGGING && clients[i] != c){
       sendData(clients[i]->con,d);
     }
   }
@@ -345,7 +348,7 @@ void notifyNewPlayer(int nPlayer){
   free(d->data);
   free(d);
 }
-
+/** Notifica al nuevo jugador de los jugadores que ya se encuentran en el lobby*/
 void notifyExistingPlayers(int nPlayer){
   char * aux = calloc(128,1);
   logMsg("Notyfifying about existing players\n");
