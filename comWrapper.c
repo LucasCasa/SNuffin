@@ -10,9 +10,9 @@ int currentPos=0;
 
 int readData(Connection * conn, StreamData * sd){
     if(readBuffer==NULL){
-        printf("WAITING DATA\n");
+        //printf("WAITING DATA\n");
         receiveData(conn,sd);
-        printf("RECEIVE DATA: ");
+        //printf("RECEIVE DATA: ");
         for(int i=0;i<sd->size;i++){
         	if(sd->data[i]==0)
         		printf("{0}");
@@ -32,7 +32,7 @@ int readData(Connection * conn, StreamData * sd){
         for(int i=0; i<rBuffSize; i++){
             free(readBuffer[i]);
         }
-        printf("Me quede sin datos para dar\n");
+        //printf("Me quede sin datos para dar\n");
         free(readBuffer);
 
         readBuffer = NULL;
@@ -61,7 +61,7 @@ char ** split(char * source, int*amount, int size){
             }
             res[totalStrings] = calloc(auxCounter+2,1);
             memcpy(res[totalStrings],aux,auxCounter+1);
-            printf("%s\n",res[totalStrings]);
+            //printf("%s\n",res[totalStrings]);
             clearArr(aux,size);
             totalStrings++;
             auxCounter = 0;

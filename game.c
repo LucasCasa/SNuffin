@@ -129,6 +129,7 @@ void updateBoard(GameBoard* b){
 void updateMovementDirection(int nPlayer, Point p){
    gameBoard->pPos[nPlayer]->x = p.x;
    gameBoard->pPos[nPlayer]->y = p.y;
+   printf("Movimiento Updateado se mueve en %d %d\n",p.x,p.y);
 }
 void printBoard(char** b){
   //system("clear");

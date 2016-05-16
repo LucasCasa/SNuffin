@@ -19,18 +19,18 @@ char* addr2 = NULL;
 
 Connection * listenConnection(int id){
   char* aux = malloc(strlen(ADDR) + 7);
-  printf("Malloquee\n");
+  //printf("Malloquee\n");
   if(id == 0){
     memcpy(aux,ADDR,strlen(ADDR));
   }else{
     sprintf(aux,"%s%d",ADDR,id);
   }
-  printf("Setee ADDr\n");
+  //printf("Setee ADDr\n");
    mkfifo(aux,0666);
-   printf("Hice FIFO, %s\n",aux);
+   //printf("Hice FIFO, %s\n",aux);
    Connection *c = malloc(sizeof(Connection));
    c->fd = open(aux,0666);
-   printf("Setee fd %d\n",c->fd2);
+   //printf("Setee fd %d\n",c->fd2);
    addr1 = aux;
    return c;
 }

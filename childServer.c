@@ -100,7 +100,7 @@ void sendBoard(GameBoard * gb){
    for (int i = 0; i<20 ; i++){
       bd->board[i] = gb->gB[i];
    }
-   printBoard(bd->board);
+   //printBoard(bd->board);
    bd->rows = 20;
    bd->columns = 20;
    StreamData* s = marshalling(bd,BOARD);
@@ -180,6 +180,7 @@ void resolveRequest(int nClient){
       Point p;
       res = unmarshPoint(d->data,&p);
       if(res){
+         printf("RECIBI UN MOVIMIENTOOO\n");
          updateMovementDirection(nClient,p);
       }
    }else{
@@ -206,6 +207,8 @@ void sendGameStart(){
     printf("Sending game start\n");
    for(int i = 0; i<MAX_PLAYERS;i++){
       if(clients[i] != NULL){
+         clients[i]->state = PLAYING;
+         clients[i]->expecting = MOVEMENT;
          StreamData *d = marshalling((void*)&TRUE,BOOLEAN);
          sendData(clients[i]->con,d);
       }
