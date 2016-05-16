@@ -27,12 +27,12 @@ Point *pPos[4];
 extern void playerLost(int);
 void initBoard(GameBoard* b);
 void loadSnakeNumber(int nSnake,GameBoard* b);
-/*char* getPlayerColor(int pNum);
-void printBoard(GameBoard *b);*/
+char* getPlayerColor(int pNum);
+void printBoard(char** b);
 void updateBoard(GameBoard* b);
 void loadSnake(Point start, Point* end, int pNum,GameBoard *b);
 void updateMovementDirection(int pNum, Point p);
 int outOfBoard(Point* pPos);
-//void printPlayerColor(int pNum);
+void printPlayerColor(int pNum);
 
 #endif

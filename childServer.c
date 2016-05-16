@@ -100,6 +100,7 @@ void sendBoard(GameBoard * gb){
    for (int i = 0; i<20 ; i++){
       bd->board[i] = gb->gB[i];
    }
+   printBoard(bd->board);
    bd->rows = 20;
    bd->columns = 20;
    StreamData* s = marshalling(bd,BOARD);

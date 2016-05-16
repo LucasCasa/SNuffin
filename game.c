@@ -130,51 +130,51 @@ void updateMovementDirection(int nPlayer, Point p){
    gameBoard->pPos[nPlayer]->x = p.x;
    gameBoard->pPos[nPlayer]->y = p.y;
 }
-// void printBoard(Board *b){
-//   //system("clear");
-//   printf("Start\n");
-//   for(int i = 0;i<BOARD_WIDTH;i++){
-//     for(int j = 0; j<BOARD_HEIGHT;j++){
-//       printPlayerColor(b->gB[i][j]);
-//       //b->graphicBoard[i][j]
-//     }
-//     printf("\n");
-//   }
-//
-// }
-// char* getPlayerColor(int pNum){
-//   switch (pNum) {
-//     case 1:
-//     return PLAYER1_COLOR;
-//     case 2:
-//     return PLAYER2_COLOR;
-//     case 3:
-//     return PLAYER3_COLOR;
-//     case 4:
-//     return PLAYER4_COLOR;
-//     default:
-//     return COLOR_RESET;
-//
-//   }
-// }
-// void printPlayerColor(int pNum){
-//   switch (pNum) {
-//     case 1:
-//       printf(PLAYER1_COLOR "aa" COLOR_RESET);
-//     break;
-//     case 2:
-//       printf(PLAYER2_COLOR "vv" COLOR_RESET);
-//     break;
-//     case 3:
-//       printf(PLAYER3_COLOR "cc" COLOR_RESET);
-//     break;
-//     case 4:
-//       printf(PLAYER4_COLOR "dd" COLOR_RESET);
-//     break;
-//     default:
-//     printf("  ");
-//   }
-// }
+void printBoard(char** b){
+  //system("clear");
+  printf("Start\n");
+  for(int i = 0;i<BOARD_WIDTH;i++){
+    for(int j = 0; j<BOARD_HEIGHT;j++){
+      printPlayerColor(b[i][j]);
+      //b->graphicBoard[i][j]
+    }
+    printf("\n");
+  }
+
+}
+char* getPlayerColor(int pNum){
+  switch (pNum) {
+    case 1:
+    return PLAYER1_COLOR;
+    case 2:
+    return PLAYER2_COLOR;
+    case 3:
+    return PLAYER3_COLOR;
+    case 4:
+    return PLAYER4_COLOR;
+    default:
+    return COLOR_RESET;
+
+  }
+}
+void printPlayerColor(int pNum){
+  switch (pNum) {
+    case 1:
+      printf(PLAYER1_COLOR "aa" COLOR_RESET);
+    break;
+    case 2:
+      printf(PLAYER2_COLOR "vv" COLOR_RESET);
+    break;
+    case 3:
+      printf(PLAYER3_COLOR "cc" COLOR_RESET);
+    break;
+    case 4:
+      printf(PLAYER4_COLOR "dd" COLOR_RESET);
+    break;
+    default:
+    printf("  ");
+  }
+}
 
 int outOfBoard(Point* pPos){
   return pPos->x < 0 || pPos->x >= BOARD_WIDTH || pPos->y < 0 || pPos->y >= BOARD_HEIGHT;
