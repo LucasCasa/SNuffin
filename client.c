@@ -48,6 +48,9 @@ void game(){
 	int s, won;
 	FILE * f;
 	int rta;
+
+	printf("Bienvenido a SNuffin!\n\n");
+
 	f = fopen(ARCHIVO, "r");
 	if(f == NULL){
 		perror("config");
