@@ -86,11 +86,9 @@ void startGame(){
 	playingGame =1;
 	int * finished;
 	pthread_create(&pressedPlayer,NULL,listenToKeys,&finished);
-	int pressed,rta;
+	int rta;
 	Board * b = calloc(1,sizeof(Board));
 	//initializeBoard(b);
-	Point * p = calloc(1,sizeof(Point));
-	Point * aux = calloc(1,sizeof(Point));
 	while(playingGame){
 		readData(c,buffer);
 		rta = unmarshBoard(buffer->data,b);
@@ -108,6 +106,8 @@ void startGame(){
 
 void * listenToKeys(void * value){
 	int pressed;
+	Point * p = calloc(1,sizeof(Point));
+	Point * aux = calloc(1,sizeof(Point));
 	while(playingGame) /*el juego no arranca */{
 		pressed=getchar();
 		changeMode(1);
@@ -259,9 +259,6 @@ void prepareLobby(){
 				gameStart = TRUE;
 			}
 			printLobby();
-			if(!kbhit()){
-			int pressed;
-		}
 	}
 	pthread_join(pressedPlayer,NULL);
 	printf("El juego comenzará en breve\n");
