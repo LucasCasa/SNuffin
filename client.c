@@ -144,7 +144,7 @@ void * listenToKeys(void * value){
 void getInformation(){
 	char * name = calloc (MAX_WORD,sizeof(char));
    	char * password = calloc(MAX_WORD,sizeof(char));
-   	char * myName = calloc(MAX_WORD,sizeof(char));
+ 	myName = calloc(MAX_WORD,sizeof(char));
    	int belongs=0,belongs2=0,rta;
 
    	getName(name);
