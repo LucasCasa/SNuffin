@@ -134,16 +134,12 @@ int unmarshPoint(char * data, Point * p){
 		num[j]=data[i];
 	}
 	long m= strtol(num, &endptr,10);
-	if(p->x == 0){
-		p->x = (int)m + '0';
-	}else{
-		p->x = (int)m;
-	}
+	p->x = (int) m + '0';
 	for(i = i+1,j=0;data[i]!='\0';i++,j++){
 		num[j]=data[i];
 	}
 	m=strtol(num,&endptr,10);
-	p->y =(int)m;
+	p->y =(int)m + '0';
 	return 1;
 
 }
