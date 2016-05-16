@@ -84,7 +84,6 @@ void game(){
 
 void startGame(){
 	pthread_t pressedPlayer;
-	changeMode(1);
 	playingGame =1;
 	int * finished;
 	pthread_create(&pressedPlayer,NULL,listenToKeys,&finished);
@@ -101,7 +100,6 @@ void startGame(){
 	}
 	pthread_join(pressedPlayer,NULL);
 	freeBoard(b);
-	changeMode(0);
 }
 
 void * listenToKeys(void * value){
