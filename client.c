@@ -109,7 +109,6 @@ void * listenToKeys(void * value){
 	Point * p = calloc(1,sizeof(Point));
 	Point * aux = calloc(1,sizeof(Point));
 	while(playingGame) /*el juego no arranca */{
-		changeMode(1);
 		while(!kbhit() && playingGame){
 			pressed=getchar();
 			if(pressed == DOWN_ARROW ){
@@ -137,7 +136,6 @@ void * listenToKeys(void * value){
 	}
 	free(p);
 	free(aux);
-	changeMode(0);
 	return NULL;
 }
 
@@ -383,16 +381,16 @@ void printBoard(Board *b){
 
 void printPlayerColor(int pNum){
 	switch (pNum) {
-		case '1':
+		case 1:
 		printf(PLAYER1_COLOR "aa" COLOR_RESET);
 		break;
-		case '2':
+		case 2:
 		printf(PLAYER2_COLOR "vv" COLOR_RESET);
 		break;
-		case '3':
+		case 3:
 		printf(PLAYER3_COLOR "cc" COLOR_RESET);
 		break;
-		case '4':
+		case 4:
 		printf(PLAYER4_COLOR "dd" COLOR_RESET);
 		break;
 		default:
@@ -409,7 +407,7 @@ void printLobby(){
 	for(i=0;i<MAX_PLAYERS;i++){
 		if(players[i] != NULL){
 		printf("\t");
-		printPlayerColor(i+1 + '0');
+		printPlayerColor(i+1);
 		printf(" %s \t    %d", players[i]->name,players[i]->score);
 		if(players[i]->ready){
 			printf("\t\t   x");
