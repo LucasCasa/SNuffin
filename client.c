@@ -11,6 +11,8 @@ char * address;
 int f2;
 
 Player * players[4];
+int nPlayers=0;
+int value;
 
 StreamData * buffer;
 
@@ -21,19 +23,19 @@ int main(int argc, char const *argv[]){
 	}else{
 		slot = "1"; //el default.
 	}
-	int value = atoi(slot);
+	value = atoi(slot);
 
 	buffer = calloc(1,sizeof(StreamData));
 	buffer->data = calloc(BUFFER,sizeof(char));
 	signal(SIGINT, connHandler);
 
-	game(value);
+	game();
 	free(buffer->data);
 	free(buffer);
 	return 0;
 }
 
-void game(int slot){
+void game(){
 	char * aux;
 	int s;
 	FILE * f;
@@ -53,7 +55,7 @@ void game(int slot){
 
 	c = connectToPeer(address,f2);
 
-	rta = sendData(c,marshalling(&slot,SERVER_ID));
+	rta = sendData(c,marshalling(&value,SERVER_ID));
 	if(rta == 0){
 		printf("Error conectandose con el servidor\n");
 	}
@@ -205,6 +207,8 @@ void prepareLobby(){
 		(players[i])->name = calloc(MAX_WORD,sizeof(char));
 		rta = unmarshPlayer(buffer->data,players[i]);
 		i++;
+		nPlayers++;
+		printLobby();
 	}
 	//seteo los colores
 	printf("Pulsa cualquier tecla para empezar a jugar\n");
@@ -347,6 +351,27 @@ void printPlayerColor(int pNum){
      		printf("  ");
      		break;
     }
+}
+
+void printLobby(){
+  int i,j;
+  system("clear");
+  printf("LOBBY NUMERO %d\n\n",value);
+  for(i=0;i<nPlayers;i++){
+    printf("\t");
+    printPlayerColor(i+1 + '0');
+    printf(" %s \t PUNTAJE: %d", players[i]->name,players[i]->score);
+    printf("\t READY");
+    printf("\n\n");
+  }
+  for(j=nPlayers;j<4;j++){
+    printf("\t   ");
+    printf("FREE\n\n");
+  }
+
+  printf(" -PRESS <ENTER> WHEN READY\n\n");
+  printf(" -PRESS <X> TO CANCEL\n\n");
+
 }
 
 void initializeBoard(Board * b){
