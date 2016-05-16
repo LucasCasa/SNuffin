@@ -405,7 +405,7 @@ void printPlayerColor(int pNum){
 
 void printLobby(){
 	int i;
-	//system("clear");
+	system("clear");
 	printf("LOBBY NUMERO %d\n\n",value);
 	printf("\tJUGADOR \t PUNTAJE \t READY \t\n\n");
 	for(i=0;i<MAX_PLAYERS;i++){
