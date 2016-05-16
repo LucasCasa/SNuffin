@@ -337,7 +337,11 @@ void printLobby(int nPlayers){
     printf("\t");
     printPlayerColor(i+1 + '0');
     printf(" %s \t    %d", players[i]->name,players[i]->score);
-    printf("\t\t   X");
+    if(players[i]->ready){
+    	printf("\t\t   x");
+    }else{
+    	printf("\t\t    ");
+    }
     printf("\n\n");
   }
   for(j=nPlayers;j<OTHER_PLAYERS;j++){
