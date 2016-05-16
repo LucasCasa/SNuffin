@@ -18,6 +18,7 @@ int setHighscore(char * player,int highscore);
 int init();
 int manageDataBase();
 int close2();
+int cmp(char* a,char*b);
 //static int callback(void *NotUsed, int argc, char **argv, char **azColName);
 int printError(int rv);
 void loadInt(char* pos, int value);

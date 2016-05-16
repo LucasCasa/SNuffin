@@ -48,9 +48,6 @@ void game(){
 	int s, won;
 	FILE * f;
 	int rta;
-
-	printf("Bienvenido a SNuffin!\n\n");
-
 	f = fopen(ARCHIVO, "r");
 	if(f == NULL){
 		perror("config");
@@ -65,6 +62,9 @@ void game(){
 	fscanf(f,"%d",&f2);
 
 	c = connectToPeer(address,f2);
+	if(c == NULL){
+		exit(1);
+	}
 
 	rta = sendData(c,marshalling(&value,SERVER_ID));
 	if(rta == 0){
@@ -90,16 +90,13 @@ int startGame(){
 	void * rta;
 	int type, won;
 	while(playingGame){
-		printf("Antes readData\n"); //
 		readData(c,buffer);
-		printf("Despues readData\n"); // 
 		rta = unmarshalling(buffer,&type);
 		if(type == BOARD-'0'){
 			rta = (Board*)rta;
 			printBoard(rta);
 			free(rta);
 		}else if(type == BOOLEAN-'0'){
-			printf("Recibí boolean!\n");
 			won = *((int*)rta);
 			playingGame = 0;
 		}
@@ -360,6 +357,7 @@ int kbhit (void){
 void printBoard(Board *b){
 	int i;
 	int j;
+	system("clear");
 	printf("SNUFFIN %d %d\n",b->rows, b->columns);
 	for(i = 0;i<b->rows;i++){
 		if(i==0){
