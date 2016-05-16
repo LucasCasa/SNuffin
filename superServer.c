@@ -11,6 +11,11 @@ int listenLocation;
 int main(int argc, const char* argv[]){
   printf("Inicializando servidor...\n");
 
+  if(access("./config",F_OK)==-1){  // confing no existe
+    printf("No existe archivo config.\n");
+    exit(EXIT_FAILURE);
+   }
+
     int joinServer = 0;
    /* map into memory */
    shmPointer = mmap(NULL,SH_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANON, -1, 0);
@@ -30,6 +35,8 @@ int main(int argc, const char* argv[]){
    setDB();
    FILE * fp;
    char * srvAddr = malloc(BUFFER_SIZE);
+
+
 
    fp = fopen("./config", "r");
    if (fp == NULL)
