@@ -144,6 +144,7 @@ int validateUser(StreamData * d, int nClient){
       clients[nClient]->name = malloc(strlen(s) + 1);
       memcpy(clients[nClient]->name, s, strlen(s) +1);
       free(s);
+      return 0;
    }else{
       return -1;
       free(s);
@@ -234,7 +235,7 @@ void notifyExistingPlayers(int nPlayer){
   logMsg("Notyfifying about existing players\n");
   Client *c = clients[nPlayer];
   for(int i = 0; i< MAX_PLAYERS;i++){
-    if(clients[i] != NULL && clients[i] != c){
+    if(clients[i] != NULL){
       sprintf(aux,"Notifying %s about %s", clients[nPlayer]->name,clients[i]->name);
       logMsg(aux);
       Player* p = CreatePlayerStruct(clients[i],i);

@@ -175,9 +175,6 @@ int sendData(Connection* c,StreamData* d){
 
 void receiveData(Connection* c, StreamData* b){
   int a = -1;
-  /*if(c->fd2 == 0){
-    a = read(fdr, b->data,BUFFER_SIZE);
-  }else{*/
     a = read(c->fd, b->data,BUFFER_SIZE);
     if(a == 256){
       perror("ERROR REC");
@@ -188,10 +185,3 @@ void receiveData(Connection* c, StreamData* b){
   //printf("SIZE: %d\n",a );
   b->size = strlen(b->data);
 }
-/*
- void setFDs(fdset * set, Connection ** conns, int size){
-      for(int i = 0; i<size; i++){
-         FD_SET(set, conns[i]->fd);
-      }
- }
-*/

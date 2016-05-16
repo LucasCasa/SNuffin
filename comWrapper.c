@@ -11,6 +11,7 @@ int currentPos=0;
 void readData(Connection * conn, StreamData * sd){
     if(readBuffer==NULL){
         free(readBuffer);
+        printf("WAITING DATA\n");
         receiveData(conn,sd);
         printf("RECEIVE DATA: ");
         for(int i=0;i<sd->size;i++){
