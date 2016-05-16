@@ -16,6 +16,7 @@ int value;
 int nPlayers=0;
 int ready;
 int gameStart;
+int playingGame;
 
 StreamData * buffer;
 
@@ -80,16 +81,37 @@ void game(){
 }
 
 void startGame(){
+	pthread_t pressedPlayer;
 	changeMode(1);
-	int game = 1;
+	playingGame =1;
+	int * finished;
+	pthread_create(&pressedPlayer,NULL,listenToKeys,&finished);
 	int pressed,rta;
 	Board * b = calloc(1,sizeof(Board));
 	//initializeBoard(b);
 	Point * p = calloc(1,sizeof(Point));
 	Point * aux = calloc(1,sizeof(Point));
-	while(game){
-		while(!kbhit() && game){
-			pressed=getchar();
+	while(playingGame){
+		readData(c,buffer);
+		rta = unmarshBoard(buffer->data,b);
+		if(rta == 1){
+			printBoard(b);
+		}
+		//dejo abierto a que me pueda mandar otra cosa
+	}
+	pthread_join(pressedPlayer,NULL);
+	free(p);
+	free(aux);
+	freeBoard(b);
+	changeMode(0);
+}
+
+void * listenToKeys(void * value){
+	int pressed;
+	while(playingGame) /*el juego no arranca */{
+		pressed=getchar();
+		changeMode(1);
+		while(!kbhit() && playingGame){
 			if(pressed == DOWN_ARROW ){
 				p->x = 0;
 				p->y = 1;
@@ -109,18 +131,10 @@ void startGame(){
 				//solo se manda el punto nuevo si se cambia de direccion
 				sendData(c,marshalling(p,POINT));
 			}
-			readData(c,buffer);
-			rta = unmarshBoard(buffer->data,b);
-			if(rta == 1){
-				printBoard(b);
-			}
-			//dejo abierto a que me pueda mandar otra cosa
 		}
 	}
-	free(p);
-	free(aux);
-	freeBoard(b);
 	changeMode(0);
+	return NULL;
 }
 
 void getInformation(){

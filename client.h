@@ -65,6 +65,7 @@ void getPass(char * pass);
 void getName(char * name);
 
 void * listenToPress(void * value);
+void * listenToKeys(void * value);
 
 
 void playerLeft(int leaving);
