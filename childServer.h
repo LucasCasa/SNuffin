@@ -48,7 +48,7 @@ void initServer(int serverNumber);
 void lobby();
 void listenAndResolve();
 void initGame();
-int gameOver();
+int isgameOver();
 void playerLost(int nPlayer);
 void sendBoard(GameBoard * gb);
 void *listenToMovement(void * condition);

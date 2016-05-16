@@ -59,33 +59,34 @@ void initGame(){
      nanosleep(&timer,NULL);
      updateBoard(board);
      sendBoard(board);
-     finished = gameOver();
+     finished = isgameOver();
    }
+   logMsg("Game over");
    for(int i = 0; i< MAX_PLAYERS;i++){
       if(clients[i] != NULL){
+        StreamData * sd;
          if(clients[i]->state != LOOSE){
             setHighscoreDB(clients[i]->name, clients[i]->score + 10);
+            sd = marshalling((void*)&TRUE,BOOLEAN);
          }else{
             setHighscoreDB(clients[i]->name, clients[i]->score - 10);
+            sd = marshalling((void*)&FALSE,BOOLEAN);
          }
+         sendData(clients[i]->con,sd);
+         free(sd->data);
+         free(sd);
       }
    }
 }
-int gameOver(){
-  StreamData * sd;
-  logMsg("Game over");
+int isgameOver(){
    int total = 0;
    int lost = 0;
    for(int i = 0; i<MAX_PLAYERS;i++){
       if(clients[i] != NULL){
          total++;
          if(clients[i]->state == LOOSE){
-            sd = marshalling((void*)&FALSE,BOOLEAN);
             lost++;
-         }else{
-            sd = marshalling((void*)&TRUE,BOOLEAN);
-         }
-         sendData(clients[i]->con,sd);
+          }
       }
    }
    return (lost >= total-1);

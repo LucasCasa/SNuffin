@@ -21,17 +21,14 @@ int init(){
 int manageDataBase(){
    printf("Inicio DB\n");
   init();
-  printf("Entro al While\n");
   pthread_cond_t* cond =(pthread_cond_t*)(shmPointer + COND_OFFSET);
   pthread_cond_t* ready =(pthread_cond_t*)(shmPointer + COND2_OFFSET);
   pthread_mutex_t* mutex = (pthread_mutex_t*)(shmPointer + MUTEX_OFFSET);
   while(1){
      pthread_mutex_lock(mutex);
      while(shmPointer[TYPEPOS] == READY){
-        printf("Dabatase Lockeada\n");
         pthread_cond_wait(cond, mutex);
      }
-     printf("Database deslockeada\n");
       switch(shmPointer[TYPEPOS]){
         case ISUSER:
           shmPointer[RETURNPOS] = (char) isUser(shmPointer + FIRSTARGUMENT);
@@ -72,11 +69,9 @@ int isUser(char* user){
   sqlite3_stmt* stmt;
   int c = 0;
   sprintf(sql,"SELECT Count(*) FROM player WHERE name = '%s'",user);
-  printf("SQL: %s\n",sql );
   printError(sqlite3_prepare_v2(db,sql,-1,&stmt,NULL));
   printError(sqlite3_step(stmt));
   c = sqlite3_column_int(stmt, 0);
-  (c == 1)?printf("Exists\n"):printf("Don't Exist\n");
   printError(sqlite3_finalize(stmt));
   free(sql);
   return c;
@@ -88,7 +83,6 @@ int isPassword(char* user, char * pass){
   const unsigned char* result;
   //int c = 0;
   sprintf(sql,"SELECT * FROM player WHERE name = '%s'",user);
-  printf("SQL: %s\n",sql );
   printError(sqlite3_prepare_v2(db,sql,-1,&stmt,NULL) );
   printError(sqlite3_step(stmt) );
   result = sqlite3_column_text(stmt, 1);
@@ -97,32 +91,16 @@ int isPassword(char* user, char * pass){
   }else{
     res =  0;
   }
-  printf("Result=%s , Pass= %s\n",result,pass );
+  //printf("Result=%s , Pass= %s\n",result,pass );
   printError(sqlite3_finalize(stmt));
   free(sql);
   return res;
-}
-int cmp(char* a, char* b){
-  int as = strlen(a);
-  int bs = strlen(b);
-  printf("%s %d %s %d\n",a,as,b,bs);
-
-  if(as != bs){
-  return 1;
-  }
-  for(int i = 0; i<as;i++){
-    if(a[i] != b[i]){
-      return 1;
-    }
-  }
-  return 0;
 }
 
 int createUser(char * user, char * pass){
 char * sql = malloc(500);
 char *zErrMsg = 0;
 sprintf(sql,"INSERT INTO player VALUES ('%s','%s',%d)",user,pass,0);
-printf("SQL: %s\n",sql);
 int rc = sqlite3_exec(db, sql, NULL, 0, &zErrMsg);
 free(sql);
 if( rc != SQLITE_OK ){
@@ -130,7 +108,7 @@ if( rc != SQLITE_OK ){
       sqlite3_free(zErrMsg);
       return 1;
    }else{
-      fprintf(stdout, "Records created successfully\n");
+      //fprintf(stdout, "Records created successfully\n");
       return 0;
    }
 
@@ -149,11 +127,9 @@ int getHighscore(char * player){
   sqlite3_stmt* stmt;
   //int c = 0;
   sprintf(sql,"SELECT * FROM player WHERE name = '%s'",player);
-  printf("SQL: %s\n",sql );
   printError(sqlite3_prepare_v2(db,sql,-1,&stmt,NULL));
   printError(sqlite3_step(stmt));
   int result = sqlite3_column_int(stmt, 2);
-  printf("Score: %d\n",result );
   free(sql);
   printError(sqlite3_finalize(stmt));
   return result;
@@ -166,7 +142,6 @@ int setHighscore(char * player,int highscore){
   //int c = 0;
   int rc = 0;
   sprintf(sql,"UPDATE player set score = %d where name = '%s' ",highscore,player);
-  //printf("SQL: %s\n",sql );
   rc = sqlite3_exec(db, sql, NULL, 0, &zErrMsg);
   free(sql);
    if( rc != SQLITE_OK ){

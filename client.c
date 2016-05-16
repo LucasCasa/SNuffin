@@ -261,6 +261,8 @@ void * listenToPress(void * value){
 					ready = FALSE;
 					changeReady(myName,ready);
 					printLobby();
+				}else if((pressed == 'X' || pressed == 'x') && !ready){
+					connHandler(1);
 				}
 			}else{
 				if(pressed == DOWN_ARROW ){
@@ -403,7 +405,7 @@ void printPlayerColor(int pNum){
 
 void printLobby(){
 	int i;
-	system("clear");
+	//system("clear");
 	printf("LOBBY NUMERO %d\n\n",value);
 	printf("\tJUGADOR \t PUNTAJE \t READY \t\n\n");
 	for(i=0;i<MAX_PLAYERS;i++){
@@ -425,8 +427,9 @@ void printLobby(){
 
 	if(!ready){
 		printf(" -PRESS <ENTER> WHEN READY\n\n");
-		printf(" -PRESS <X> TO CANCEL\n\n");
+		printf(" -PRESS <X> TO EXIT\n\n");
 	}else{
+		printf(" -PRESS <X> IF NOT READY\n\n");
 		printf("ESPERANDO A LOS OTROS JUGADORES\n\n");
 	}
 
