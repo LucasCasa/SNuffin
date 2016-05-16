@@ -357,11 +357,12 @@ void printLobby(){
   int i,j;
   system("clear");
   printf("LOBBY NUMERO %d\n\n",value);
+  printf("\tJUGADOR \t PUNTAJE \t READY \t\n\n");
   for(i=0;i<nPlayers;i++){
     printf("\t");
     printPlayerColor(i+1 + '0');
-    printf(" %s \t PUNTAJE: %d", players[i]->name,players[i]->score);
-    printf("\t READY");
+    printf(" %s \t    %d", players[i]->name,players[i]->score);
+    printf("\t\t   X");
     printf("\n\n");
   }
   for(j=nPlayers;j<4;j++){
