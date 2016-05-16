@@ -79,7 +79,7 @@ void game(){
 	prepareLobby();
 	won = startGame();
 	gameOver(won);
-
+	printf("Me voy hago los frees\n");
 	fclose(f);
 	free(address);
 }

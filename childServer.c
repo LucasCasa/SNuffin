@@ -62,9 +62,9 @@ void initGame(){
      finished = isgameOver();
    }
    logMsg("Game over");
+   StreamData * sd;
    for(int i = 0; i< MAX_PLAYERS;i++){
       if(clients[i] != NULL){
-        StreamData * sd;
          if(clients[i]->state != LOOSE){
             setHighscoreDB(clients[i]->name, clients[i]->score + 10);
             sd = marshalling((void*)&TRUE,BOOLEAN);
@@ -72,11 +72,13 @@ void initGame(){
             setHighscoreDB(clients[i]->name, clients[i]->score - 10);
             sd = marshalling((void*)&FALSE,BOOLEAN);
          }
+         printf("Mando un dato\n");
          sendData(clients[i]->con,sd);
-         free(sd->data);
-         free(sd);
       }
    }
+   printf("Hago los Free\n");
+   free(sd->data);
+   free(sd);
 }
 int isgameOver(){
    int total = 0;
