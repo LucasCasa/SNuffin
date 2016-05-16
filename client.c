@@ -12,8 +12,9 @@ int f2;
 
 
 Player * players[OTHER_PLAYERS];
-int nPlayers=0;
 int value;
+
+int ready;
 
 StreamData * buffer;
 
@@ -201,24 +202,55 @@ void getName(char * name){
 }
 
 void prepareLobby(){
+	ready = FALSE;
 	int i=0,rta = 1;
+	Player * player = calloc(1,sizeof(Player));
+	player-> name = calloc(MAX_WORD,sizeof(char));
 	printf("El partido comenzará cuando se llene el lobby.\n");
+	changeMode(1);
 	while(i<OTHER_PLAYERS && rta){
+		int pressed;
 		readData(c,buffer);
-		players[i] = calloc(1,sizeof(Player));
-		(players[i])->name = calloc(MAX_WORD,sizeof(char));
 		rta = unmarshPlayer(buffer->data,players[i]);
-		printf("El jugador %s se unió a la sala.  Faltan %d jugadores para comenzar.\n",players[i]->name,OTHER_PLAYERS-i-1);
-		i++;
-		nPlayers++;
-		printLobby();
+		int aux = belongs(players[i],i);
+		if(aux == -1){ 
+			players[i] = calloc(1,sizeof(Player));
+			(players[i])->name = calloc(MAX_WORD,sizeof(char));
+			memcpy(players[i]->name,player->name,strlen(player->name)+1);
+			players[i]->score= player->score;
+			players[i]->num = player->num;
+			players[i]->ready = player->ready;
+			i++;
+		}else{
+			players[aux]->ready = player->ready;
+		}
+		printLobby(i);
+		pressed = getchar();
+		if(pressed== 10){ //esto no tiene que ser asi tiene que ser como lo de las flechitas
+			sendData(c,marshalling((void*)&TRUE,BOOLEAN));
+			ready = TRUE;
+		}
 	}
+	printf("JUEGO EMPEZADO\n");
+	changeMode(0);
+	free(player->name);
+	free(player);
 }
 
 void connHandler(int sig){
 	printf("Me fui\n");
 	closeConn(c);
 	exit(0);
+}
+
+//la funcion belongs devuelve -1 si el player no pertenece a los que ya mandaron, sino devuelve el numero que es en el array
+int belongs(Player * player,int nPlayers){
+	int i;
+	for(i =0;i<nPlayers;i++){
+		if(strcmp(players[i]->name,player->name))
+			return i;
+	}
+	return -1;
 }
 
 
@@ -296,7 +328,7 @@ void printPlayerColor(int pNum){
     }
 }
 
-void printLobby(){
+void printLobby(int nPlayers){
   int i,j;
   system("clear");
   printf("LOBBY NUMERO %d\n\n",value);
@@ -308,13 +340,17 @@ void printLobby(){
     printf("\t\t   X");
     printf("\n\n");
   }
-  for(j=nPlayers;j<4;j++){
+  for(j=nPlayers;j<OTHER_PLAYERS;j++){
     printf("\t   ");
     printf("FREE\n\n");
   }
 
-  printf(" -PRESS <ENTER> WHEN READY\n\n");
-  printf(" -PRESS <X> TO CANCEL\n\n");
+  if(!ready){
+  	printf(" -PRESS <ENTER> WHEN READY\n\n");
+  	printf(" -PRESS <X> TO CANCEL\n\n");
+  }else{
+  	printf("ESPERANDO A LOS OTROS JUGADORES\n\n");
+  }
 
 }
 

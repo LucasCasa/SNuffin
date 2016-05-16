@@ -80,7 +80,7 @@ int unmarshPlayer(char * data, Player * p){
 		return 0;
 	}
 	char nombre[20];
-	char num[5],num2[5];
+	char num[5],num2[5],num3[5];
 	int i,j=0;
 	for(i=1;data[i]!=SEP;i++,j++){
 		nombre[j]=data[i];
@@ -88,14 +88,19 @@ int unmarshPlayer(char * data, Player * p){
 	for(i=i+1,j=0;data[i]!=SEP;i++,j++){
 		num[j]=data[i];
 	}
-	for(i=i+1,j=0;data[i]!='\0';i++,j++){
+	for(i=i+1,j=0;data[i]!=SEP;i++,j++){
 		num2[j]=data[i];
+	}
+	for(i=i+1,j=0;data[i]!='\0';i++,j++){
+		num3[j]=data[i];
 	}
 	long m = strtol(num, &endptr,10);
 	long n = strtol(num2,&endptr,10);
+	long o = strtol(num3,&endptr,10);
 	memcpy(p->name,nombre,strlen(nombre)+1);
 	p->num = (int)m;
 	p->score = (int)n;
+	p->ready = (int)o;
 	return 1;
 }
 
@@ -249,9 +254,9 @@ char * marshString(char * s, int * size){
 
 char * marshPlayer(Player * p,int * size){
 	char * d;
-	int cant = 1 + strlen(p->name) + 1 + numPlaces(p->num) + 1 + numPlaces(p->score) + 1;
+	int cant = 1 + strlen(p->name) + 1 + numPlaces(p->num) + 1 + numPlaces(p->score) + 1 + numPlaces(p->ready) + 1;
 	d = calloc(cant ,sizeof(char));
-	sprintf(d,"%d%s%c%d%c%d",PLAYER - '0',p->name,SEP,p-> num,SEP,p->score);
+	sprintf(d,"%d%s%c%d%c%d%c%d",PLAYER - '0',p->name,SEP,p-> num,SEP,p->score,SEP,p->ready);
 	*size = cant;
 	return d;
 }

@@ -27,6 +27,7 @@
 #define RIGHT_ARROW (char)'C'
 #define DOWN_ARROW (char) 'B'
 #define BACKSPACE 127
+#define ENTER 10
 
 #define BUFFER 256
 #define ARCHIVO "./config"
@@ -56,6 +57,7 @@ void connHandler(int sig);
 
 void prepareLobby();
 void printLobby();
+int belongs(Player * player,int nPlayers);
 
 void getInformation();
 void getPass(char * pass);

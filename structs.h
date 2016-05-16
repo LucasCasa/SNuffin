@@ -18,6 +18,7 @@ typedef struct{
 	char * name;
 	int num;
 	int score;
+	int ready;
 }Player;
 
 #endif
