@@ -154,6 +154,8 @@ void resolveRequest(int nClient){
             d2 = marshalling((void*)&FALSE,BOOLEAN);
          }
          sendData(clients[nClient]->con, d2);
+         notifyNewPlayer(nClient);
+         notifyExistingPlayers(nClient);
          free(d2->data);
          free(d2);
       }else{
@@ -166,9 +168,11 @@ void resolveRequest(int nClient){
       if(res){
          if(value){
             clients[nClient]->state = READY_PLAY;
+            notifyNewPlayer(nClient);
             checkGameStart();
          }else{
             clients[nClient]->state = WAITING;
+            notifyNewPlayer(nClient);
          }
       }
    }else if(expecting == MOVEMENT){
@@ -189,7 +193,7 @@ void checkGameStart(){
    for(int i = 0; i<MAX_PLAYERS;i++){
       if(clients[i] != NULL){
          nPlayers++;
-         start = start && (clients[i]->state = READY_PLAY);
+         start = start && (clients[i]->state == READY_PLAY);
       }
    }
    if(start && nPlayers > 1){
@@ -275,8 +279,8 @@ int listenToClients(){
            int clifd = clients[i]->con->fd;
            if(clifd>maxFD)
             maxFD = clifd;
-           sprintf(aux,"I am Listening to client: %d on FD: %d\n",i,clients[i]->con->fd);
-           //logMsg(aux);
+           /*sprintf(aux,"I am Listening to client: %d on FD: %d\n",i,clients[i]->con->fd);
+           logMsg(aux);*/
            FD_SET(clients[i]->con->fd,&cli);
         }else{
           // printf("Client %d is NULL\n",i );
@@ -285,9 +289,9 @@ int listenToClients(){
 
      struct timeval tv = {1, 0}; //the timeout (s,ms)
      res = select(maxFD+1,&cli,NULL,NULL,&tv);
-     printf("I received a request %d\n",res );
      for(int i = 0; i<MAX_PLAYERS;i++){
         if(clients[i] != NULL && FD_ISSET(clients[i]->con->fd,&cli)){
+           printf("es el cliente %d\n",i);
            free(aux);
            return i; // o leo los datos??
         }
@@ -329,16 +333,16 @@ void*  listenNewClients(void* connection){
 }
 void notifyNewPlayer(int nPlayer){
   Client *c = clients[nPlayer];
+  Player* p = CreatePlayerStruct(c,nPlayer);
+  StreamData *d = marshalling(p,PLAYER);
   for(int i = 0; i< MAX_PLAYERS;i++){
     if(clients[i] != NULL && clients[i] != c){
-      Player* p = CreatePlayerStruct(c,nPlayer);
-      StreamData *d = marshalling(p,PLAYER);
       sendData(clients[i]->con,d);
-      free(p);
-      free(d->data);
-      free(d);
     }
   }
+  free(p);
+  free(d->data);
+  free(d);
 }
 
 void notifyExistingPlayers(int nPlayer){
@@ -364,6 +368,7 @@ Player* CreatePlayerStruct(Client *c, int number){
   p->name = c->name;
   p->score = c->score;
   p->num = number;
+  p->ready = (c->state == READY_PLAY);
   return p;
 }
 

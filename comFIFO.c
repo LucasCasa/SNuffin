@@ -168,8 +168,8 @@ void closeConn(Connection *c){
 }
 
 int sendData(Connection* c,StreamData* d){
-  //printf("Sending data to: %d\n",c->fd2);
-  //printf("Data: %s\n",d->data);
+  printf("Sending data to: %d\n",c->fd2);
+  printf("Data: %s\n",d->data);
   return write(c->fd2, d->data,d->size);
 }
 
