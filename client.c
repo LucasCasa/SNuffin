@@ -76,6 +76,7 @@ void game(){
 
 	getInformation();
 	prepareLobby();
+	printf("GAME STARTING\n");
 	startGame();
 
 	fclose(f);
@@ -83,58 +84,20 @@ void game(){
 }
 
 void startGame(){
-	pthread_t pressedPlayer;
 	playingGame =1;
 	int * finished;
-	pthread_create(&pressedPlayer,NULL,listenToKeys,&finished);
 	int rta;
 	Board * b = calloc(1,sizeof(Board));
 	//initializeBoard(b);
+	printf("entering main loop\n");
 	while(playingGame){
 		readData(c,buffer);
 		rta = unmarshBoard(buffer->data,b);
 		if(rta == 1){
 			printBoard(b);
 		}
-		//dejo abierto a que me pueda mandar otra cosa
 	}
-	pthread_join(pressedPlayer,NULL);
 	freeBoard(b);
-}
-
-void * listenToKeys(void * value){
-	int pressed;
-	Point * p = calloc(1,sizeof(Point));
-	Point * aux = calloc(1,sizeof(Point));
-	while(playingGame) /*el juego no arranca */{
-		while(!kbhit() && playingGame){
-			pressed=getchar();
-			if(pressed == DOWN_ARROW ){
-				p->x = 0;
-				p->y = 1;
-			}else if(pressed == UP_ARROW){
-				p->x = 0;
-				p->y = -1;
-			}else if(pressed == LEFT_ARROW){
-				p->x = -1;
-				p->y = 0;
-			}else if(pressed == RIGHT_ARROW){
-				p->x = 1;
-				p->y = 0;
-			}
-			if(!(aux->x == 0 && aux->y == 0) && ((aux->x != p->x) || (aux->y != p->y))){
-				aux -> x = p -> x;
-				aux -> y = p-> y;
-				//solo se manda el punto nuevo si se cambia de direccion
-				if(aux->x != 0 || aux->y != 0){
-					sendData(c,marshalling(p,POINT));
-				}
-			}
-		}
-	}
-	free(p);
-	free(aux);
-	return NULL;
 }
 
 void getInformation(){
@@ -230,7 +193,6 @@ void prepareLobby(){
 	int type;
 	Player * player = calloc(1,sizeof(Player));
 	player-> name = calloc(MAX_WORD,sizeof(char));
-	printf("El partido comenzará cuando se llene el lobby.\n");
 	while(!gameStart){
 			readData(c,buffer);
 			printf("Lei data\n");
@@ -259,11 +221,12 @@ void prepareLobby(){
 				sscanf((char*)struc,"%d",&leaving);
 				playerLeft(leaving);
 			}else if(type == BOOLEAN - '0'){
+				printf("GAME STARTING\n");
 				gameStart = TRUE;
 			}
 			printLobby();
 	}
-	pthread_join(pressedPlayer,NULL);
+	//pthread_join(pressedPlayer,NULL);
 	printf("El juego comenzará en breve\n");
 	free(player->name);
 	free(player);
@@ -271,24 +234,53 @@ void prepareLobby(){
 
 void * listenToPress(void * value){
 	int pressed;
-	while(!gameStart) /*el juego no arranca */{
-		changeMode(1);
-		while(!kbhit() && !gameStart){
+	Point * p = calloc(1,sizeof(Point));
+	Point * aux = calloc(1,sizeof(Point));
+	while(1) /*el juego no arranca */{
+		//changeMode(1);
+		while(!kbhit()){
 			pressed = getchar();
-			if(pressed == ENTER && !ready){
-				sendData(c,marshalling((void *)&TRUE,BOOLEAN));
-				ready = TRUE;
-				changeReady(myName,ready);
-				printLobby();
-			}else if((pressed == 'X' || pressed == 'x') && ready){
-				sendData(c,marshalling((void *)&FALSE,BOOLEAN));
-				ready = FALSE;
-				changeReady(myName,ready);
-				printLobby();
+			if(!gameStart){
+				if(pressed == ENTER && !ready){
+					sendData(c,marshalling((void *)&TRUE,BOOLEAN));
+					ready = TRUE;
+					changeReady(myName,ready);
+					printLobby();
+				}else if((pressed == 'X' || pressed == 'x') && ready){
+					sendData(c,marshalling((void *)&FALSE,BOOLEAN));
+					ready = FALSE;
+					changeReady(myName,ready);
+					printLobby();
+				}
+			}else{
+				if(pressed == DOWN_ARROW ){
+					p->x = 0;
+					p->y = 1;
+				}else if(pressed == UP_ARROW){
+					p->x = 0;
+					p->y = -1;
+				}else if(pressed == LEFT_ARROW){
+					p->x = -1;
+					p->y = 0;
+				}else if(pressed == RIGHT_ARROW){
+					p->x = 1;
+					p->y = 0;
+				}
+				if(!(aux->x == 0 && aux->y == 0) && ((aux->x != p->x) || (aux->y != p->y))){
+					aux -> x = p -> x;
+					aux -> y = p-> y;
+					//solo se manda el punto nuevo si se cambia de direccion
+					if(aux->x != 0 || aux->y != 0){
+						sendData(c,marshalling(p,POINT));
+					}
+				}
 			}
 		}
 	}
-	changeMode(0);
+	printf("Returning listenToPress\n");
+	free(aux);
+	free(p);
+	//changeMode(0);
 	return NULL;
 }
 

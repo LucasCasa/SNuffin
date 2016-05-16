@@ -61,7 +61,7 @@ void initGame(){
       }
    }
    board->numPl = nPlayers;
-
+   printf("Starting main loop\n");
    while(!finished){
      nanosleep(&timer,NULL);
      updateBoard(board);
@@ -203,6 +203,7 @@ void checkGameStart(){
    }
 }
 void sendGameStart(){
+    printf("Sending game start\n");
    for(int i = 0; i<MAX_PLAYERS;i++){
       if(clients[i] != NULL){
          StreamData *d = marshalling((void*)&TRUE,BOOLEAN);
