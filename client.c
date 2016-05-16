@@ -73,7 +73,7 @@ void game(){
 
 	getInformation();
 	prepareLobby();
-	//startGame();
+	startGame();
 
 	fclose(f);
 	free(address);
