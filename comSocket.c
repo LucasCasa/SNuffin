@@ -14,6 +14,8 @@
 #define MAX_CONNECTIONS 4
 #define MAX_CONNECTION_QUEUE 4
 
+void removeEOL(char * str);
+
 struct sockaddr_in my_addr;
 //int peerLimit;
 //int * peers;
@@ -36,6 +38,7 @@ Connection * connectToPeer(char* addr, int port){
 	  exit(1);
 	}
 
+	removeEOL(addr);
 	server = gethostbyname(addr);
 
 	if (server == NULL) {
@@ -199,6 +202,13 @@ void receiveData(Connection * connection, StreamData * buffer){
   		closePeer(connection->fd);
   	}*/
    	buffer->size = ans;
+}
+
+void removeEOL(char * str){
+	for(int i=0; str[i]!=0; i++){
+		if(str[i]=='\n')
+			str[i]=0;
+	}
 }
 
 /*void setFDs(fd_set * set, Connection ** conns, int size){
