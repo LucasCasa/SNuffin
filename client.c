@@ -161,7 +161,7 @@ void getInformation(){
 		printf("Su nombre no esta registrado. Ingrese una contraseña para poder registrarse\n");
 	}
 
-	memcpy(myName,name,streln(name)+1); //me guardo mi nombre
+	memcpy(myName,name,strlen(name)+1); //me guardo mi nombre
 
 	getPass(password);
 
@@ -305,7 +305,7 @@ void changeReady(char * myName,int state){
 	int i;
 	for(i =0;i<MAX_PLAYERS;i++){
 		if(players[i]!=NULL){
-			if(!stcmp(players[i]->name,myName)){
+			if(!strcmp(players[i]->name,myName)){
 				players[i]->ready = state;
 				return;
 			}
