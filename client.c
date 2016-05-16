@@ -17,6 +17,7 @@ int nPlayers=0;
 int ready;
 int gameStart;
 int playingGame;
+char * myName;
 
 StreamData * buffer;
 
@@ -36,6 +37,7 @@ int main(int argc, char const *argv[]){
 		players[i] = NULL;
 	}
 	game();
+	free(myName);
 	free(buffer->data);
 	free(buffer);
 	return 0;
@@ -127,7 +129,9 @@ void * listenToKeys(void * value){
 				aux -> x = p -> x;
 				aux -> y = p->y;
 				//solo se manda el punto nuevo si se cambia de direccion
-				sendData(c,marshalling(p,POINT));
+				if(aux->x != 0 || aux->y != 0){
+					sendData(c,marshalling(p,POINT));
+				}
 			}
 		}
 	}
@@ -140,6 +144,7 @@ void * listenToKeys(void * value){
 void getInformation(){
 	char * name = calloc (MAX_WORD,sizeof(char));
    	char * password = calloc(MAX_WORD,sizeof(char));
+   	char * myName = calloc(MAX_WORD,sizeof(char));
    	int belongs=0,belongs2=0,rta;
 
    	getName(name);
@@ -155,6 +160,8 @@ void getInformation(){
 	}else{
 		printf("Su nombre no esta registrado. Ingrese una contraseña para poder registrarse\n");
 	}
+
+	memcpy(myName,name,streln(name)+1); //me guardo mi nombre
 
 	getPass(password);
 
@@ -274,9 +281,11 @@ void * listenToPress(void * value){
 			pressed = getchar();
 			if(pressed == ENTER && !ready){
 				sendData(c,marshalling((void *)&TRUE,BOOLEAN));
+				changeReady(myName,ready);
 				ready = TRUE;
 			}else if((pressed == 'X' || pressed == 'x') && ready){
 				sendData(c,marshalling((void *)&FALSE,BOOLEAN));
+				changeReady(myName,ready);
 				ready = FALSE;
 			}
 		}
@@ -292,13 +301,26 @@ void connHandler(int sig){
 	exit(0);
 }
 
+void changeReady(char * myName,int state){
+	int i;
+	for(i =0;i<MAX_PLAYERS;i++){
+		if(players[i]!=NULL){
+			if(!stcmp(players[i]->name,myName)){
+				players[i]->ready = state;
+				return;
+			}
+		}
+	}
+	return;
+}
+
 //la funcion belongs devuelve -1 si el player no pertenece a los que ya mandaron, sino devuelve el numero que es en el array
 int belongs(Player * player){
 	int i;
 	for(i =0;i<MAX_PLAYERS;i++){
 		if(players[i] != NULL){
 			if(!strcmp(players[i]->name,player->name))
-			return i;
+				return i;
 		}
 	}
 	return -1;

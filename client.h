@@ -59,6 +59,7 @@ void connHandler(int sig);
 void prepareLobby();
 void printLobby();
 int belongs(Player * player);
+void changeReady(char * myName,int state);
 
 void getInformation();
 void getPass(char * pass);
