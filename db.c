@@ -138,20 +138,26 @@ int getHighscore(char * player){
 int setHighscore(char * player,int highscore){
   char* sql = malloc(400);
   char* zErrMsg = 0;
-  //sqlite3_stmt* stmt;
+  sqlite3_stmt* stmt;
   //int c = 0;
   int rc = 0;
+
   sprintf(sql,"UPDATE player set score = %d where name = '%s' ",highscore,player);
-  rc = sqlite3_exec(db, sql, NULL, 0, &zErrMsg);
+
+  printError(sqlite3_prepare_v2(db,sql,-1,&stmt,NULL));
+
+  //printError(sqlite3_step(stmt));
+  sqlite3_finalize(stmt);
   free(sql);
-   if( rc != SQLITE_OK ){
+   /*if( rc != SQLITE_OK ){
       fprintf(stderr, "SQL error: %s\n", zErrMsg);
       sqlite3_free(zErrMsg);
       return 1;
    }else{
       fprintf(stdout, "Operation done successfully\n");
       return 0;
-   }
+   }*/
+
 }
 int close2(){
 printf("entre\n");
