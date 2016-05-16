@@ -30,7 +30,7 @@
 #define BACKSPACE 127
 #define ENTER 10
 
-#define BUFFER 256
+#define BUFFER 512
 #define ARCHIVO "./config"
 
 #define MAX_WORD 20

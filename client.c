@@ -125,9 +125,9 @@ void * listenToKeys(void * value){
 				p->x = 1;
 				p->y = 0;
 			}
-			if((aux->x == 0 && aux->y == 0) || ((aux->x != p->x) && (aux->y != p->y))){
+			if(!(aux->x == 0 && aux->y == 0) && ((aux->x != p->x) || (aux->y != p->y))){
 				aux -> x = p -> x;
-				aux -> y = p->y;
+				aux -> y = p-> y;
 				//solo se manda el punto nuevo si se cambia de direccion
 				if(aux->x != 0 || aux->y != 0){
 					sendData(c,marshalling(p,POINT));
