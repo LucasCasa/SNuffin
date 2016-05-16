@@ -306,12 +306,27 @@ void clearArr(char * arr,int size){
 void printBoard(Board *b){
   int i;
   int j;
+  printf("SNUFFIN\n");
   for(i = 0;i<b->rows;i++){
+    if(i==0){
+      for(j=0;j<=b->columns;j++){
+        printf("__");
+      }
+      printf("\n");
+    }
     for(j = 0; j<b->columns;j++){
+      if(j ==0){
+        printf("|");
+      }
       printPlayerColor(b->board[i][j]);
     }
+    printf("|");
     printf("\n");
   }
+  for(j=0;j<=b->rows;j++){
+    printf("__");
+  }
+  printf("\n");
 }
 
 void printPlayerColor(int pNum){
