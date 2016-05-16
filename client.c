@@ -109,9 +109,9 @@ void * listenToKeys(void * value){
 	Point * p = calloc(1,sizeof(Point));
 	Point * aux = calloc(1,sizeof(Point));
 	while(playingGame) /*el juego no arranca */{
-		pressed=getchar();
 		changeMode(1);
 		while(!kbhit() && playingGame){
+			pressed=getchar();
 			if(pressed == DOWN_ARROW ){
 				p->x = 0;
 				p->y = 1;
