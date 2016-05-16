@@ -4,18 +4,16 @@ FIFO = comFIFO.c
 SOCKETS = comSocket.c
 
 
-all: fifo clientfifo log
-
-fifo: log
+fifo: log clientfifo
 	gcc $(TARGET) $(FIFO) -o server.out -lrt -lpthread -l sqlite3 -Wall -std=gnu99
 
-sockets: log
+sockets: log clientsocket
 	gcc $(TARGET) $(SOCKETS) -o server.out -lrt -lpthread -l sqlite3 -std=gnu99
 
-clientfifo: log
+clientfifo:
 	gcc $(CLIENT) $(FIFO) -o client.out -Wall -lpthread -std=gnu99
 
-clientsocket: log
+clientsocket:
 	gcc $(CLIENT) $(SOCKETS) -o client.out -lpthread -Wall -std=gnu99
 
 log:
@@ -24,4 +22,4 @@ log:
 clean:
 	rm *.out
 
-.PHONY: fifo sockets clientfifo clientsocket
+.PHONY: fifo sockets

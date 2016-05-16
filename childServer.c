@@ -20,7 +20,6 @@ void initServer(int serverNumber){
 }
 
 void lobby(){
-
    while(!startGame){;
       listenAndResolve(NULL);
    }

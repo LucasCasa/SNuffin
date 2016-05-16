@@ -9,7 +9,7 @@ int servers[MAX_LOBBY];
 int listenLocation;
 
 int main(int argc, const char* argv[]){
-    connectLogServer();
+  printf("Inicializando servidor...\n");
 
     int joinServer = 0;
    /* map into memory */
@@ -41,15 +41,15 @@ int main(int argc, const char* argv[]){
    listenLocation = n;
 
    selfc = listenConnection(n); // PROXIMAMENTE LEO CONFIG PASO NUMERO
+   printf("Escuchando conexiones...\n");
    StreamData * buffer = malloc(sizeof(StreamData));
    buffer->data = malloc(BUFFER_SIZE);
    while(1){
       Connection *new = acceptConnection(selfc);
-      printf("Nueva conexión");
+      printf("Nueva conexión\n");
       readData(new,buffer);
-      printf("Recibi: %s",buffer->data);
       unmarshServerId(buffer->data,&joinServer);
-      printf("Client wants to join server %d", joinServer);
+      printf("Un cliente se quiere unir al server %d\n", joinServer);
       if(servers[joinServer] != 0){
          int newDirection = n + joinServer;
          StreamData * d = marshalling(&newDirection, SERVER_ID);
@@ -71,7 +71,7 @@ int main(int argc, const char* argv[]){
             return 0;
         }else{
          servers[joinServer] = child;
-         printf("Server nuevo = %d",servers[joinServer]);
+         printf("Server nuevo = %d\n",servers[joinServer]);
          pthread_t waitChild;
          pthread_create(&waitChild,NULL,waitForChild,&child);
       }
@@ -89,11 +89,9 @@ void * waitForChild(void* pid){
   int status = 0;
   waitpid(s,&status,0);
   if(status != 0){
-  logError(strerror(status));
+    printf("%s\n",strerror(status));
   }
-  char* aux = malloc(BUFFER_SIZE);
-  sprintf(aux,"Servidor %d fue finalizado",s);
-  logWarning(aux);
+  printf("Servidor %d fue finalizado",s);
 
   for(int i = 0 ; i<MAX_LOBBY;i++){
     if(servers[i] == s){

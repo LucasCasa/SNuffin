@@ -1,11 +1,10 @@
 #include "dbManager.h"
-// SIN PROBLEMAS DE MEMORIA?
+
 pthread_cond_t* cond;
 pthread_cond_t* ready;
 pthread_mutex_t* mutex;
 
 char ExistUserDB(char * user){
-  //sem_wait(&semDB);
   cond  = (pthread_cond_t*) (shmPointer + COND_OFFSET);
   ready = (pthread_cond_t*) (shmPointer + COND2_OFFSET);
   mutex = (pthread_mutex_t*)(shmPointer + MUTEX_OFFSET);
@@ -19,13 +18,10 @@ char ExistUserDB(char * user){
      pthread_cond_wait(ready,mutex);
   }
   char c = shmPointer[RETURNPOS];
-  printf("Recibi de la base %d\n",c );
-  //sem_post(&semDB);
   pthread_mutex_unlock(mutex);
   return c;
 }
 int validPasswordDB(char* user, char* password){
- //sem_wait(&semDB);
  pthread_mutex_lock(mutex);
  shmPointer[TYPEPOS] = ISPASSWORD;
  memcpy(shmPointer + FIRSTARGUMENT,user,strlen(user)+1);
@@ -36,11 +32,9 @@ int validPasswordDB(char* user, char* password){
  }
  char c = shmPointer[RETURNPOS];
  pthread_mutex_unlock(mutex);
- //sem_post(&semDB);
  return c;
 }
 int getHighScoreDB(char * user){
-  //sem_wait(&semDB);
   pthread_mutex_lock(mutex);
   shmPointer[TYPEPOS] = GETHIGHSCORE;
   memcpy(shmPointer + FIRSTARGUMENT,user,strlen(user) + 1);
@@ -50,11 +44,9 @@ int getHighScoreDB(char * user){
   }
   int i = atoi(shmPointer+ RETURNPOS);
   pthread_mutex_unlock(mutex);
-  //sem_post(&semDB);
   return i;
 }
 int setHighscoreDB(char* user, int value){
-  //sem_wait(&semDB);
   pthread_mutex_lock(mutex);
   shmPointer[TYPEPOS] = SETHIGHSCORE;
   memcpy(shmPointer + FIRSTARGUMENT, user, strlen(user) + 1);
@@ -68,7 +60,6 @@ int setHighscoreDB(char* user, int value){
   return ret;
 }
 int createUserDB(char* user, char* password){
-  //sem_wait(&semDB);
   pthread_mutex_lock(mutex);
   shmPointer[TYPEPOS] = CREATEUSER;
   memcpy(shmPointer + FIRSTARGUMENT,user, strlen(user) + 1);

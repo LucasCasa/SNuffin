@@ -360,6 +360,7 @@ int kbhit (void){
 void printBoard(Board *b){
 	int i;
 	int j;
+	system("clear");
 	printf("SNUFFIN %d %d\n",b->rows, b->columns);
 	for(i = 0;i<b->rows;i++){
 		if(i==0){
@@ -405,7 +406,7 @@ void printPlayerColor(int pNum){
 
 void printLobby(){
 	int i;
-	//system("clear");
+	system("clear");
 	printf("LOBBY NUMERO %d\n\n",value);
 	printf("\tJUGADOR \t PUNTAJE \t READY \t\n\n");
 	for(i=0;i<MAX_PLAYERS;i++){

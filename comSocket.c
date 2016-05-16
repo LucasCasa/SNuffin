@@ -17,8 +17,6 @@
 void removeEOL(char * str);
 
 struct sockaddr_in my_addr;
-//int peerLimit;
-//int * peers;
 socklen_t addr_size;
 
 
@@ -61,8 +59,6 @@ Connection * connectToPeer(char* addr, int port){
 
 
 Connection * listenConnection(int port){
-	
-	printf("Starting server...\n");
 
     Connection * c = malloc(sizeof(Connection));
 
@@ -88,13 +84,11 @@ Connection * listenConnection(int port){
 	}
 
 	// Marks sfd as a passive sockdet.  MAX_CONNECTION_QUEUE is the max n° of pending connections
-	printf("Listening on port %d...\n", port);
 	if (listen(c->fd, MAX_CONNECTION_QUEUE) == -1){
 		perror("listen");
 		exit(1);
 	}
 
-	printf("Waiting for connections...\n");
   	addr_size = sizeof(struct sockaddr_in);
 	return c;
 }
