@@ -87,13 +87,16 @@ int startGame(){
 	void * rta;
 	int type, won;
 	while(playingGame){
+		printf("Antes readData\n"); //
 		readData(c,buffer);
+		printf("Despues readData\n"); // 
 		rta = unmarshalling(buffer,&type);
 		if(type == BOARD-'0'){
 			rta = (Board*)rta;
 			printBoard(rta);
 			free(rta);
 		}else if(type == BOOLEAN-'0'){
+			printf("Recibí boolean!\n");
 			won = *((int*)rta);
 			playingGame = 0;
 		}

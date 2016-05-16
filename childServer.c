@@ -73,6 +73,7 @@ void initGame(){
    }
 }
 int gameOver(){
+  StreamData * sd;
   logMsg("Game over");
    int total = 0;
    int lost = 0;
@@ -80,8 +81,12 @@ int gameOver(){
       if(clients[i] != NULL){
          total++;
          if(clients[i]->state == LOOSE){
+            sd = marshalling((void*)&FALSE,BOOLEAN);
             lost++;
+         }else{
+            sd = marshalling((void*)&TRUE,BOOLEAN);
          }
+         sendData(clients[i]->con,sd);
       }
    }
    return (lost >= total-1);
