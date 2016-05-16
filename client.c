@@ -279,12 +279,14 @@ void * listenToPress(void * value){
 			pressed = getchar();
 			if(pressed == ENTER && !ready){
 				sendData(c,marshalling((void *)&TRUE,BOOLEAN));
-				changeReady(myName,ready);
 				ready = TRUE;
+				changeReady(myName,ready);
+				printLobby();
 			}else if((pressed == 'X' || pressed == 'x') && ready){
 				sendData(c,marshalling((void *)&FALSE,BOOLEAN));
-				changeReady(myName,ready);
 				ready = FALSE;
+				changeReady(myName,ready);
+				printLobby();
 			}
 		}
 	}
