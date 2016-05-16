@@ -45,7 +45,7 @@ int main(int argc, char const *argv[]){
 
 void game(){
 	char * aux;
-	int s;
+	int s, won;
 	FILE * f;
 	int rta;
 	f = fopen(ARCHIVO, "r");
@@ -72,33 +72,45 @@ void game(){
 	c->fd = -1;
 	do{c = connectToPeer(address,s);}while(c->fd==-1);
 
-	printf("Sali del while, fd=%d\n",c->fd);
-
 	getInformation();
 	prepareLobby();
-	printf("GAME STARTING\n");
-	startGame();
+	won = startGame();
+	gameOver(won);
 
 	fclose(f);
 	free(address);
 }
 
-void startGame(){
+int startGame(){
+	printf("JUEGO COMENZANDO!\n");
 	playingGame =1;
-	int * finished;
-	int rta;
-	Board * b = calloc(1,sizeof(Board));
-	//initializeBoard(b);
-	printf("entering main loop\n");
+	void * rta;
+	int type, won;
 	while(playingGame){
 		readData(c,buffer);
-		rta = unmarshBoard(buffer->data,b);
-		if(rta == 1){
-			printBoard(b);
+		rta = unmarshalling(buffer,&type);
+		if(type == BOARD-'0'){
+			rta = (Board*)rta;
+			printBoard(rta);
+			free(rta);
+		}else if(type == BOOLEAN-'0'){
+			won = *((int*)rta);
+			playingGame = 0;
 		}
 	}
-	freeBoard(b);
+	return won;
 }
+
+void gameOver(int won){
+	if(won){
+		printf("Felicitaciones, ganaste!\n");
+	}else{
+		printf("Has perdido.\n");
+	}
+	printf("Gracias por jugar ;)\n");
+	connHandler(0);
+}
+
 void getInformation(){
 	char * name = calloc (MAX_WORD,sizeof(char));
    	char * password = calloc(MAX_WORD,sizeof(char));
@@ -108,8 +120,10 @@ void getInformation(){
    	getName(name);
 
 	rta = sendData(c,marshalling(name,STRING));
-	if(rta == 0)
+	if(rta == 0){
 		printf("Error conectandose con el servidor\n");
+		connHandler(0);
+	}
 
 	readData(c,buffer);
 	rta = unmarshBoolean(buffer->data,&belongs);
@@ -124,8 +138,10 @@ void getInformation(){
 	getPass(password);
 
 	rta = sendData(c,marshalling(password,STRING));
-	if(rta == 0)
+	if(rta == 0){
 		printf("Error conectandose con el servidor\n");
+		connHandler(0);
+	}
 
 	readData(c,buffer);
 	rta = unmarshBoolean(buffer->data,&belongs2);
@@ -194,17 +210,11 @@ void prepareLobby(){
 	player-> name = calloc(MAX_WORD,sizeof(char));
 	while(!gameStart){
 			readData(c,buffer);
-			printf("Lei data\n");
-			printf("unmarshaleo '%s'\n",buffer->data );
 			void* struc = unmarshalling(buffer,&type);
-			printf("Unmarshalee data\n");
 			if(type == PLAYER -'0'){
-				printf("Encontre un player\n");
 				player = (Player*) struc;
-				printf("Player name '%s'\n",player->name );
 				int aux = belongs(player);
 				if(aux == -1){
-					printf("El player es distinto\n");
 					int pos = player->num;
 					players[pos] = calloc(1,sizeof(Player));
 					(players[pos])->name = calloc(MAX_WORD,sizeof(char));
@@ -220,12 +230,10 @@ void prepareLobby(){
 				sscanf((char*)struc,"%d",&leaving);
 				playerLeft(leaving);
 			}else if(type == BOOLEAN - '0'){
-				printf("GAME STARTING\n");
 				gameStart = TRUE;
 			}
 			printLobby();
 	}
-	//pthread_join(pressedPlayer,NULL);
 	printf("El juego comenzará en breve\n");
 	free(player->name);
 	free(player);
@@ -235,11 +243,10 @@ void * listenToPress(void * value){
 	int pressed;
 	Point * p = calloc(1,sizeof(Point));
 	Point * aux = calloc(1,sizeof(Point));
-	while(1) /*el juego no arranca */{
+	while(1) {
 		changeMode(1);
 		while(!kbhit()){
 			pressed = getchar();
-			printf("Se presiono una teclaaa\n");
 			if(!gameStart){
 				if(pressed == ENTER && !ready){
 					sendData(c,marshalling((void *)&TRUE,BOOLEAN));
@@ -253,7 +260,6 @@ void * listenToPress(void * value){
 					printLobby();
 				}
 			}else{
-				printf("Se presiono y estoy en el juego\n");
 				if(pressed == DOWN_ARROW ){
 					p->x = 0;
 					p->y = 1;
@@ -272,14 +278,12 @@ void * listenToPress(void * value){
 					aux-> y = p-> y;
 					//solo se manda el punto nuevo si se cambia de direccion
 					if(aux->x != 0 || aux->y != 0){
-						printf("MANDO POINT\n");
 						sendData(c,marshalling(p,POINT));
 					}
 				}
 			}
 		}
 	}
-	printf("Returning listenToPress\n");
 	free(aux);
 	free(p);
 	changeMode(0);
@@ -287,7 +291,7 @@ void * listenToPress(void * value){
 }
 
 void connHandler(int sig){
-	printf("Me fui\n");
+	printf("Chau\n");
 	closeConn(c);
 	changeMode(0);
 	exit(0);

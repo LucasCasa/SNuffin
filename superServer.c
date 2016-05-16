@@ -10,7 +10,7 @@ int listenLocation;
 
 int main(int argc, const char* argv[]){
     connectLogServer();
-    logMsg("INIT SERVER");
+
     int joinServer = 0;
    /* map into memory */
    shmPointer = mmap(NULL,SH_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANON, -1, 0);
@@ -40,35 +40,16 @@ int main(int argc, const char* argv[]){
    fscanf(fp,"%d",&n);
    listenLocation = n;
 
-  /* EN UN FUTURO HAY QUE HACER ESTO BIEN, ESTO ES SOLO PARA TEST
-   */
-   //Esto es para probar que se cambia el valor en ambos procesos.
-   /*(ExistUserDB("kuyum") )?printf("SI existe Kuyum\n"):printf("NO kuyum\n");
-   (ExistUserDB("LALALAAAAA") )?printf("SI existe ALALA\n"):printf("NO LALA\n");
-   (ExistUserDB("lucas") )?printf("SI existe lucas\n"):printf("NO lucas\n");
-   (validPasswordDB("lucas","lucas") )?printf("FUNCIONAA\n"):printf("NO lucas\n");
-
-   printf("Score de Lucas: %d\n",getHighScoreDB("lucas"));
-   int aux = getHighScoreDB("lucas") + 1;
-   setHighscoreDB("lucas",aux);
-   printf("Nuevo Score de Lucas: %d\n",getHighScoreDB("lucas"));
-   */
    selfc = listenConnection(n); // PROXIMAMENTE LEO CONFIG PASO NUMERO
    StreamData * buffer = malloc(sizeof(StreamData));
    buffer->data = malloc(BUFFER_SIZE);
    while(1){
       Connection *new = acceptConnection(selfc);
-      logMsg("Nueva conexion");
+      printf("Nueva conexión");
       readData(new,buffer);
-      char* aux = malloc(BUFFER_SIZE);
-      sprintf(aux,"Recibi: %s",buffer->data);
-      logMsg(aux);
-
+      printf("Recibi: %s",buffer->data);
       unmarshServerId(buffer->data,&joinServer);
-
-      sprintf(aux,"Client wants to join server %d", joinServer);
-      logMsg(aux);
-      free(aux);
+      printf("Client wants to join server %d", joinServer);
       if(servers[joinServer] != 0){
          int newDirection = n + joinServer;
          StreamData * d = marshalling(&newDirection, SERVER_ID);
@@ -83,24 +64,14 @@ int main(int argc, const char* argv[]){
             initServer(n + joinServer);
             int newDirection = n + joinServer;
             StreamData *d = marshalling(&newDirection,SERVER_ID);
-            char* aux = malloc(BUFFER_SIZE);
-            sprintf(aux,"Envio data: %s", d->data);
-            logMsg(aux);
-            free(aux);
-            sendData(new,d); //HORRIBLE
+            sendData(new,d);
             free(d->data);
             free(d);
             lobby();
-            //startGame();
-            logMsg("vuelvo de init");
-            closeLogServer();
             return 0;
         }else{
          servers[joinServer] = child;
-         char* aux = malloc(BUFFER_SIZE);
-         sprintf(aux,"Server nuevo = %d",servers[joinServer]);
-         logMsg(aux);
-         free(aux);
+         printf("Server nuevo = %d",servers[joinServer]);
          pthread_t waitChild;
          pthread_create(&waitChild,NULL,waitForChild,&child);
       }
@@ -135,14 +106,12 @@ void * waitForChild(void* pid){
 void setDB(){
   int db = fork();
   if(db == 0){
-     printf("Hola soy el hijoDB\n");
     manageDataBase();
   }
-  printf("Soy el padre\n");
 }
 
 void connHandler(int sig){
-	printf("Me fui\n");
+	printf("Cerrando servidor\n");
 	closeConn(selfc);
 	exit(0);
 }

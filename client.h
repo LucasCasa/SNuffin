@@ -53,7 +53,8 @@ void printBoard(Board *b);
 void printPlayerColor(int pNum);
 
 void game();
-void startGame();
+int startGame();
+void gameOver(int);
 
 void connHandler(int sig);
 

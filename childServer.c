@@ -1,7 +1,7 @@
 #include "childServer.h"
 
 Client **clients;
-//SIN PROBLEMAS DE MEMORIA?
+
 int startGame = 0;
 
 void initServer(int serverNumber){
@@ -9,39 +9,34 @@ void initServer(int serverNumber){
    clients[0] = NULL;
    clients[1] = NULL;
    clients[2] = NULL;
-   clients[3] = NULL; //MAL
+   clients[3] = NULL;
 
   connectLogServer();
-  selfc = listenConnection(serverNumber); //cambiar cuando este sockets
+  logMsg("Initializing server");
+  selfc = listenConnection(serverNumber);
   pthread_t listenThread;
-  logMsg("Se crea thread startListening");
   pthread_create(&listenThread, NULL,listenNewClients, selfc);
 
 }
 
 void lobby(){
-   //threads LALALALA
 
-   while(!startGame){
-      logMsg("Arranco el select");
+   while(!startGame){;
       listenAndResolve(NULL);
    }
    initGame();
-
-   //select LALALALA
-   //Habria que crear una struct para saber cada cliente en que estado esta??? SIII
-   //NO se cuando empezar el juego LALALALA
-
 }
+
 void listenAndResolve(){
    int cliNum = listenToClients();
    if(cliNum != -1){
       resolveRequest(cliNum);
    }else{
-      printf("ERROR ON SELECT\n");
+      logError("Error in Select");
    }
 }
 void initGame(){
+  logMsg("Game starting");
    int finished = 0;
    pthread_t playerMovement;
    pthread_create(&playerMovement,NULL,listenToMovement,&finished);
@@ -61,7 +56,6 @@ void initGame(){
       }
    }
    board->numPl = nPlayers;
-   printf("Starting main loop\n");
    while(!finished){
      nanosleep(&timer,NULL);
      updateBoard(board);
@@ -79,6 +73,7 @@ void initGame(){
    }
 }
 int gameOver(){
+  logMsg("Game over");
    int total = 0;
    int lost = 0;
    for(int i = 0; i<MAX_PLAYERS;i++){
@@ -128,9 +123,7 @@ void resolveRequest(int nClient){
    res = readData(c,d);
    int expecting = clients[nClient]->expecting;
    if(!res){
-    printf("Calling disconnect\n");
     disconnect(nClient);
-    printf("Return from disconnect\n");
     return;
   }
    if(expecting == USER){
@@ -180,11 +173,10 @@ void resolveRequest(int nClient){
       Point p;
       res = unmarshPoint(d->data,&p);
       if(res){
-         printf("RECIBI UN MOVIMIENTOOO\n");
          updateMovementDirection(nClient,p);
       }
    }else{
-      fprintf(stderr, "ERROR: expecting not valid\n"); // aca tamnbien iria un messague queue de error
+      logError("Invalid expecting state");
    }
    free(d->data);
    free(d);
@@ -204,7 +196,7 @@ void checkGameStart(){
    }
 }
 void sendGameStart(){
-    printf("Sending game start\n");
+   logMsg("Notifying players about game start");
    for(int i = 0; i<MAX_PLAYERS;i++){
       if(clients[i] != NULL){
          clients[i]->state = PLAYING;
@@ -235,23 +227,20 @@ int validatePassword(StreamData * d,int nClient){
       free(d2);
       return res;
    }
-   //free(s);
    return -1;
 }
 int validateUser(StreamData * d, int nClient){
    char *s = malloc(d->size);
    int r = unmarshString(d->data,s);
    if(r == 0){
-
+      logWarning("Invalid String received");
       return -1;
    }
-   printf("Check if user exists %s\n",d->data );
+
    if(s != NULL){
       StreamData *d2;
       int e = ExistUserDB(s);
-      printf("Exists Equals %d\n",e );
       if(e){
-         printf("User exists\n");
          d2 = marshalling((void*) &TRUE,BOOLEAN);
          clients[nClient]->expecting = PASSWORD;
          clients[nClient]->score = getHighScoreDB(s);
@@ -274,7 +263,6 @@ int validateUser(StreamData * d, int nClient){
 
 
 int listenToClients(){
-  char * aux = calloc(128,1);
   int res = 0;
   fd_set cli;
   int maxFD = 0;
@@ -284,11 +272,7 @@ int listenToClients(){
            int clifd = clients[i]->con->fd;
            if(clifd>maxFD)
             maxFD = clifd;
-           /*sprintf(aux,"I am Listening to client: %d on FD: %d\n",i,clients[i]->con->fd);
-           logMsg(aux);*/
            FD_SET(clients[i]->con->fd,&cli);
-        }else{
-          // printf("Client %d is NULL\n",i );
         }
      }
 
@@ -296,25 +280,21 @@ int listenToClients(){
      res = select(maxFD+1,&cli,NULL,NULL,&tv);
      for(int i = 0; i<MAX_PLAYERS;i++){
         if(clients[i] != NULL && FD_ISSET(clients[i]->con->fd,&cli)){
-           printf("es el cliente %d\n",i);
-           free(aux);
-           return i; // o leo los datos??
+           return i;
         }
      }
   }
-  free(aux);
   return -1;
 }
 void*  listenNewClients(void* connection){
    int nPlayers = 0;
    int nextEmpty = 0;
-   logMsg("Escuchando nuevos players");
-   while(1){ // game don*t start
+   logMsg("Listening for new Players");
+   while(1){
 
       if(nPlayers < MAX_PLAYERS){
-         logMsg("Tengo espacio libre");
          Connection *new = acceptConnection(connection);
-         logMsg("NUEVO PLAYER WOOOO"); //alto spanglish
+         logMsg("New incoming connection"); //alto spanglish
          Client *c = malloc(sizeof(Client));
          c->con = new;
          c->state = LOGGING;
@@ -332,7 +312,6 @@ void*  listenNewClients(void* connection){
             nextEmpty = i;
          }
       }
-      //no hago free porque lo sigo usando
    }
    pthread_exit(NULL);
 }
@@ -355,7 +334,6 @@ void notifyNewPlayer(int nPlayer){
 /** Notifica al nuevo jugador de los jugadores que ya se encuentran en el lobby*/
 void notifyExistingPlayers(int nPlayer){
   char * aux = calloc(128,1);
-  logMsg("Notyfifying about existing players\n");
   Client *c = clients[nPlayer];
   for(int i = 0; i< MAX_PLAYERS;i++){
     if(clients[i] != NULL){
@@ -381,19 +359,16 @@ Player* CreatePlayerStruct(Client *c, int number){
 }
 
 void disconnect(int nClient){
+  logMsg("Player disconnecting");
   for(int i=0; i<MAX_PLAYERS; i++){
-    printf("Iterating player %d\n",i);
     if(i!=nClient && clients[i]!=NULL){
-      printf("Its not nClient\n");
       char * aux = calloc(10,1);
       sprintf(aux,"%d",nClient);
       sendData(clients[i]->con,marshalling(aux,STRING));
     }
   }
-  printf("After for\n");
   free(clients[nClient]->name);
   free(clients[nClient]->con);
   free(clients[nClient]);
-  printf("After frees\n");
   clients[nClient] = NULL;
 }
