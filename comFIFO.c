@@ -179,9 +179,14 @@ void receiveData(Connection* c, StreamData* b){
     if(a == 256){
       perror("ERROR REC");
     }
+    printf("Readed %d, String size %d\n",a,strlen(b->data));
+   //  for(int i = 0; i<a-2;i++){
+   //    if(b->data[i] == 0){
+   //       b->data[i] = '/';
+   // }
   //}
   //printf("Received\n");
   //printf("STRING: %s\n",b->data);
   //printf("SIZE: %d\n",a );
-  b->size = strlen(b->data);
+  b->size = a;
 }

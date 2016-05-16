@@ -4,13 +4,12 @@
 char ** split(char * source, int*amount, int size);
 void clearArr(char * arr,int size);
 
-char ** readBuffer;
+char ** readBuffer = NULL;
 int rBuffSize=0;
 int currentPos=0;
 
 void readData(Connection * conn, StreamData * sd){
     if(readBuffer==NULL){
-        free(readBuffer);
         printf("WAITING DATA\n");
         receiveData(conn,sd);
         printf("RECEIVE DATA: ");
@@ -21,18 +20,26 @@ void readData(Connection * conn, StreamData * sd){
         		printf("%c",sd->data[i]);
         }
         printf("\n");
-        readBuffer = split(sd->data,&rBuffSize, sd->size+1); // el char* data lo divide por los '\0' y los almacena en el readBuffer
+        printf("Size %d\n",sd->size );
+        readBuffer = split(sd->data,&rBuffSize, sd->size); // el char* data lo divide por los '\0' y los almacena en el readBuffer
         currentPos = 0;
     }
+    printf("rBuffSize=%d currentPos=%d\n",rBuffSize,currentPos );
     sd->size = strlen(readBuffer[currentPos]);
+
     memcpy(sd->data,readBuffer[currentPos],sd->size);
+
     currentPos++;
+
     if(currentPos == rBuffSize){
         for(int i=0; i<rBuffSize; i++){
             free(readBuffer[i]);
         }
+
         free(readBuffer);
+
         readBuffer = NULL;
+        currentPos = 0;
     }
 }
 
@@ -44,21 +51,23 @@ char ** split(char * source, int*amount, int size){
     char * aux = calloc(size,1);
     char ** res = malloc(BLOCK*sizeof(char*));
     for(int i=0; i<size; i++){
-        if(source[i]!='\0'){
+        if(source[i]!=0){
             aux[auxCounter++] = source[i];
         }else{
             if(totalStrings==resSize){
                 res = realloc(res,(sizeof(char*))*(totalStrings+BLOCK));
                 resSize = totalStrings+BLOCK;
             }
-            res[totalStrings] = calloc(auxCounter+1,1);
-            strcpy(res[totalStrings],aux);
+            res[totalStrings] = calloc(auxCounter+2,1);
+            memcpy(res[totalStrings],aux,auxCounter+1);
+            printf("%s\n",res[totalStrings]);
             clearArr(aux,size);
             totalStrings++;
             auxCounter = 0;
         }
     }
-    res = realloc(res,sizeof(char*)*totalStrings);
+    int s= sizeof(char*) * totalStrings;
+    res = realloc(res,s);
     *amount = totalStrings;
     return res;
 }
