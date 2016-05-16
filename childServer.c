@@ -195,8 +195,6 @@ void*  listenNewClients(void* connection){
          c->state = LOGGING;
          c->expecting = USER;
          clients[nextEmpty] = c;
-      }else{
-         logMsg("No tengo espacio libre");
       }
       nPlayers = 0;
       for(int i = 0; i<MAX_PLAYERS;i++){
