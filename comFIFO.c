@@ -10,7 +10,7 @@
 
 //SIN PROBLEMAS DE MEMORIA?
 
-#define BUFFER_SIZE 256
+#define BUFFER_SIZE 1024
 
 char* ADDR = "/tmp/server";
 char* addr1 = NULL;
